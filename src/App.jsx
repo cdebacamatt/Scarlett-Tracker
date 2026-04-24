@@ -221,6 +221,7 @@ function ScarlettAvatar(){return <div aria-label="Scarlett athlete portrait card
 
 function GlamHero({children,style={}}){return<div style={{...cs,padding:18,background:"radial-gradient(ellipse at 88% 8%,rgba(255,26,140,.24),transparent 42%),radial-gradient(ellipse at 5% 92%,rgba(0,229,204,.13),transparent 38%),radial-gradient(ellipse at 50% 50%,rgba(139,92,246,.08),transparent 65%),linear-gradient(160deg,rgba(40,18,78,.98),rgba(8,5,20,.99))",border:"1px solid rgba(255,255,255,.14)",boxShadow:"0 28px 70px rgba(0,0,0,.65),0 0 60px rgba(255,26,140,.07),inset 0 1px 0 rgba(255,255,255,.11)",...style}}><Sparkles/>{children}</div>;}
 function GlamButton({e,l,c,onClick}){return<button onClick={onClick} style={{background:`linear-gradient(155deg,${c}F2 0%,${c}AA 50%,${C.purple}CC 100%)`,border:"1px solid rgba(255,255,255,.20)",borderRadius:20,padding:"14px 6px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:5,fontFamily:"system-ui",boxShadow:`0 14px 36px ${c}44,inset 0 1px 0 rgba(255,255,255,.28)`,color:C.white,position:"relative",overflow:"hidden"}}><span style={{position:"absolute",inset:"0 0 55% 0",background:"linear-gradient(180deg,rgba(255,255,255,.25),transparent)"}}/><div style={{fontSize:22,position:"relative",filter:`drop-shadow(0 0 10px ${c}88)`}}>{e}</div><div style={{fontSize:9,fontWeight:900,textAlign:"center",position:"relative",letterSpacing:"0.3px"}}>{l}</div></button>;}
+function SubmitSpacer(){return <div style={{height:104,pointerEvents:"none"}}/>;}
 function MiniChart({color=C.pink}){return<div style={{height:24,display:"flex",alignItems:"end",gap:3}}>{[35,48,44,62,76].map((h,i)=><div key={i} style={{width:7,height:h/2,background:i===4?color:`${color}55`,borderRadius:5,boxShadow:i===4?`0 0 16px ${color}99`:"none",transition:"height .4s ease"}}/> )}</div>;}
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -546,7 +547,7 @@ export default function ScarlettTracker(){
         </div>
         <textarea value={gameForm.notes} onChange={e=>setGameForm(p=>({...p,notes:e.target.value}))} placeholder="How did the game go?" style={{...TXT,marginBottom:8}}/>
         <textarea value={gameForm.coachNote} onChange={e=>setGameForm(p=>({...p,coachNote:e.target.value}))} placeholder="Parent/coach note (optional)..." style={{...TXT,minHeight:50,marginBottom:10}}/>
-        <button onClick={logGame} style={{width:"100%",padding:12,background:C.coral,color:C.white,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Log Game ⭐</button>
+        <button onClick={logGame} style={{width:"100%",padding:14,background:C.coral,color:C.white,border:"none",borderRadius:12,fontWeight:900,cursor:"pointer",fontSize:15,fontFamily:"system-ui",boxShadow:`0 12px 26px ${C.coral}33`}}>Log Game ⭐</button><SubmitSpacer/>
       </div>
       {games.length>0&&<div style={cs}><CH e="📋" title="Game History" sub={`${games.length} games`}/>
         {games.slice(0,15).map(g=><div key={g.id} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
@@ -576,6 +577,7 @@ export default function ScarlettTracker(){
     const avgEffort=practices.length?Math.round(avgArr(practices.slice(0,10).map(p=>p.effort||0))*10)/10:0;
     const typeCounts=practices.reduce((acc,p)=>{acc[p.type]=(acc[p.type]||0)+1;return acc;},{});
     const maxCount=Math.max(...Object.values(typeCounts),1);
+    const fieldGrid={display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10,marginBottom:10};
     const logPractice=async()=>{
       const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...practiceForm};
       const np=[entry,...practices].slice(0,100);await savePrax(np);
@@ -595,21 +597,22 @@ export default function ScarlettTracker(){
           <div style={{height:7,background:C.navy,borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:C.purple,borderRadius:100,width:`${count/maxCount*100}%`,transition:"width .4s"}}/></div>
         </div>)}
       </div>}
-      <div style={cs}>
+      <div style={{...cs,paddingBottom:18}}>
         <CH e="➕" title="Log a Practice Session"/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+        <div style={fieldGrid}>
           <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>PRACTICE TYPE</div><select value={practiceForm.type} onChange={e=>setPracticeForm(p=>({...p,type:e.target.value}))} style={{...INP,appearance:"none"}}>{PRACTICE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DURATION (min)</div><input type="number" inputMode="numeric" min="0" placeholder="60" value={practiceForm.duration} onChange={e=>setPracticeForm(p=>({...p,duration:e.target.value}))} placeholder="e.g. 60" style={INP}/></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DURATION (minutes)</div><input type="number" inputMode="numeric" min="0" placeholder="60" value={practiceForm.duration} onChange={e=>setPracticeForm(p=>({...p,duration:e.target.value}))} style={INP}/></div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+        <div style={fieldGrid}>
           <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:6}}>EFFORT (1–5)</div><RD val={practiceForm.effort} max={5} col={C.orange} onSet={v=>setPracticeForm(p=>({...p,effort:v}))}/></div>
           <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:6}}>FOCUS (1–5)</div><RD val={practiceForm.focus} max={5} col={C.blue} onSet={v=>setPracticeForm(p=>({...p,focus:v}))}/></div>
         </div>
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>WHAT WORKED ✅</div><textarea value={practiceForm.whatWorked} onChange={e=>setPracticeForm(p=>({...p,whatWorked:e.target.value}))} placeholder="What felt easy or clicked today?" style={{...TXT,minHeight:50}}/></div>
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>WHAT WAS HARD 💪</div><textarea value={practiceForm.whatWasHard} onChange={e=>setPracticeForm(p=>({...p,whatWasHard:e.target.value}))} placeholder="What needs more work?" style={{...TXT,minHeight:50}}/></div>
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DRILLS COMPLETED</div><input value={practiceForm.drillsDone} onChange={e=>setPracticeForm(p=>({...p,drillsDone:e.target.value}))} placeholder="e.g. Cone weave, form shooting, slides" style={INP}/></div>
-        <textarea value={practiceForm.coachNote} onChange={e=>setPracticeForm(p=>({...p,coachNote:e.target.value}))} placeholder="Parent/coach note (optional)..." style={{...TXT,minHeight:50,marginBottom:10}}/>
-        <button onClick={logPractice} style={{width:"100%",padding:12,background:C.purple,color:C.white,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Log Practice ⭐</button>
+        <div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>WHAT WORKED ✅</div><textarea value={practiceForm.whatWorked} onChange={e=>setPracticeForm(p=>({...p,whatWorked:e.target.value}))} placeholder="What felt easy or clicked today?" style={{...TXT,minHeight:62}}/></div>
+        <div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>WHAT WAS HARD 💪</div><textarea value={practiceForm.whatWasHard} onChange={e=>setPracticeForm(p=>({...p,whatWasHard:e.target.value}))} placeholder="What needs more work?" style={{...TXT,minHeight:62}}/></div>
+        <div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DRILLS COMPLETED</div><input value={practiceForm.drillsDone} onChange={e=>setPracticeForm(p=>({...p,drillsDone:e.target.value}))} placeholder="e.g. Cone weave, form shooting, slides" style={INP}/></div>
+        <textarea value={practiceForm.coachNote} onChange={e=>setPracticeForm(p=>({...p,coachNote:e.target.value}))} placeholder="Parent/coach note (optional)..." style={{...TXT,minHeight:58,marginBottom:12}}/>
+        <button onClick={logPractice} style={{width:"100%",padding:14,background:C.purple,color:C.white,border:"none",borderRadius:12,fontWeight:900,cursor:"pointer",fontSize:15,fontFamily:"system-ui",boxShadow:`0 12px 26px ${C.purple}33`}}>Log Practice ⭐</button>
+        <SubmitSpacer/>
       </div>
       {practices.length>0&&<div style={cs}><CH e="📋" title="Practice History" sub={`${practices.length} sessions`}/>
         {practices.slice(0,15).map(p=><div key={p.id} style={{padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
@@ -631,7 +634,6 @@ export default function ScarlettTracker(){
       </div>}
     </div>;
   };
-
 
   // ── STYLE LOCKER ───────────────────────────────────────────────────────
   const Style=()=>{
@@ -1161,8 +1163,8 @@ export default function ScarlettTracker(){
           {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:900,fontSize:9,letterSpacing:"0.7px",color:tab===t.id?C.white:C.muted,padding:"8px 9px",border:`1px solid ${tab===t.id?"rgba(255,255,255,.20)":"rgba(255,255,255,.06)"}`,background:tab===t.id?glamGrad:"rgba(255,255,255,.045)",borderRadius:999,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui",boxShadow:tab===t.id?`0 0 18px ${C.pink}55`:"none"}}>{t.e} {t.label}</button>)}
         </div>
       </div>
-      <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"12px 12px calc(210px + env(safe-area-inset-bottom, 0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
-      <div style={{position:"fixed",left:"50%",bottom:"max(8px, env(safe-area-inset-bottom, 0px))",transform:editing?"translate(-50%, calc(125% + 24px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease, opacity .18s ease",width:"min(406px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,background:"rgba(12,0,25,.88)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"6px 7px calc(6px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
+      <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"12px 12px calc(270px + env(safe-area-inset-bottom, 0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
+      <div style={{position:"fixed",left:"50%",bottom:"max(8px, env(safe-area-inset-bottom, 0px))",transform:editing?"translate(-50%, calc(125% + 24px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease, opacity .18s ease",width:"min(392px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4,background:"rgba(12,0,25,.90)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:20,padding:"5px 6px calc(5px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
         {[["today","🏠","Home"],["goals","🎯","Goals"],["practice","＋","Log"],["progress","📈","Glow"],["style","👟","Style"]].map(([id,e,l])=><button key={id} onClick={()=>setTab(id)} style={{background:tab===id?`${C.pink}22`:"transparent",border:"none",borderRadius:15,color:tab===id?C.pink:C.muted,padding:"5px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:id==="practice"?22:17,lineHeight:1}}>{e}</div><div style={{fontSize:7,marginTop:2}}>{l}</div></button>)}
       </div>
     </div>
