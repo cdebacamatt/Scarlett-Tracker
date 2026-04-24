@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
-const C={bg:"#06040F",nav:"#0C0A1A",navy:"#0E0B1B",navy2:"#150F28",card:"#180D2C",card2:"#1E1238",border:"rgba(255,255,255,.12)",coral:"#FF3D7F",teal:"#00E5CC",purple:"#8B5CF6",gold:"#FFD700",green:"#22D97A",blue:"#4DA6FF",pink:"#FF1A8C",orange:"#FF7A2F",red:"#FF3D5A",white:"#FFFFFF",text:"#FFF0FF",muted:"#A89BC0",light:"#E8D5FF"};
+const C={bg:"#080612",nav:"#111021",navy:"#11101F",navy2:"#19162C",card:"#1D1830",card2:"#251D3F",border:"rgba(255,255,255,.13)",coral:"#FF6F9F",teal:"#2CE6D1",purple:"#9F7AEA",gold:"#FFD166",green:"#72EF9A",blue:"#78BDFB",pink:"#F85FC8",orange:"#FF9E57",red:"#FF647A",white:"#FFFFFF",text:"#FFF8FF",muted:"#B9AFCB",light:"#EFE7FF"};
 const TABS=[{id:"today",e:"🏠",label:"Today"},{id:"games",e:"🏀",label:"Games"},{id:"practice",e:"💪",label:"Practice"},{id:"style",e:"👟",label:"Style"},{id:"routine",e:"✨",label:"Routine"},{id:"sleep",e:"🌙",label:"Sleep"},{id:"skills",e:"📊",label:"Skills"},{id:"school",e:"📚",label:"School"},{id:"coach",e:"🤖",label:"Coach"},{id:"goals",e:"🎯",label:"Goals"},{id:"progress",e:"📈",label:"Glow Up"},{id:"settings",e:"⚙️",label:"Setup"}];
 const DEF_VITALS={energy:0,mood:0};
 const DEF_HABITS=[{id:"h1",time:"Morning",label:"Drink water first thing",group:"MORNING"},{id:"h2",time:"Morning",label:"Make my bed",group:"MORNING"},{id:"h3",time:"After School",label:"Homework before screens",group:"SCHOOL"},{id:"h4",time:"Evening",label:"Basketball practice or drills",group:"BASKETBALL"},{id:"h5",time:"Night",label:"Read for 20 minutes",group:"WIND DOWN"},{id:"h6",time:"Night",label:"In bed by 9:00 PM",group:"WIND DOWN"}];
@@ -59,19 +59,8 @@ const daysAgo=d=>{try{return Math.round((Date.now()-new Date(d+"T12:00:00"))/864
 const gpaCalc=subs=>{const v=Object.values(subs).map(g=>GRADE_MAP[g]||0);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):"—";};
 const pct=(n,d)=>d?Math.round(n/d*100):0;
 
-async function sg(k){
-  try{
-    const raw=localStorage.getItem(k);
-    return raw?JSON.parse(raw):null;
-  }catch{
-    return null;
-  }
-}
-async function ss(k,v){
-  try{
-    localStorage.setItem(k,JSON.stringify(v));
-  }catch{}
-}
+async function sg(k){try{if(window.storage){const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}return null;}catch{return null;}}
+async function ss(k,v){try{if(window.storage)await window.storage.set(k,JSON.stringify(v));}catch{}}
 const emptyDaily=()=>({c:{},w:0,n:"",vitals:clone(DEF_VITALS)});
 
 // ── COACH ENGINE ──────────────────────────────────────────────────────────
@@ -117,62 +106,81 @@ function generateInsights(profile,games,practices,skills,subjects,sleepEntries,v
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────
-const cs={background:"linear-gradient(145deg,rgba(32,14,62,.97),rgba(10,5,22,.99))",borderRadius:20,border:"1px solid rgba(255,255,255,.11)",padding:16,marginBottom:14,boxShadow:"0 22px 55px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(0,0,0,.3)",position:"relative",overflow:"hidden",backdropFilter:"blur(18px)"};
-const tt={fontWeight:900,fontSize:10,letterSpacing:"2px",color:"rgba(255,255,255,.65)",textTransform:"uppercase",marginBottom:2};
+const cs={background:"linear-gradient(145deg,rgba(49,20,82,.92),rgba(18,7,35,.96))",borderRadius:18,border:`1px solid ${C.border}`,padding:16,marginBottom:14,boxShadow:"0 16px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06)",position:"relative",overflow:"hidden",backdropFilter:"blur(14px)"};
+const tt={fontWeight:950,fontSize:11,letterSpacing:"1.7px",color:C.text,textTransform:"uppercase",marginBottom:1};
 const ts={fontSize:11,color:C.muted};
 const hd={display:"flex",alignItems:"center",gap:10,marginBottom:12};
-const INP={width:"100%",background:"rgba(4,2,12,.72)",border:"1px solid rgba(255,255,255,.12)",borderRadius:14,padding:"11px 14px",color:C.text,fontSize:13,outline:"none",fontFamily:"system-ui",boxSizing:"border-box",boxShadow:"inset 0 2px 8px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.04)"};
+const INP={width:"100%",background:"rgba(7,2,18,.62)",border:`1px solid ${C.border}`,borderRadius:12,padding:"10px 12px",color:C.text,fontSize:13,outline:"none",fontFamily:"system-ui",boxSizing:"border-box",boxShadow:"inset 0 1px 0 rgba(255,255,255,.05)"};
 const TXT={...INP,minHeight:74,resize:"vertical"};
-const glamGrad=`linear-gradient(135deg,${C.pink} 0%,${C.purple} 55%,${C.teal} 100%)`;
+const glamGrad=`linear-gradient(135deg,${C.pink},${C.purple} 50%,${C.teal})`;
 const hotGrad=`linear-gradient(135deg,${C.orange},${C.pink} 55%,${C.purple})`;
-const glass={background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.12)",boxShadow:"inset 0 1px 0 rgba(255,255,255,.11),0 18px 42px rgba(0,0,0,.4)"};
-function CH({e,title,sub}){return<div style={hd}><div style={{fontSize:18,filter:"drop-shadow(0 0 14px rgba(255,26,140,.55))"}}>{e}</div><div><div style={tt}>{title}</div>{sub&&<div style={ts}>{sub}</div>}</div></div>;}
-function RD({val,max=5,col,onSet}){return<div style={{display:"flex",gap:7}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:32,height:32,borderRadius:10,background:i<val?`linear-gradient(145deg,${col},${C.pink})`:"rgba(255,255,255,.05)",border:`1.5px solid ${i<val?col:"rgba(255,255,255,.12)"}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 22px ${col}66,inset 0 1px 0 rgba(255,255,255,.3)`:"inset 0 1px 0 rgba(255,255,255,.06)",transition:"all .18s ease"}}><span style={{fontSize:10,fontWeight:900,color:i<val?C.white:"rgba(255,255,255,.3)"}}>{i+1}</span></div>)}</div>;}
-function SBox({value,label,color,sub}){return<div style={{...glass,borderRadius:18,padding:13,textAlign:"center",borderTop:`2px solid ${color}`,position:"relative",overflow:"hidden"}}><div style={{position:"absolute",top:"-20%",right:"-10%",width:70,height:70,borderRadius:"50%",background:`${color}33`,filter:"blur(14px)"}}/><div style={{fontWeight:900,fontSize:22,color,lineHeight:1,textShadow:`0 0 28px ${color}88`,position:"relative",letterSpacing:"-0.5px"}}>{value}</div><div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,.65)",marginTop:5,position:"relative",letterSpacing:"0.5px"}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,marginTop:1,position:"relative"}}>{sub}</div>}</div>;}
-function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return<div style={{marginBottom:14}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}><span style={{fontSize:12,fontWeight:700,color:"rgba(255,255,255,.9)"}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}25`,color:col,fontSize:9,fontWeight:800,padding:"2px 8px",borderRadius:6,border:`1px solid ${col}44`}}>{level}</span><span style={{fontSize:13,fontWeight:900,color:col}}>{val}%</span></div></div><div style={{height:9,background:"rgba(0,0,0,.4)",borderRadius:100,overflow:"hidden",boxShadow:"inset 0 2px 4px rgba(0,0,0,.4)"}}><div style={{height:"100%",background:`linear-gradient(90deg,${col}cc,${col})`,borderRadius:100,width:`${val}%`,transition:"width .4s ease",boxShadow:`0 0 18px ${col}66`}}/></div></div>;}
+const glass={background:"rgba(255,255,255,.075)",border:`1px solid ${C.border}`,boxShadow:"inset 0 1px 0 rgba(255,255,255,.08),0 12px 28px rgba(0,0,0,.25)"};
+function CH({e,title,sub}){return <div style={hd}><div style={{fontSize:18,filter:"drop-shadow(0 0 10px rgba(255,95,210,.35))"}}>{e}</div><div><div style={tt}>{title}</div>{sub&&<div style={ts}>{sub}</div>}</div></div>;}
+function RD({val,max=5,col,onSet}){return <div style={{display:"flex",gap:6}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:30,height:30,borderRadius:10,background:i<val?`linear-gradient(135deg,${col},${C.pink})`:`${col}18`,border:`1px solid ${i<val?col:`${col}44`}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 18px ${col}55`:"none",transition:"all .18s ease"}}><span style={{fontSize:9,fontWeight:900,color:i<val?C.white:`${col}90`}}>{i+1}</span></div>)}</div>;}
+function SBox({value,label,color,sub}){return <div style={{...glass,borderRadius:16,padding:12,textAlign:"center",borderTop:`3px solid ${color}`,position:"relative",overflow:"hidden"}}><div style={{position:"absolute",inset:"-30% -20% auto auto",width:70,height:70,borderRadius:"50%",background:`${color}28`,filter:"blur(8px)"}}/><div style={{fontWeight:950,fontSize:22,color,lineHeight:1,textShadow:`0 0 20px ${color}55`,position:"relative"}}>{value}</div><div style={{fontSize:10,fontWeight:850,color:C.light,marginTop:4,position:"relative"}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,position:"relative"}}>{sub}</div>}</div>;}
+function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return <div style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,fontWeight:700,color:C.text}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}22`,color:col,fontSize:9,fontWeight:800,padding:"1px 7px",borderRadius:4}}>{level}</span><span style={{fontSize:12,fontWeight:900,color:col}}>{val}%</span></div></div><div style={{height:8,background:C.navy,borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:col,borderRadius:100,width:`${val}%`,transition:"width .4s ease"}}/></div></div>;}
 
-function Sparkles(){return<>
+function Sparkles(){return <>
   <div style={{position:"absolute",top:10,right:18,color:C.gold,fontSize:14,opacity:.9}}>✦</div>
   <div style={{position:"absolute",top:36,right:68,color:C.pink,fontSize:10,opacity:.75}}>✧</div>
   <div style={{position:"absolute",bottom:18,left:18,color:C.teal,fontSize:10,opacity:.7}}>✦</div>
 </>;}
-function ScarlettAvatar(){return<div aria-label="Scarlett profile card" style={{position:"relative",width:132,height:146,flexShrink:0}}>
-  <div style={{position:"absolute",inset:0,borderRadius:26,background:"linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.035))",border:"1px solid rgba(255,255,255,.16)",boxShadow:"0 18px 46px rgba(0,0,0,.34),0 0 28px rgba(248,95,200,.18)",overflow:"hidden"}}/>
-  <div style={{position:"absolute",left:8,right:8,top:8,height:86,borderRadius:22,background:"radial-gradient(circle at 50% 28%,rgba(255,209,102,.30),transparent 28%),linear-gradient(145deg,#3B245E,#160D29)",overflow:"hidden"}}>
-    <div style={{position:"absolute",left:35,top:8,width:55,height:62,borderRadius:"34px 34px 28px 28px",background:"linear-gradient(180deg,#A8794E,#7A4C2E)",boxShadow:"0 12px 18px rgba(0,0,0,.35)"}}/>
-    <div style={{position:"absolute",left:42,top:24,width:42,height:45,borderRadius:"44% 44% 50% 50%",background:"linear-gradient(180deg,#F4DDC9,#E8BEA3)",border:"1px solid rgba(255,255,255,.35)"}}/>
-    <div style={{position:"absolute",left:38,top:20,width:50,height:18,borderRadius:"20px 20px 9px 9px",background:"linear-gradient(180deg,#B8895B,#875936)"}}/>
-    <div style={{position:"absolute",left:40,top:27,width:47,height:6,borderRadius:99,background:`linear-gradient(90deg,${C.pink},${C.purple})`,boxShadow:`0 0 12px ${C.pink}77`}}/>
-    <div style={{position:"absolute",left:50,top:42,width:5,height:5,borderRadius:"50%",background:"#513829"}}/>
-    <div style={{position:"absolute",left:71,top:42,width:5,height:5,borderRadius:"50%",background:"#513829"}}/>
-    <div style={{position:"absolute",left:58,top:56,width:13,height:6,borderBottom:"2px solid #C9708E",borderRadius:"0 0 12px 12px"}}/>
-    <div style={{position:"absolute",left:31,top:67,width:67,height:36,borderRadius:"20px 20px 12px 12px",background:"linear-gradient(135deg,#2E2149,#F85FC8 75%)",border:"1px solid rgba(255,255,255,.18)"}}>
-      <div style={{position:"absolute",left:12,top:10,fontSize:12,fontWeight:900,color:C.white}}>SC</div>
-      <div style={{position:"absolute",right:10,top:9,fontSize:13,fontWeight:900,color:C.gold}}>23</div>
+function ScarlettAvatar(){
+  return <div aria-label="Scarlett athlete profile" style={{position:"relative",width:128,height:148,flexShrink:0}}>
+    {/* Card shell */}
+    <div style={{position:"absolute",inset:0,borderRadius:24,background:"linear-gradient(145deg,#1A0A30,#0D0520)",border:"1px solid rgba(255,255,255,.18)",boxShadow:"0 20px 50px rgba(0,0,0,.5),0 0 30px rgba(255,26,140,.15)",overflow:"hidden"}}>
+      {/* Background court texture lines */}
+      <div style={{position:"absolute",inset:0,opacity:.07}}>
+        {[0,1,2,3,4].map(i=><div key={i} style={{position:"absolute",left:0,right:0,top:`${i*28}px`,height:"1px",background:"white"}}/>)}
+        <div style={{position:"absolute",left:"50%",top:0,bottom:0,width:"1px",background:"white"}}/>
+        <div style={{position:"absolute",left:"15%",top:"25%",width:"70%",height:"50%",borderRadius:"50%",border:"1px solid white"}}/>
+      </div>
+      {/* Top pink glow */}
+      <div style={{position:"absolute",top:-20,left:-10,width:80,height:80,borderRadius:"50%",background:"radial-gradient(circle,rgba(255,26,140,.35),transparent 70%)"}}/>
+      {/* Gold crown + jersey number */}
+      <div style={{position:"absolute",top:10,right:12,fontSize:16,lineHeight:1}}>👑</div>
+      {/* Big jersey number */}
+      <div style={{position:"absolute",left:0,right:0,top:14,textAlign:"center"}}>
+        <div style={{fontSize:58,fontWeight:900,color:"rgba(255,255,255,.06)",lineHeight:1,letterSpacing:"-4px",userSelect:"none"}}>10</div>
+      </div>
+      {/* Profile circle */}
+      <div style={{position:"absolute",left:"50%",top:20,transform:"translateX(-50%)",width:56,height:56,borderRadius:"50%",background:"linear-gradient(145deg,#4B2067,#7B1FA2)",border:"2.5px solid rgba(255,26,140,.7)",boxShadow:"0 0 20px rgba(255,26,140,.4)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <div style={{fontSize:22,fontWeight:900,color:"white",letterSpacing:"-1px"}}>SC</div>
+      </div>
+      {/* Basketball */}
+      <div style={{position:"absolute",right:10,top:22,width:24,height:24,borderRadius:"50%",background:"radial-gradient(circle at 35% 30%,#FFB06A,#B45A22 70%)",boxShadow:"0 0 12px rgba(255,122,47,.5)"}}>
+        <div style={{position:"absolute",inset:4,borderLeft:"1.5px solid rgba(60,20,0,.5)",borderRight:"1.5px solid rgba(60,20,0,.5)",borderRadius:"50%"}}/>
+        <div style={{position:"absolute",left:2,right:2,top:11,borderTop:"1.5px solid rgba(60,20,0,.5)"}}/>
+      </div>
+      {/* Name */}
+      <div style={{position:"absolute",left:0,right:0,top:80,textAlign:"center"}}>
+        <div style={{fontSize:13,fontWeight:900,color:"white",letterSpacing:".5px"}}>SCARLETT</div>
+        <div style={{fontSize:8,fontWeight:800,color:"rgba(255,215,0,.8)",letterSpacing:"2px",marginTop:2}}>ATHLETE</div>
+      </div>
+      {/* Stats chips */}
+      <div style={{position:"absolute",left:8,right:8,bottom:10,display:"flex",gap:5}}>
+        <div style={{flex:1,background:"rgba(255,26,140,.25)",border:"1px solid rgba(255,26,140,.5)",borderRadius:8,padding:"5px 2px",textAlign:"center"}}>
+          <div style={{fontSize:7,fontWeight:900,color:"rgba(255,26,140,1)",letterSpacing:".5px"}}>HOOPS</div>
+        </div>
+        <div style={{flex:1,background:"rgba(0,229,204,.2)",border:"1px solid rgba(0,229,204,.5)",borderRadius:8,padding:"5px 2px",textAlign:"center"}}>
+          <div style={{fontSize:7,fontWeight:900,color:"rgba(0,229,204,1)",letterSpacing:".5px"}}>STYLE</div>
+        </div>
+        <div style={{flex:1,background:"rgba(255,215,0,.2)",border:"1px solid rgba(255,215,0,.5)",borderRadius:8,padding:"5px 2px",textAlign:"center"}}>
+          <div style={{fontSize:7,fontWeight:900,color:"rgba(255,215,0,1)",letterSpacing:".5px"}}>GRADE</div>
+        </div>
+      </div>
+      {/* Bottom pink shimmer */}
+      <div style={{position:"absolute",bottom:-15,right:-10,width:70,height:70,borderRadius:"50%",background:"radial-gradient(circle,rgba(139,92,246,.3),transparent 70%)"}}/>
     </div>
-    <div style={{position:"absolute",right:9,bottom:8,width:36,height:36,borderRadius:"50%",background:"radial-gradient(circle at 30% 25%,#FFB06A,#B45A22 68%)",boxShadow:"0 0 18px rgba(255,158,87,.45)"}}>
-      <div style={{position:"absolute",inset:6,borderLeft:"1.5px solid rgba(74,28,8,.55)",borderRight:"1.5px solid rgba(74,28,8,.55)",borderRadius:"50%"}}/>
-      <div style={{position:"absolute",left:3,right:3,top:17,borderTop:"1.5px solid rgba(74,28,8,.55)"}}/>
-    </div>
-  </div>
-  <div style={{position:"absolute",left:13,right:13,bottom:10}}>
-    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginBottom:6}}>
-      <div style={{fontSize:9,fontWeight:900,letterSpacing:"1px",color:C.gold}}>ATHLETE MODE</div>
-      <div style={{fontSize:13}}>✨</div>
-    </div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
-      <div style={{background:"rgba(255,255,255,.08)",border:"1px solid rgba(255,255,255,.12)",borderRadius:10,padding:"5px 4px",fontSize:8,fontWeight:900,color:C.light,textAlign:"center"}}>HOOPS</div>
-      <div style={{background:"rgba(255,255,255,.08)",border:"1px solid rgba(255,255,255,.12)",borderRadius:10,padding:"5px 4px",fontSize:8,fontWeight:900,color:C.light,textAlign:"center"}}>STYLE</div>
-    </div>
-  </div>
-</div>;}
+  </div>;
+}
 
-function GlamHero({children,style={}}){return<div style={{...cs,padding:18,background:"radial-gradient(ellipse at 88% 8%,rgba(255,26,140,.24),transparent 42%),radial-gradient(ellipse at 5% 92%,rgba(0,229,204,.13),transparent 38%),radial-gradient(ellipse at 50% 50%,rgba(139,92,246,.08),transparent 65%),linear-gradient(160deg,rgba(40,18,78,.98),rgba(8,5,20,.99))",border:"1px solid rgba(255,255,255,.14)",boxShadow:"0 28px 70px rgba(0,0,0,.65),0 0 60px rgba(255,26,140,.07),inset 0 1px 0 rgba(255,255,255,.11)",...style}}><Sparkles/>{children}</div>;}
-function GlamButton({e,l,c,onClick}){return<button onClick={onClick} style={{background:`linear-gradient(155deg,${c}F2 0%,${c}AA 50%,${C.purple}CC 100%)`,border:"1px solid rgba(255,255,255,.20)",borderRadius:20,padding:"14px 6px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:5,fontFamily:"system-ui",boxShadow:`0 14px 36px ${c}44,inset 0 1px 0 rgba(255,255,255,.28)`,color:C.white,position:"relative",overflow:"hidden"}}><span style={{position:"absolute",inset:"0 0 55% 0",background:"linear-gradient(180deg,rgba(255,255,255,.25),transparent)"}}/><div style={{fontSize:22,position:"relative",filter:`drop-shadow(0 0 10px ${c}88)`}}>{e}</div><div style={{fontSize:9,fontWeight:900,textAlign:"center",position:"relative",letterSpacing:"0.3px"}}>{l}</div></button>;}
-function MiniChart({color=C.pink}){return<div style={{height:24,display:"flex",alignItems:"end",gap:3}}>{[35,48,44,62,76].map((h,i)=><div key={i} style={{width:7,height:h/2,background:i===4?color:`${color}55`,borderRadius:5,boxShadow:i===4?`0 0 16px ${color}99`:"none",transition:"height .4s ease"}}/> )}</div>;}
+function GlamHero({children,style={}}){return <div style={{...cs,padding:18,background:"radial-gradient(circle at 80% 10%,rgba(248,95,200,.20),transparent 36%),radial-gradient(circle at 10% 0%,rgba(44,230,209,.10),transparent 30%),linear-gradient(145deg,rgba(38,30,64,.96),rgba(14,10,28,.98))",border:"1px solid rgba(255,255,255,.15)",boxShadow:"0 16px 42px rgba(0,0,0,.42),0 0 36px rgba(248,95,200,.08)",...style}}><Sparkles/>{children}</div>;}
+function GlamButton({e,l,c,onClick}){return <button onClick={onClick} style={{background:`linear-gradient(135deg,${c}EE,${C.purple}DD)`,border:"1px solid rgba(255,255,255,.22)",borderRadius:18,padding:"13px 6px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,fontFamily:"system-ui",boxShadow:`0 12px 28px ${c}30`,color:C.white,position:"relative",overflow:"hidden"}}><span style={{position:"absolute",inset:"0 0 auto 0",height:"45%",background:"linear-gradient(180deg,rgba(255,255,255,.22),transparent)"}}/><div style={{fontSize:23,position:"relative"}}>{e}</div><div style={{fontSize:9,fontWeight:950,textAlign:"center",position:"relative"}}>{l}</div></button>;}
+function MiniChart({color=C.pink}){return <div style={{height:22,display:"flex",alignItems:"end",gap:3}}>{[35,48,44,62,76].map((h,i)=><div key={i} style={{width:7,height:h/2,background:i===4?color:`${color}66`,borderRadius:4,boxShadow:i===4?`0 0 12px ${color}77`:"none"}}/> )}</div>;}
 
 // ══════════════════════════════════════════════════════════════════════════
-function RingChart({val,col,label,size=54}){const r=size/2-6,c=2*Math.PI*r,d=c-(val/100)*c;const cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}88)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(0,0,0,.3)" stroke="rgba(255,255,255,.1)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
+function RingChart({val,col,label,size=54}){const r=size/2-6,c=2*Math.PI*r,d=c-(val/100)*c;const cx=size/2,cy=size/2;return <svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}88)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(0,0,0,.3)" stroke="rgba(255,255,255,.1)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
 
 export default function ScarlettTracker(){
   const[loaded,setLoaded]=useState(false);
@@ -294,60 +302,63 @@ export default function ScarlettTracker(){
     const activeGoal=goals.find(g=>!g.done);
     const recentDays=Object.keys(dailyHist).sort((a,b)=>b.localeCompare(a)).slice(0,7);
     const groups=allH.reduce((acc,h)=>{if(!acc[h.group])acc[h.group]=[];acc[h.group].push(h);return acc;},{});
-    return<div>
+    return <div>
       {/* Sporty-glam hero */}
       <GlamHero>
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:14}}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:11,color:C.gold,fontWeight:900,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:4}}>Plan · Practice · Glow · Repeat 👑</div>
-            <div style={{fontWeight:900,fontSize:23,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{profile.name}</span> ✨</div>
-            <div style={{fontSize:11,color:C.light,lineHeight:1.5,marginTop:7}}>You've got big goals. Let's make today count.</div>
+            <div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:4}}>Train · Style · Glow · Repeat</div>
+            <div style={{fontWeight:950,fontSize:24,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span> ✨</div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.5,marginTop:7}}>Your goals, your style, your game — all in one place.</div>
           </div>
           <ScarlettAvatar/>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1.05fr .95fr",gap:10,marginBottom:10}}>
-          <div style={{...glass,borderRadius:20,padding:15,background:"linear-gradient(145deg,rgba(255,26,140,.20),rgba(139,92,246,.16))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)"}}>
-            <div style={{fontSize:9,color:C.pink,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>TODAY’S VIBE</div>
+          <div style={{...glass,borderRadius:18,padding:14,background:"linear-gradient(145deg,rgba(255,95,210,.16),rgba(183,108,255,.12))"}}>
+            <div style={{fontSize:9,color:C.pink,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>TODAY’S VIBE</div>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <svg width={72} height={72} style={{flexShrink:0,filter:`drop-shadow(0 0 16px ${readiness.level.col}77)`}}>
-                <circle cx={36} cy={36} r={30} fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.09)" strokeWidth={7}/>
-                <circle cx={36} cy={36} r={30} fill="none" stroke={readiness.level.col} strokeWidth={7} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dash} transform="rotate(-90 36 36)" style={{transition:"all .6s cubic-bezier(.4,0,.2,1)"}}/>
-                <text x={36} y={32} textAnchor="middle" fill="white" fontSize={displayVal.length>2?14:18} fontWeight={900} fontFamily="system-ui">{displayVal}</text>
-                <text x={36} y={47} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?6:7} fontWeight={900} fontFamily="system-ui">{readiness.level.label}</text>
+              <svg width={62} height={62} style={{flexShrink:0}}>
+                <circle cx={31} cy={31} r={25} fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.13)" strokeWidth={6}/>
+                <circle cx={31} cy={31} r={25} fill="none" stroke={readiness.level.col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dash} transform="rotate(-90 31 31)" style={{transition:"all .5s ease",filter:`drop-shadow(0 0 9px ${readiness.level.col})`}}/>
+                <text x={31} y={28} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?14:17} fontWeight={950} fontFamily="system-ui">{displayVal}</text>
+                <text x={31} y={42} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?6:7} fontWeight={950} fontFamily="system-ui">{readiness.level.label}</text>
               </svg>
               <div style={{minWidth:0}}>
-                <div style={{fontSize:16,fontWeight:900,color:readiness.level.col,textShadow:`0 0 24px ${readiness.level.col}88`,lineHeight:1,marginBottom:3}}>{readiness.level.label}</div>
+                <div style={{fontSize:17,fontWeight:950,color:readiness.level.col,textShadow:`0 0 18px ${readiness.level.col}55`}}>{readiness.level.label}</div>
                 <div style={{fontSize:10,color:C.light,lineHeight:1.4,marginTop:2}}>{mod.note}</div>
               </div>
             </div>
             <div style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:6,background:"rgba(0,0,0,.22)",border:"1px solid rgba(255,255,255,.12)",borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.gold}}>Stay locked in ⚡</div>
           </div>
-          <div style={{...glass,borderRadius:20,padding:15,background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,26,140,.14))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)"}}>
-            <div style={{fontSize:8,color:C.gold,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:4}}>STARS EARNED</div>
-            <div style={{fontSize:46,fontWeight:900,color:C.gold,lineHeight:1,textShadow:"0 0 32px rgba(255,215,0,.9)",letterSpacing:"-2px"}}>⭐ {stars}</div>
-            <div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:4}}>Games · Goals · Practice · Wins</div>
+          <div style={{...glass,borderRadius:18,padding:14,background:"linear-gradient(145deg,rgba(255,216,107,.18),rgba(255,95,210,.10))"}}>
+            <div style={{fontSize:9,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase"}}>STARS EARNED</div>
+            <div style={{fontSize:42,fontWeight:950,color:C.gold,lineHeight:1,textShadow:`0 0 20px ${C.gold}66`}}>⭐ {stars}</div>
+            <div style={{fontSize:10,color:C.light}}>Badges, goals, practices & wins</div>
           </div>
         </div>
 
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(255,61,127,.24),rgba(90,0,110,.50))"}}>
-            <div style={{fontSize:8,color:C.coral,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}}>HOOPS MISSION 🏀</div>
-            <div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={54}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>Today's goal</div></div></div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+          <div style={{...glass,borderRadius:16,padding:12,background:"linear-gradient(145deg,rgba(255,107,154,.20),rgba(75,16,98,.42))"}}>
+            <div style={{fontSize:9,color:C.coral,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>HOOPS MISSION 🏀</div>
+            <div style={{fontSize:14,fontWeight:950,color:C.text,marginTop:4}}>{weakestSkill[0]}</div>
+            <div style={{height:8,background:"rgba(0,0,0,.25)",borderRadius:99,overflow:"hidden",marginTop:8}}><div style={{width:`${weakestSkill[1]}%`,height:"100%",borderRadius:99,background:`linear-gradient(90deg,${C.coral},${C.gold})`,boxShadow:`0 0 14px ${C.coral}77`}}/></div>
+            <div style={{fontSize:10,color:C.light,marginTop:5}}>{weakestSkill[1]}% · today’s level-up</div>
           </div>
-          <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(0,229,204,.22),rgba(16,60,100,.52))"}}>
-            <div style={{fontSize:8,color:C.teal,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}}>SCHOOL FOCUS 📚</div>
-            {worstSubj?<div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={54}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{worstSubj[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>15 min tonight</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><div style={{fontSize:28}}>🌟</div><div><div style={{fontSize:12,fontWeight:900,color:C.green}}>All A's & B's!</div><div style={{fontSize:9,color:"rgba(255,255,255,.5)"}}>Keep it up!</div></div></div>}
+          <div style={{...glass,borderRadius:16,padding:12,background:"linear-gradient(145deg,rgba(36,242,210,.18),rgba(25,16,74,.42))"}}>
+            <div style={{fontSize:9,color:C.teal,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>SCHOOL FOCUS 📚</div>
+            <div style={{fontSize:14,fontWeight:950,color:C.text,marginTop:4}}>{worstSubj?worstSubj[0]:"All grades solid"}</div>
+            <div style={{fontSize:10,color:C.light,lineHeight:1.5,marginTop:6}}>{worstSubj?"15 min review tonight":"Keep homework-before-screens going"}</div>
           </div>
-          <button onClick={()=>setTab("style")} style={{...glass,textAlign:"left",borderRadius:20,padding:14,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,26,140,.26),rgba(255,122,47,.18))",fontFamily:"system-ui",boxShadow:"inset 0 1px 0 rgba(255,255,255,.13)"}}>
-            <div style={{fontSize:8,color:C.pink,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>FIT CHECK 👟</div>
-            <div style={{fontSize:13,fontWeight:900,color:"white",marginBottom:8}}>Game-Day Drip</div>
-            <div style={{display:"flex",gap:5}}>{["10","👟","🎒","🎠"].map((x,i)=><div key={i} style={{width:28,height:28,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.18)",fontSize:12,fontWeight:900,color:C.white}}>{x}</div>)}</div>
+          <button onClick={()=>setTab("style")} style={{...glass,textAlign:"left",borderRadius:16,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,95,210,.22),rgba(255,154,77,.12))",fontFamily:"system-ui"}}>
+            <div style={{fontSize:9,color:C.pink,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>FIT CHECK 👟</div>
+            <div style={{fontSize:14,fontWeight:950,color:C.text,marginTop:4}}>Game-Day Fit</div>
+            <div style={{display:"flex",gap:5,marginTop:8}}>{["10","👟","🎒"].map((x,i)=><div key={i} style={{width:32,height:32,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.14)",fontSize:13,fontWeight:950,color:C.white}}>{x}</div>)}</div>
           </button>
-          <button onClick={()=>setTab("routine")} style={{...glass,textAlign:"left",borderRadius:20,padding:14,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,26,140,.16))",fontFamily:"system-ui",boxShadow:"inset 0 1px 0 rgba(255,255,255,.13)"}}>
-            <div style={{fontSize:8,color:C.gold,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:4}}>ROUTINE STREAK 🔥</div>
-            <div style={{display:"flex",alignItems:"baseline",gap:4}}><div style={{fontSize:44,fontWeight:900,color:C.white,lineHeight:1,textShadow:"0 0 28px rgba(255,215,0,.8)",letterSpacing:"-2px"}}>{Object.keys(routineHist).length}</div><div style={{fontSize:11,color:"rgba(255,255,255,.55)"}}>days!</div></div>
-            <div style={{display:"flex",gap:3,marginTop:8}}>{["M","T","W","T","F","S","S"].map((d,i)=>{const act=i<Math.min((Object.keys(routineHist).length%7)||7,7);return<div key={i} style={{width:17,height:17,borderRadius:"50%",background:act?`linear-gradient(135deg,${C.gold},${C.orange})`:"rgba(255,255,255,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7,fontWeight:900,color:act?"rgba(0,0,0,.8)":"rgba(255,255,255,.3)"}}>{d}</div>;})}</div>
+          <button onClick={()=>setTab("routine")} style={{...glass,textAlign:"left",borderRadius:16,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,216,107,.18),rgba(255,95,210,.12))",fontFamily:"system-ui"}}>
+            <div style={{fontSize:9,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>GLOW STREAK 🔥</div>
+            <div style={{fontSize:26,fontWeight:950,color:C.white,lineHeight:1,marginTop:4}}>{Object.keys(routineHist).length}</div>
+            <div style={{fontSize:10,color:C.light,marginTop:4}}>days tracked</div>
           </button>
         </div>
       </GlamHero>
@@ -386,7 +397,7 @@ export default function ScarlettTracker(){
       <div style={{...cs,padding:14}}>
         <CH e="💧" title="Water" sub="8 glasses target"/>
         <div style={{display:"flex",flexWrap:"wrap",gap:4,justifyContent:"center",marginBottom:6}}>
-          {Array.from({length:8},(_,i)=><div key={i} onClick={()=>setWater(i<water?i:i+1)} style={{width:28,height:36,borderRadius:"3px 3px 6px 6px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,boxShadow:i<water?`0 0 14px ${C.teal}55`:"none",cursor:"pointer",position:"relative",overflow:"hidden",background:i<water?"#00100D":C.card2}}>
+          {Array.from({length:8},(_,i)=><div key={i} onClick={()=>setWater(i<water?i:i+1)} style={{width:28,height:36,borderRadius:"3px 3px 6px 6px",border:`2px solid ${i<water?C.teal:C.border}`,cursor:"pointer",position:"relative",overflow:"hidden",background:i<water?"#00100D":C.card2}}>
             {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"70%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
           </div>)}
         </div>
@@ -396,8 +407,8 @@ export default function ScarlettTracker(){
       {/* Habits */}
       {Object.entries(groups).map(([grp,items])=><div key={grp} style={cs}>
         <div style={{fontSize:9,fontWeight:800,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{grp}</div>
-        {items.map(h=>{const ok=checks[h.id];return<div key={h.id} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 6px",borderRadius:8,cursor:"pointer",opacity:ok?0.45:1,background:ok?"#050712":"transparent",marginBottom:2}}>
-          <div style={{width:22,height:22,borderRadius:6,border:ok?"none":`2px solid ${C.border}`,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"center",color:C.white,fontSize:11,boxShadow:ok?`0 0 16px ${C.green}66`:"none"}}>{ok&&"✓"}</div>
+        {items.map(h=>{const ok=checks[h.id];return <div key={h.id} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 6px",borderRadius:8,cursor:"pointer",opacity:ok?0.45:1,background:ok?"#050712":"transparent",marginBottom:2}}>
+          <div style={{width:22,height:22,borderRadius:6,border:ok?"none":`2px solid ${C.border}`,background:ok?C.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",color:C.white,fontSize:11}}>{ok&&"✓"}</div>
           <div style={{flex:1,fontSize:12,color:ok?C.muted:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
           <div style={{fontSize:10,color:C.purple,fontWeight:700}}>{h.time}</div>
         </div>;})}
@@ -423,7 +434,7 @@ export default function ScarlettTracker(){
     };
     const delGame=async id=>{await saveBball(games.filter(g=>g.id!==id),skills);};
     const last5=games.slice(0,5);
-    return<div>
+    return <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:8}}>
         <SBox value={tg} label="Games" color={C.coral}/><SBox value={tg?Math.round(wins/tg*100)+"%":"—"} label="Win Rate" color={C.green}/>
         <SBox value={a("pts")} label="Avg Pts" color={C.gold}/><SBox value={a("ast")} label="Avg Ast" color={C.purple}/>
@@ -436,10 +447,10 @@ export default function ScarlettTracker(){
       {last5.length>=2&&<div style={cs}>
         <CH e="📊" title="Last 5 Games" sub="Points trend"/>
         <div style={{display:"flex",alignItems:"flex-end",gap:4,height:60}}>
-          {[...last5].reverse().map((g,i)=>{const max=Math.max(...last5.map(x=>x.pts||1),1),h=Math.max(4,Math.round((g.pts||0)/max*54));return<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+          {[...last5].reverse().map((g,i)=>{const max=Math.max(...last5.map(x=>x.pts||1),1),h=Math.max(4,Math.round((g.pts||0)/max*54));return <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
             <div style={{fontSize:8,color:C.coral,fontWeight:800}}>{g.pts}</div>
             <div style={{width:"100%",height:h,background:g.result==="Win"?C.coral:`${C.coral}44`,borderRadius:"3px 3px 0 0",minHeight:4}}/>
-            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,5):""||(g.date?g.date.slice(0,5):"")}</div>
+            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,5):"" ||(g.date?g.date.slice(0,5):"") }</div>
           </div>;})}
         </div>
       </div>}
@@ -501,7 +512,7 @@ export default function ScarlettTracker(){
       const ns=stars+(parseInt(practiceForm.effort)||0>=4?2:1);await saveGoals(goals,ns);
       setPracticeForm({type:"Team Practice",duration:"",effort:0,focus:0,whatWorked:"",whatWasHard:"",drillsDone:"",coachNote:""});
     };
-    return<div>
+    return <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
         <SBox value={practices.length} label="Total Sessions" color={C.purple}/>
         <SBox value={weekMins||"0"} label="Mins This Week" color={C.coral} sub="minutes"/>
@@ -575,24 +586,24 @@ export default function ScarlettTracker(){
       await saveStyle(styleLog,shoeWish,[item,...trendBoard].slice(0,40));
       setTrendForm("");
     };
-    return<div>
+    return <div>
       <GlamHero>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:14}}>
           <div>
-            <div style={{fontSize:30,fontWeight:900,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Style Locker</div>
+            <div style={{fontSize:30,fontWeight:950,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Style Locker</div>
             <div style={{fontSize:11,color:C.light,letterSpacing:"1px",fontWeight:850,marginTop:5}}>LOOK GOOD · FEEL GOOD · PLAY GREAT</div>
           </div>
           <div style={{width:50,height:50,borderRadius:16,background:"linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.04))",border:"1px solid rgba(255,255,255,.16)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:25,boxShadow:`0 0 22px ${C.pink}33`}}>🛍️</div>
         </div>
         <div style={{...glass,borderRadius:18,padding:12,marginBottom:12}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-            <div style={{fontWeight:900,fontSize:12,color:C.pink,letterSpacing:"1px"}}>SNEAKER WISHLIST 👟✨</div>
+            <div style={{fontWeight:950,fontSize:12,color:C.pink,letterSpacing:"1px"}}>SNEAKER WISHLIST 👟✨</div>
             <div style={{fontSize:10,color:C.gold,fontWeight:900}}>{shoeWish.length} saved</div>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
             {(shoeWish.length?shoeWish.slice(0,3):[{name:"Sabrina 2",priority:"Dream"},{name:"Kobe",priority:"Next Up"},{name:"Ja 2",priority:"Maybe"}]).map((s,i)=><div key={s.id||i} style={{background:"linear-gradient(145deg,#FBE7FF,#FFF5F9)",borderRadius:14,padding:8,minHeight:72,color:"#2A0C35",boxShadow:"0 12px 22px rgba(0,0,0,.18)"}}>
               <div style={{height:32,borderRadius:12,background:i===0?"linear-gradient(135deg,#DAB8FF,#8F55FF)":i===1?"linear-gradient(135deg,#0D0D13,#C78A2B)":"linear-gradient(135deg,#68B7FF,#1550A8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:6}}>👟</div>
-              <div style={{fontSize:10,fontWeight:900,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.name}</div>
+              <div style={{fontSize:10,fontWeight:950,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.name}</div>
               <div style={{fontSize:8,fontWeight:900,color:i===0?"#9333EA":i===1?"#D97706":"#0891B2"}}>{s.priority||"Dream"} ♥</div>
             </div>)}
           </div>
@@ -679,23 +690,23 @@ export default function ScarlettTracker(){
       await saveRoutine(entries);
     };
     const toggle=id=>updateRoutine({c:{...checked,[id]:!checked[id]}});
-    return<div>
+    return <div>
       <GlamHero style={{textAlign:"center"}}>
         <div style={{fontSize:44,filter:`drop-shadow(0 0 18px ${C.gold})`}}>✨</div>
-        <div style={{fontWeight:900,fontSize:26,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Glow Routine</div>
+        <div style={{fontWeight:950,fontSize:26,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Glow Routine</div>
         <div style={{fontSize:11,color:C.light,marginTop:6}}>Face care · outfit prep · school prep · wind down</div>
         <div style={{height:14,background:"rgba(0,0,0,.28)",borderRadius:100,overflow:"hidden",marginTop:16,border:"1px solid rgba(255,255,255,.10)"}}>
           <div style={{height:"100%",width:`${rpct}%`,background:rpct>=100?`linear-gradient(90deg,${C.green},${C.teal})`:rpct>=60?`linear-gradient(90deg,${C.pink},${C.gold})`:glamGrad,borderRadius:100,transition:"width .4s",boxShadow:`0 0 18px ${rpct>=100?C.green:C.pink}`}}/>
         </div>
         <div style={{display:"inline-flex",gap:8,alignItems:"center",background:"rgba(255,255,255,.09)",border:"1px solid rgba(255,255,255,.14)",borderRadius:999,padding:"7px 12px",marginTop:12}}>
-          <span style={{fontSize:13,fontWeight:900,color:rpct>=100?C.green:C.pink}}>{done}/{routineItems.length} done</span>
+          <span style={{fontSize:13,fontWeight:950,color:rpct>=100?C.green:C.pink}}>{done}/{routineItems.length} done</span>
           <span style={{fontSize:11,color:C.muted}}>·</span>
-          <span style={{fontSize:13,fontWeight:900,color:C.gold}}>{rpct}% glow</span>
+          <span style={{fontSize:13,fontWeight:950,color:C.gold}}>{rpct}% glow</span>
         </div>
       </GlamHero>
       {Object.entries(groups).map(([g,items])=><div key={g} style={cs}>
         <div style={{fontSize:9,fontWeight:900,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{g}</div>
-        {items.map(item=>{const ok=checked[item.id];return<div key={item.id} onClick={()=>toggle(item.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 6px",borderRadius:8,cursor:"pointer",background:ok?`${C.green}12`:"transparent",marginBottom:2}}>
+        {items.map(item=>{const ok=checked[item.id];return <div key={item.id} onClick={()=>toggle(item.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 6px",borderRadius:8,cursor:"pointer",background:ok?`${C.green}12`:"transparent",marginBottom:2}}>
           <div style={{width:26,height:26,borderRadius:8,border:ok?"none":`2px solid ${C.border}`,background:ok?C.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>{ok?"✓":item.e}</div>
           <div style={{flex:1,fontSize:13,fontWeight:700,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{item.label}</div>
         </div>;})}
@@ -718,7 +729,7 @@ export default function ScarlettTracker(){
     const calcH=(bed,wake)=>{try{const[bh,bm]=bed.split(":").map(Number),[wh,wm]=wake.split(":").map(Number);let m=(wh*60+wm)-(bh*60+bm);if(m<0)m+=1440;return Math.round(m/60*10)/10;}catch{return 0;}};
     const addSleep=async()=>{if(!sleepForm.quality)return;const entry={date:toShort(todayISO()),dateISO:todayISO(),bedtime:sleepForm.bedtime,waketime:sleepForm.waketime,hours:calcH(sleepForm.bedtime,sleepForm.waketime),quality:sleepForm.quality,notes:sleepForm.notes};await saveSleep([entry,...sleepEntries].slice(0,90));setSleepForm({bedtime:"21:00",waketime:"06:30",quality:0,notes:""});};
     const avgH=sleepEntries.length?Math.round(avgArr(sleepEntries.slice(0,7).map(e=>e.hours))*10)/10:0;
-    return<div>
+    return <div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}><SBox value={avgH||"—"} label="Avg Hours" color={C.purple} sub="7-night avg"/><SBox value={(sleepEntries[0]?sleepEntries[0].quality:0)||"—"} label="Last Quality" color={C.gold} sub="out of 5"/><SBox value={sleepEntries.length} label="Nights Logged" color={C.teal}/></div>
       {avgH>0&&<div style={{background:avgH>=9?`${C.green}15`:`${C.orange}15`,border:`1px solid ${avgH>=9?C.green:C.orange}44`,borderRadius:10,padding:12,marginBottom:12,fontSize:12,color:C.text,lineHeight:1.7}}>{avgH>=9.5?"🌟 Elite sleep! Your skills and memory are consolidating every night.":avgH>=8?"✅ Good sleep. Aim for 9–10h for peak athletic performance.":avgH>=7?"⚠️ Slightly short. Try moving bedtime 30 minutes earlier.": `🔴 ${avgH.toFixed(1)}h is below what young athletes need. Sleep is when you grow.`}</div>}
       <div style={cs}>
@@ -746,7 +757,7 @@ export default function ScarlettTracker(){
     const adjSkill=async(skill,delta)=>{const nsk={...skills,[skill]:Math.min(100,Math.max(0,(skills[skill]||0)+delta))};await saveBball(games,nsk);if(delta>0){const ns=stars+1;await saveGoals(goals,ns);}};
     const weakest=Object.entries(skills).sort((a,b)=>a[1]-b[1]).slice(0,3);
     const GROUPS={offense:["Ball Handling","Shooting Form","Layups","Free Throws","Passing","Court Vision"],defense:["Defense","Rebounding","Footwork","Speed & Agility","Conditioning"],mental:["Basketball IQ","Confidence","Leadership"]};
-    return<div>
+    return <div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
         <SBox value={`${avgSk}%`} label="Overall" color={SKILL_COL(avgSk)} sub={SKILL_LEVEL(avgSk)}/>
         <SBox value={Object.values(skills).filter(v=>v>=70).length} label="Elite Skills" color={C.green}/>
@@ -756,9 +767,9 @@ export default function ScarlettTracker(){
         <div style={{fontSize:10,fontWeight:800,color:C.coral,textTransform:"uppercase",letterSpacing:"1px",marginBottom:6}}>🎯 NEXT LEVEL-UP SKILLS</div>
         {weakest.map(([sk,val])=><div key={sk} style={{fontSize:12,color:C.text,marginBottom:3}}>→ <strong style={{color:C.coral}}>{sk}</strong> is at {val}% — {SKILL_LEVEL(val)} level. Daily practice moves this up fast.</div>)}
       </div>}
-      {Object.entries(GROUPS).map(([group,skillNames])=>{const relevant=skillNames.filter(s=>skills[s]!==undefined);if(!relevant.length)return null;return<div key={group} style={cs}>
+      {Object.entries(GROUPS).map(([group,skillNames])=>{const relevant=skillNames.filter(s=>skills[s]!==undefined);if(!relevant.length)return null;return <div key={group} style={cs}>
         <CH e={group==="offense"?"⚡":group==="defense"?"🛡️":"🧠"} title={group==="offense"?"Offense & Ball Skills":group==="defense"?"Defense & Athleticism":"Mental Game"} sub="Tap +/− to update · +1⭐ per +10%"/>
-        {relevant.map(sk=>{const val=skills[sk]||0;return<div key={sk} style={{marginBottom:14}}>
+        {relevant.map(sk=>{const val=skills[sk]||0;return <div key={sk} style={{marginBottom:14}}>
           <SkBar skill={sk} val={val}/>
           <div style={{display:"flex",gap:6,alignItems:"center"}}>
             <button onClick={()=>adjSkill(sk,-10)} style={{width:28,height:28,borderRadius:7,border:"none",background:"#2A0A0A",color:C.red,cursor:"pointer",fontWeight:900,fontSize:14,fontFamily:"system-ui"}}>−</button>
@@ -777,7 +788,7 @@ export default function ScarlettTracker(){
     const removeSubj=async s=>{const{[s]:_,...rest}=subjects;await saveSchool(rest,quizLog);};
     const addSubj=async()=>{if(!addForm.name.trim())return;const ns={...subjects,[addForm.name.trim()]:addForm.grade};await saveSchool(ns,quizLog);setAddForm({name:"",grade:"B"});};
     const logQuiz=async()=>{if(!quizForm.score)return;const p2=Math.round(parseInt(quizForm.score)/parseInt(quizForm.total)*100);const grade=p2>=90?"A":p2>=80?"B":p2>=70?"C":p2>=60?"D":"F";const entry={id:uid(),date:toShort(todayISO()),subject:quizForm.subject,score:parseInt(quizForm.score),total:parseInt(quizForm.total),pct:p2,grade,notes:quizForm.notes};const nl=[entry,...quizLog].slice(0,60);await saveSchool(subjects,nl);setQuizForm({subject:Object.keys(subjects)[0]||"Math",score:"",total:"100",notes:""});if(grade==="A"){const ns=stars+3;await saveGoals(goals,ns);}else if(grade==="B"){const ns=stars+1;await saveGoals(goals,ns);}};
-    return<div>
+    return <div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}><SBox value={gpaCalc(subjects)} label="GPA" color={C.teal}/><SBox value={Object.values(subjects).filter(g=>g==="A").length} label="A's" color={C.green}/><SBox value={Object.values(subjects).filter(g=>g==="B").length} label="B's" color={C.blue}/><SBox value={quizLog.length} label="Tests" color={C.purple} sub="logged"/></div>
       <div style={cs}>
         <CH e="📝" title="Current Grades" sub="Tap a letter to update"/>
@@ -813,14 +824,14 @@ export default function ScarlettTracker(){
     const weakSubjs=Object.entries(subjects).filter(([_,g])=>(GRADE_MAP[g]||0)<3).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
     const typeCounts=practices.reduce((acc,p)=>{acc[p.type]=(acc[p.type]||0)+1;return acc;},{});
     const practiceInsight=practices.length>=3?Object.entries(typeCounts).sort((a,b)=>a[1]-b[1])[0]:null;
-    return<div>
+    return <div>
       {dataPoints<6&&<div style={{background:`${C.purple}18`,border:`1px solid ${C.purple}44`,borderRadius:10,padding:12,marginBottom:12,fontSize:11,color:C.light,lineHeight:1.7}}>
         <strong style={{color:C.purple}}>🧠 Coach is learning.</strong> Log games, practices, sleep, and grades. The more data, the smarter and more personalized your coaching becomes.
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>{[["🏀 Games",games.length],["💪 Practices",practices.length],["🌙 Sleep",sleepEntries.length]].map(([l,v])=><div key={l} style={{background:v>0?`${C.green}22`:C.navy,border:`1px solid ${v>0?C.green:C.border}`,borderRadius:6,padding:"3px 8px",fontSize:10,fontWeight:700,color:v>0?C.green:C.muted}}>{l}: {v}</div>)}</div>
       </div>}
       <div style={{...cs,background:C.card2}}>
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:12}}>
-          <svg width={96} height={96} style={{filter:`drop-shadow(0 0 18px ${readiness.level.col}55)`}}><circle cx={48} cy={48} r={38} fill="rgba(0,0,0,.4)" stroke="rgba(255,255,255,.1)" strokeWidth={7}/><circle cx={48} cy={48} r={38} fill="none" stroke={readiness.level.col} strokeWidth={7} strokeLinecap="round" strokeDasharray={C2} strokeDashoffset={dash} transform="rotate(-90 48 48)" style={{transition:"all .6s cubic-bezier(.4,0,.2,1)"}}/><text x={45} y={42} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?16:18} fontWeight={800} fontFamily="system-ui">{displayVal}</text><text x={45} y={57} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?7:8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text></svg>
+          <svg width={90} height={90}><circle cx={45} cy={45} r={36} fill="none" stroke={C.border} strokeWidth={7}/><circle cx={45} cy={45} r={36} fill="none" stroke={readiness.level.col} strokeWidth={7} strokeLinecap="round" strokeDasharray={C2} strokeDashoffset={dash} transform="rotate(-90 45 45)" style={{transition:"all .5s ease"}}/><text x={45} y={42} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?16:18} fontWeight={800} fontFamily="system-ui">{displayVal}</text><text x={45} y={57} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?7:8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text></svg>
           <div style={{flex:1}}><div style={{fontWeight:900,fontSize:20,color:readiness.level.col,marginBottom:3}}>{readiness.level.label}</div><div style={{fontSize:11,color:C.muted,lineHeight:1.5,marginBottom:8}}>{mod.note}</div><div style={{background:`${params.col}22`,border:`1px solid ${params.col}55`,borderRadius:6,padding:"3px 8px",fontSize:9,fontWeight:800,color:params.col,display:"inline-block"}}>{params.label}</div></div>
         </div>
         {readiness.reasons.slice(0,2).map((rs,i)=><div key={i} style={{display:"flex",gap:8,padding:"5px 0",borderTop:`1px solid ${C.border}`,alignItems:"flex-start"}}><span style={{fontSize:12}}>{rs.icon}</span><div style={{fontSize:11,color:C.muted,lineHeight:1.5}}>{rs.txt}</div></div>)}
@@ -841,7 +852,7 @@ export default function ScarlettTracker(){
         {insights.map((ins,i)=><div key={i} style={{display:"flex",gap:10,padding:"7px 0",borderBottom:i<insights.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
           <div style={{fontSize:14,flexShrink:0}}>{ins.icon}</div>
           <div style={{flex:1,fontSize:12,color:C.text,lineHeight:1.5}}>{ins.text}</div>
-          <div style={{width:3,borderRadius:99,background:`linear-gradient(180deg,${ins.col},${ins.col}66)`,alignSelf:"stretch",flexShrink:0,minHeight:24,boxShadow:`0 0 12px ${ins.col}77`}}/>
+          <div style={{width:3,borderRadius:99,background:ins.col,alignSelf:"stretch",flexShrink:0,minHeight:20}}/>
         </div>)}
       </div>}
       <div style={cs}>
@@ -877,7 +888,7 @@ export default function ScarlettTracker(){
     const addGoal=async()=>{if(!goalForm.text.trim())return;const entry={id:uid(),text:goalForm.text.trim(),category:goalForm.category,targetDate:goalForm.targetDate,reward:goalForm.reward,done:false,date:toShort(todayISO())};const ng=[...goals,entry];await saveGoals(ng,stars);setGoalForm({text:"",category:"basketball",targetDate:"",reward:""});};
     const toggleGoal=async id=>{const goal=goals.find(g=>g.id===id);const ng=goals.map(g=>g.id===id?{...g,done:!g.done}:g);let ns=stars;if(!goal.done){ns+=5;setBurst(id);setTimeout(()=>setBurst(null),2500);}await saveGoals(ng,ns);};
     const delGoal=async id=>{await saveGoals(goals.filter(g=>g.id!==id),stars);};
-    return<div>
+    return <div>
       {burst&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,pointerEvents:"none",fontSize:60}}>🎉⭐🏆⭐🎉</div>}
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}><SBox value={goals.length} label="Set" color={C.purple}/><SBox value={done} label="Done" color={C.green}/><SBox value={goals.length?Math.round(done/goals.length*100)+"%":"—"} label="Complete" color={C.gold}/><SBox value={stars} label="⭐ Stars" color={C.gold}/></div>
       {goals.length>0&&<div style={{height:8,background:C.navy,borderRadius:100,overflow:"hidden",marginBottom:12}}><div style={{height:"100%",background:`linear-gradient(to right,${C.purple},${C.gold})`,width:`${Math.round((done/goals.length||0)*100)}%`,borderRadius:100,transition:"width .4s"}}/></div>}
@@ -891,7 +902,7 @@ export default function ScarlettTracker(){
         <div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>REWARD (optional)</div><input value={goalForm.reward} onChange={e=>setGoalForm(p=>({...p,reward:e.target.value}))} placeholder="e.g. Get ice cream, pick the movie, extra screen time" style={INP}/></div>
         <button onClick={addGoal} style={{width:"100%",padding:12,background:C.purple,color:C.white,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Add Goal 🎯</button>
       </div>
-      {Object.entries(CAT).map(([cat,{col,icon}])=>{const cg=goals.filter(g=>g.category===cat);if(!cg.length)return null;return<div key={cat} style={cs}>
+      {Object.entries(CAT).map(([cat,{col,icon}])=>{const cg=goals.filter(g=>g.category===cat);if(!cg.length)return null;return <div key={cat} style={cs}>
         <CH e={icon} title={cat.charAt(0).toUpperCase()+cat.slice(1)} sub={`${cg.filter(g=>g.done).length}/${cg.length} complete`}/>
         {cg.map(g=><div key={g.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 8px",borderRadius:10,marginBottom:6,background:g.done?"#060C06":`${col}08`,border:`1px solid ${g.done?C.green+"33":col+"33"}`}}>
           <div onClick={()=>toggleGoal(g.id)} style={{width:28,height:28,borderRadius:"50%",border:g.done?"none":`2.5px solid ${col}`,background:g.done?C.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:C.white,fontSize:14,flexShrink:0,marginTop:2}}>{g.done&&"✓"}</div>
@@ -919,18 +930,18 @@ export default function ScarlettTracker(){
     const hScores=habitDays.map(day=>({pct:allH.length?Math.round(allH.filter(h=>(dailyHist[day]&&dailyHist[day].c||{})[h.id]).length/allH.length*100):0})).reverse();
     const weekMins=practices.filter(p=>daysAgo(p.dateISO||todayISO())<=7).reduce((a,p)=>a+(parseInt(p.duration)||0),0);
     const glowReport=getGlowReport();
-    return<div>
+    return <div>
       <GlamHero style={{textAlign:"center"}}>
-        <div style={{fontSize:12,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase"}}>My Glow-Up Report ✨</div>
-        <div style={{fontWeight:900,fontSize:64,color:C.gold,lineHeight:1,textShadow:`0 0 26px ${C.gold}77`}}>{stars}</div>
+        <div style={{fontSize:12,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase"}}>My Glow-Up Report ✨</div>
+        <div style={{fontWeight:950,fontSize:64,color:C.gold,lineHeight:1,textShadow:`0 0 26px ${C.gold}77`}}>{stars}</div>
         <div style={{fontSize:15,fontWeight:900,color:C.text,marginTop:4}}>⭐ Stars Earned</div>
         <div style={{fontSize:11,color:C.light,marginTop:5}}>Your progress. Your power. Your next move.</div>
         <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:14}}>
           {earned.slice(0,3).map(b=><div key={b.id} style={{...glass,borderRadius:16,padding:"9px 10px",minWidth:82}}>
-            <div style={{fontSize:24}}>{b.icon}</div><div style={{fontSize:8,fontWeight:900,color:C.light,marginTop:3}}>{b.name}</div>
+            <div style={{fontSize:24}}>{b.icon}</div><div style={{fontSize:8,fontWeight:950,color:C.light,marginTop:3}}>{b.name}</div>
           </div>)}
           {earned.length===0&&["Routine Queen","Sneaker Star","Goal Getter"].map((b,i)=><div key={b} style={{...glass,borderRadius:16,padding:"9px 10px",minWidth:82,opacity:.85}}>
-            <div style={{fontSize:24}}>{["👑","👟","🎯"][i]}</div><div style={{fontSize:8,fontWeight:900,color:C.light,marginTop:3}}>{b}</div>
+            <div style={{fontSize:24}}>{["👑","👟","🎯"][i]}</div><div style={{fontSize:8,fontWeight:950,color:C.light,marginTop:3}}>{b}</div>
           </div>)}
         </div>
       </GlamHero>
@@ -952,25 +963,25 @@ export default function ScarlettTracker(){
       </div>
       <div style={cs}>
         <CH e="🏅" title={`Badges — ${earned.length}/${BADGE_DEFS.length} Earned`}/>
-        {earned.length>0&&<><div style={{fontSize:9,color:C.green,fontWeight:900,marginBottom:10,textTransform:"uppercase",letterSpacing:"2px",display:"flex",alignItems:"center",gap:6}}><span style={{display:"inline-block",width:20,height:1.5,background:C.green}}/>EARNED ✓<span style={{display:"inline-block",width:20,height:1.5,background:C.green}}/></div>
+        {earned.length>0&&<><div style={{fontSize:10,color:C.green,fontWeight:800,marginBottom:8,textTransform:"uppercase",letterSpacing:"1px"}}>EARNED ✓</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:12}}>
-            {earned.map(b=><div key={b.id} style={{background:"linear-gradient(145deg,rgba(34,217,122,.22),rgba(34,217,122,.08))",border:"1px solid rgba(34,217,122,.45)",borderRadius:14,padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:"0 8px 24px rgba(34,217,122,.15),inset 0 1px 0 rgba(255,255,255,.15)"}}>
-              <div style={{fontSize:22,filter:`drop-shadow(0 0 8px ${C.green}88)`}}>{b.icon}</div><div><div style={{fontWeight:900,fontSize:11,color:C.green,textShadow:`0 0 14px ${C.green}88`}}>{b.name}</div><div style={{fontSize:9,color:C.muted}}>{b.desc}</div></div>
+            {earned.map(b=><div key={b.id} style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:10,padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
+              <div style={{fontSize:20}}>{b.icon}</div><div><div style={{fontWeight:800,fontSize:11,color:C.green}}>{b.name}</div><div style={{fontSize:9,color:C.muted}}>{b.desc}</div></div>
             </div>)}
           </div></>}
-        {locked.length>0&&<><div style={{fontSize:9,color:C.muted,fontWeight:900,marginBottom:10,textTransform:"uppercase",letterSpacing:"2px",display:"flex",alignItems:"center",gap:6}}><span style={{display:"inline-block",width:20,height:1.5,background:C.muted}}/>LOCKED</div>
+        {locked.length>0&&<><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:8,textTransform:"uppercase",letterSpacing:"1px"}}>LOCKED</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-            {locked.map(b=><div key={b.id} style={{background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.09)",borderRadius:14,padding:"8px 12px",display:"flex",alignItems:"center",gap:8,opacity:.5}}>
+            {locked.map(b=><div key={b.id} style={{background:C.navy,border:`1px solid ${C.border}`,borderRadius:10,padding:"7px 10px",display:"flex",alignItems:"center",gap:6,opacity:.6}}>
               <div style={{fontSize:16,filter:"grayscale(1)"}}>{b.icon}</div><div><div style={{fontWeight:700,fontSize:10,color:C.muted}}>{b.name}</div><div style={{fontSize:8,color:C.muted}}>{b.desc}</div></div>
             </div>)}
           </div></>}
       </div>
       {last8.length>1&&<div style={cs}><CH e="📊" title={`Points — Last ${last8.length} Games`}/>
         <div style={{display:"flex",alignItems:"flex-end",gap:4,height:68}}>
-          {last8.map((g,i)=>{const h=Math.max(4,Math.round((g.pts||0)/maxPts*60));return<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+          {last8.map((g,i)=>{const h=Math.max(4,Math.round((g.pts||0)/maxPts*60));return <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
             <div style={{fontSize:8,color:C.coral,fontWeight:800}}>{g.pts}</div>
             <div style={{width:"100%",height:h,background:g.result==="Win"?C.coral:`${C.coral}44`,borderRadius:"3px 3px 0 0",minHeight:4}}/>
-            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,4):""||(g.date?g.date.slice(0,5):"")}</div>
+            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,4):"" ||(g.date?g.date.slice(0,5):"") }</div>
           </div>;})}
         </div>
       </div>}
@@ -1011,7 +1022,7 @@ export default function ScarlettTracker(){
     </div>;
     const HabitEd=()=>{
       const saveItem=()=>{if(!form.label)return;const item={id:editId||uid(),time:form.time||"Any",group:(form.group||"GENERAL").toUpperCase(),label:form.label};setHabits(editId?habits.map(h=>h.id===editId?item:h):[...habits,item]);stopEdit();};
-      return<div style={cs}><CH e="✅" title="Daily Habits"/>
+      return <div style={cs}><CH e="✅" title="Daily Habits"/>
         {habits.map(h=><div key={h.id} style={{padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><div style={{display:"flex",justifyContent:"space-between",gap:8}}><div><div style={{fontSize:12,color:C.text,fontWeight:700}}>{h.label}</div><div style={{fontSize:10,color:C.muted}}>{h.time} · {h.group}</div></div><div style={{display:"flex",gap:6}}><button onClick={()=>{setEditId(h.id);setAdding(false);setForm({...h});}} style={{background:"none",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Edit</button><button onClick={()=>setHabits(habits.filter(x=>x.id!==h.id))} style={{background:"none",border:`1px solid ${C.border}`,color:C.red,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Del</button></div></div></div>)}
         {!adding&&!editId&&<button onClick={()=>{setAdding(true);setForm({time:"",group:"MORNING",label:""}); }} style={{width:"100%",marginTop:12,padding:10,borderRadius:8,border:`1px dashed ${C.purple}`,background:"transparent",color:C.purple,cursor:"pointer",fontWeight:800,fontFamily:"system-ui"}}>+ Add Habit</button>}
         {(adding||editId)&&<div style={{background:C.navy2,borderRadius:8,padding:12,marginTop:12,border:`1px solid ${C.purple}33`}}><div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>HABIT</div><input value={form.label||""} onChange={e=>setForm(p=>({...p,label:e.target.value}))} placeholder="What's the habit?" style={INP}/></div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}><input value={form.time||""} onChange={e=>setForm(p=>({...p,time:e.target.value}))} placeholder="Time (e.g. Morning)" style={INP}/><input value={form.group||""} onChange={e=>setForm(p=>({...p,group:e.target.value}))} placeholder="Group (e.g. MORNING)" style={INP}/></div><div style={{display:"flex",gap:8}}><button onClick={saveItem} style={{flex:1,padding:9,background:C.purple,color:C.white,border:"none",borderRadius:7,fontWeight:800,cursor:"pointer",fontFamily:"system-ui"}}>Save</button><button onClick={stopEdit} style={{padding:"9px 16px",background:"none",color:C.muted,border:`1px solid ${C.border}`,borderRadius:7,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button></div></div>}
@@ -1020,7 +1031,7 @@ export default function ScarlettTracker(){
     const TrainingEd=()=>{
       const DAYS=["MON","TUE","WED","THU","FRI","SAT","SUN"];
       const saveItem=()=>{if(!form.focus)return;const item={id:editId||uid(),day:form.day||"MON",focus:form.focus||"",detail:form.detail||""};setTrainingDays(editId?trainingDays.map(d=>d.id===editId?item:d):[...trainingDays,item]);stopEdit();};
-      return<div style={cs}><CH e="💪" title="Weekly Training Days" sub="What you practice each day"/>
+      return <div style={cs}><CH e="💪" title="Weekly Training Days" sub="What you practice each day"/>
         {trainingDays.map(d=><div key={d.id} style={{padding:"9px 0",borderBottom:`1px solid ${C.border}`}}><div style={{display:"flex",justifyContent:"space-between",gap:8}}><div style={{flex:1}}><div style={{display:"flex",gap:8,alignItems:"center"}}><div style={{fontWeight:900,fontSize:12,color:C.purple,minWidth:36}}>{d.day}</div><div style={{fontSize:13,color:C.text,fontWeight:700}}>{d.focus}</div></div>{d.detail&&<div style={{fontSize:11,color:C.muted,marginTop:2,marginLeft:44}}>{d.detail}</div>}</div><div style={{display:"flex",gap:6,flexShrink:0}}><button onClick={()=>{setEditId(d.id);setAdding(false);setForm({...d});}} style={{background:"none",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Edit</button><button onClick={()=>setTrainingDays(trainingDays.filter(x=>x.id!==d.id))} style={{background:"none",border:`1px solid ${C.border}`,color:C.red,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Del</button></div></div></div>)}
         {!adding&&!editId&&<button onClick={()=>{setAdding(true);setForm({day:"MON",focus:"",detail:""}); }} style={{width:"100%",marginTop:12,padding:10,borderRadius:8,border:`1px dashed ${C.purple}`,background:"transparent",color:C.purple,cursor:"pointer",fontWeight:800,fontFamily:"system-ui"}}>+ Add Training Day</button>}
         {(adding||editId)&&<div style={{background:C.navy2,borderRadius:8,padding:12,marginTop:12,border:`1px solid ${C.purple}33`}}><div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DAY</div><select value={form.day||"MON"} onChange={e=>setForm(p=>({...p,day:e.target.value}))} style={{...INP,appearance:"none"}}>{DAYS.map(d=><option key={d} value={d}>{d}</option>)}</select></div><div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>FOCUS</div><input value={form.focus||""} onChange={e=>setForm(p=>({...p,focus:e.target.value}))} placeholder="e.g. Shooting, Defense, Full Workout" style={INP}/></div><div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DETAIL</div><input value={form.detail||""} onChange={e=>setForm(p=>({...p,detail:e.target.value}))} style={INP}/></div><div style={{display:"flex",gap:8}}><button onClick={saveItem} style={{flex:1,padding:9,background:C.purple,color:C.white,border:"none",borderRadius:7,fontWeight:800,cursor:"pointer",fontFamily:"system-ui"}}>Save</button><button onClick={stopEdit} style={{padding:"9px 16px",background:"none",color:C.muted,border:`1px solid ${C.border}`,borderRadius:7,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button></div></div>}
@@ -1032,7 +1043,7 @@ export default function ScarlettTracker(){
       }));
       const saveItem=async()=>{if(!form.label)return;const item={id:editId||uid(),e:form.e||"✨",label:form.label,group:(form.group||"NIGHT ROUTINE").toUpperCase()};const items=editId?routineItems.map(i=>i.id===editId?item:i):[...routineItems,item];await saveRoutine(routineHist,items);stopEdit();};
       const delItem=async id=>{const items=routineItems.filter(i=>i.id!==id);const entries=cleanEntriesAfterDelete(id);await saveRoutine(entries,items);};
-      return<div style={cs}><CH e="✨" title="Routine Builder" sub="Customize face care, outfit prep, school prep, game day, and night routine"/>
+      return <div style={cs}><CH e="✨" title="Routine Builder" sub="Customize face care, outfit prep, school prep, game day, and night routine"/>
         {routineItems.map(item=><div key={item.id} style={{padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"center"}}><div style={{display:"flex",gap:9,alignItems:"center"}}><div style={{width:28,height:28,borderRadius:8,background:`${C.pink}18`,border:`1px solid ${C.pink}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{item.e}</div><div><div style={{fontSize:12,color:C.text,fontWeight:800}}>{item.label}</div><div style={{fontSize:10,color:C.muted}}>{item.group}</div></div></div><div style={{display:"flex",gap:6}}><button onClick={()=>{setEditId(item.id);setAdding(false);setForm({...item});}} style={{background:"none",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Edit</button><button onClick={()=>delItem(item.id)} style={{background:"none",border:`1px solid ${C.border}`,color:C.red,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Del</button></div></div></div>)}
         {!adding&&!editId&&<button onClick={()=>{setAdding(true);setForm({e:"✨",label:"",group:"NIGHT ROUTINE"});}} style={{width:"100%",marginTop:12,padding:10,borderRadius:8,border:`1px dashed ${C.pink}`,background:"transparent",color:C.pink,cursor:"pointer",fontWeight:800,fontFamily:"system-ui"}}>+ Add Routine Item</button>}
         {(adding||editId)&&<div style={{background:C.navy2,borderRadius:8,padding:12,marginTop:12,border:`1px solid ${C.pink}33`}}><div style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:8,marginBottom:8}}><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>ICON</div><input value={form.e||""} onChange={e=>setForm(p=>({...p,e:e.target.value}))} placeholder="✨" style={INP}/></div><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>ITEM</div><input value={form.label||""} onChange={e=>setForm(p=>({...p,label:e.target.value}))} placeholder="e.g. Clean basketball shoes" style={INP}/></div></div><div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>GROUP</div><select value={form.group||"NIGHT ROUTINE"} onChange={e=>setForm(p=>({...p,group:e.target.value}))} style={{...INP,appearance:"none"}}>{ROUTINE_GROUPS.map(g=><option key={g} value={g}>{g}</option>)}</select></div><div style={{display:"flex",gap:8}}><button onClick={saveItem} style={{flex:1,padding:9,background:C.pink,color:C.white,border:"none",borderRadius:7,fontWeight:800,cursor:"pointer",fontFamily:"system-ui"}}>Save Routine Item</button><button onClick={stopEdit} style={{padding:"9px 16px",background:"none",color:C.muted,border:`1px solid ${C.border}`,borderRadius:7,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button></div></div>}
@@ -1049,7 +1060,7 @@ export default function ScarlettTracker(){
       <button onClick={async()=>{await saveRoutine({},routineItems);}} style={{padding:10,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Routine Checkmarks</button>
       <button onClick={async()=>{setSkills(clone(DEF_SKILLS));await saveBball(games,clone(DEF_SKILLS));}} style={{padding:10,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Skills to Default</button>
     </div></div>;
-    return<div>
+    return <div>
       <div style={{display:"flex",gap:5,overflowX:"auto",marginBottom:12,paddingBottom:2}}>
         {[["profile","Profile"],["habits","Habits"],["routine","Routine"],["training","Training"],["data","Data"]].map(([id,lbl])=><button key={id} onClick={()=>{setSec(id);stopEdit();}} style={{padding:"9px 12px",borderRadius:8,border:`1px solid ${sec===id?C.purple:C.border}`,background:sec===id?`${C.purple}18`:C.card,color:sec===id?C.purple:C.text,cursor:"pointer",whiteSpace:"nowrap",fontWeight:700,fontSize:13,fontFamily:"system-ui"}}>{lbl}</button>)}
       </div>
@@ -1058,19 +1069,19 @@ export default function ScarlettTracker(){
   };
 
   const CONTENT={today:<Today/>,games:<Games/>,practice:<Practice/>,style:<Style/>,routine:<Routine/>,sleep:<Sleep/>,skills:<Skills/>,school:<School/>,coach:<Coach/>,goals:<Goals2/>,progress:<Progress/>,settings:<Settings/>};
-  if(!loaded)return<div style={{background:"radial-gradient(circle at 20% 0%,#5E1D8A,transparent 35%),radial-gradient(circle at 80% 20%,#FF5FD255,transparent 35%),#090015",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:46,filter:`drop-shadow(0 0 18px ${C.gold})`}}>⭐</div><div style={{fontWeight:900}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
-  return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(255,26,140,.12),0 0 200px rgba(139,92,246,.06)"}}>
+  if(!loaded)return <div style={{background:"radial-gradient(circle at 20% 0%,#5E1D8A,transparent 35%),radial-gradient(circle at 80% 20%,#FF5FD255,transparent 35%),#090015",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:46,filter:`drop-shadow(0 0 18px ${C.gold})`}}>⭐</div><div style={{fontWeight:900}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
+  return <div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 80px rgba(255,95,210,.10)"}}>
       <div style={{position:"sticky",top:0,zIndex:50,padding:"12px 14px 8px",background:"linear-gradient(180deg,rgba(15,0,28,.95),rgba(15,0,28,.78))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
           <div>
-            <div style={{fontWeight:900,fontSize:22,letterSpacing:"-.5px",color:C.white,lineHeight:1}}><span style={{color:C.gold}}>✦</span> <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span></div>
+            <div style={{fontWeight:950,fontSize:22,letterSpacing:"-.5px",color:C.white,lineHeight:1}}><span style={{color:C.gold}}>✦</span> <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span></div>
             <div style={{fontSize:10,color:C.light,letterSpacing:"1px",fontWeight:800}}>{profile.grade} Grade{profile.teamName?` · ${profile.teamName}`:""} · {profile.primaryGoal}</div>
           </div>
-          <div style={{background:"linear-gradient(135deg,rgba(255,215,0,.30),rgba(255,26,140,.18))",border:`1px solid ${C.gold}77`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 28px ${C.gold}33,inset 0 1px 0 rgba(255,255,255,.2)`}}><div style={{fontWeight:900,fontSize:18,color:C.gold,textShadow:"0 0 20px rgba(255,215,0,.8)"}}>⭐ {stars}</div><div style={{fontSize:8,color:"rgba(255,255,255,.7)",fontWeight:800,letterSpacing:"1px"}}>STARS</div></div>
+          <div style={{background:"linear-gradient(135deg,rgba(255,216,107,.28),rgba(255,95,210,.14))",border:`1px solid ${C.gold}66`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 22px ${C.gold}22`}}><div style={{fontWeight:950,fontSize:18,color:C.gold}}>⭐ {stars}</div><div style={{fontSize:8,color:C.light,fontWeight:900}}>STARS</div></div>
         </div>
         <div style={{display:"flex",overflowX:"auto",gap:7,paddingBottom:2}}>
-          {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:900,fontSize:9,letterSpacing:"0.7px",color:tab===t.id?C.white:C.muted,padding:"8px 10px",border:`1px solid ${tab===t.id?"rgba(255,255,255,.20)":"rgba(255,255,255,.06)"}`,background:tab===t.id?glamGrad:"rgba(255,255,255,.045)",borderRadius:999,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui",boxShadow:tab===t.id?`0 0 18px ${C.pink}55`:"none"}}>{t.e} {t.label}</button>)}
+          {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:950,fontSize:9,letterSpacing:"0.7px",color:tab===t.id?C.white:C.muted,padding:"8px 10px",border:`1px solid ${tab===t.id?"rgba(255,255,255,.20)":"rgba(255,255,255,.06)"}`,background:tab===t.id?glamGrad:"rgba(255,255,255,.045)",borderRadius:999,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui",boxShadow:tab===t.id?`0 0 18px ${C.pink}55`:"none"}}>{t.e} {t.label}</button>)}
         </div>
       </div>
       <div style={{padding:"14px 12px 96px"}}>{CONTENT[tab]||<Today/>}</div>
