@@ -161,6 +161,8 @@ function GlamButton({e,l,c,onClick}){return<button onClick={onClick} style={{bac
 function MiniChart({color=C.pink}){return<div style={{height:24,display:"flex",alignItems:"end",gap:3}}>{[35,48,44,62,76].map((h,i)=><div key={i} style={{width:7,height:h/2,background:i===4?color:`${color}55`,borderRadius:5,boxShadow:i===4?`0 0 16px ${color}99`:"none",transition:"height .4s ease"}}/> )}</div>;}
 
 // ══════════════════════════════════════════════════════════════════════════
+function RingChart({val,col,label,size=54}){const r=size/2-6,c=2*Math.PI*r,d=c-(val/100)*c;const cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}88)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(0,0,0,.3)" stroke="rgba(255,255,255,.1)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
+
 export default function ScarlettTracker(){
   const[loaded,setLoaded]=useState(false);
   const[tab,setTab]=useState("today");
@@ -274,7 +276,7 @@ export default function ScarlettTracker(){
     const mod=intensityMod(readiness);
     const insights=generateInsights(profile,games,practices,skills,subjects,sleepEntries,vitals,goals);
     const topIn=insights.find(i=>i.col===C.red)||insights[0];
-    const r=readiness.score??0,displayVal=readiness.displayValue??String(r),circ=2*Math.PI*30,dash=circ-((readiness.score??0)/100)*circ;
+    const r=(readiness.score!=null?readiness.score:0),displayVal=(readiness.displayValue!=null?readiness.displayValue:String(r)),circ=2*Math.PI*30,dash=circ-(((readiness.score!=null?readiness.score:0))/100)*circ;
     const weakestSkill=Object.entries(skills).sort((a,b)=>a[1]-b[1])[0]||["Dribbling",30];
     const gradeEntries=Object.entries(subjects).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
     const worstSubj=gradeEntries.find(([,g])=>(GRADE_MAP[g]||0)<3);
@@ -319,11 +321,11 @@ export default function ScarlettTracker(){
 
           <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(255,61,127,.24),rgba(90,0,110,.50))"}}>
             <div style={{fontSize:8,color:C.coral,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}}>HOOPS MISSION 🏀</div>
-            <div style={{display:"flex",alignItems:"center",gap:10}}><svg width={54} height={54} style={{flexShrink:0,filter:`drop-shadow(0 0 12px ${C.coral}99)`}}>{(()=>{const rv=22,c2=2*Math.PI*rv,d=c2-(weakestSkill[1]/100)*c2;return<><circle cx={27} cy={27} r={rv} fill="rgba(0,0,0,.3)" stroke="rgba(255,255,255,.1)" strokeWidth={6}/><circle cx={27} cy={27} r={rv} fill="none" stroke={C.coral} strokeWidth={6} strokeLinecap="round" strokeDasharray={c2} strokeDashoffset={d} transform="rotate(-90 27 27)"/><text x={27} y={31} textAnchor="middle" fill="white" fontSize={11} fontWeight={900} fontFamily="system-ui">{weakestSkill[1]}%</text></>;})()}</svg><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>Today's goal</div></div></div>
+            <div style={{display:"flex",alignItems:"center",gap:10}}><svg width={54} height={54} style={{flexShrink:0,filter:`drop-shadow(0 0 12px ${C.coral}99)`}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={54}/></svg><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>Today's goal</div></div></div>
           </div>
           <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(0,229,204,.22),rgba(16,60,100,.52))"}}>
             <div style={{fontSize:8,color:C.teal,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}}>SCHOOL FOCUS 📚</div>
-            {worstSubj?<div style={{display:"flex",alignItems:"center",gap:10}}><svg width={54} height={54} style={{flexShrink:0,filter:`drop-shadow(0 0 12px ${C.teal}99)`}}>{(()=>{const gPct=(GRADE_MAP[worstSubj[1]]||0)/4*100,rv=22,c2=2*Math.PI*rv,d=c2-(gPct/100)*c2;return<><circle cx={27} cy={27} r={rv} fill="rgba(0,0,0,.3)" stroke="rgba(255,255,255,.1)" strokeWidth={6}/><circle cx={27} cy={27} r={rv} fill="none" stroke={C.teal} strokeWidth={6} strokeLinecap="round" strokeDasharray={c2} strokeDashoffset={d} transform="rotate(-90 27 27)"/><text x={27} y={31} textAnchor="middle" fill="white" fontSize={13} fontWeight={900} fontFamily="system-ui">{worstSubj[1]}</text></>;})()}</svg><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{worstSubj[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>15 min tonight</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><div style={{fontSize:28}}>🌟</div><div><div style={{fontSize:12,fontWeight:900,color:C.green}}>All A's &amp; B's!</div><div style={{fontSize:9,color:"rgba(255,255,255,.5)"}}>Keep it up!</div></div></div>}
+            {worstSubj?<div style={{display:"flex",alignItems:"center",gap:10}}><svg width={54} height={54} style={{flexShrink:0,filter:`drop-shadow(0 0 12px ${C.teal}99)`}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={54}/></svg><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{worstSubj[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>15 min tonight</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><div style={{fontSize:28}}>🌟</div><div><div style={{fontSize:12,fontWeight:900,color:C.green}}>All A's & B's!</div><div style={{fontSize:9,color:"rgba(255,255,255,.5)"}}>Keep it up!</div></div></div>}
           </div>
           <button onClick={()=>setTab("style")} style={{...glass,textAlign:"left",borderRadius:20,padding:14,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,26,140,.26),rgba(255,122,47,.18))",fontFamily:"system-ui",boxShadow:"inset 0 1px 0 rgba(255,255,255,.13)"}}>
             <div style={{fontSize:8,color:C.pink,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>FIT CHECK 👟</div>
@@ -794,7 +796,7 @@ export default function ScarlettTracker(){
     const insights=generateInsights(profile,games,practices,skills,subjects,sleepEntries,vitals,goals);
     const dataPoints=games.length+practices.length+sleepEntries.length+styleLog.length+Object.keys(routineHist).length;
     const glowReport=getGlowReport();
-    const r=readiness.score??0,displayVal=readiness.displayValue??String(r),C2=2*Math.PI*36,dash=C2-((readiness.score??0)/100)*C2;
+    const r=(readiness.score!=null?readiness.score:0),displayVal=(readiness.displayValue!=null?readiness.displayValue:String(r)),C2=2*Math.PI*36,dash=C2-(((readiness.score!=null?readiness.score:0))/100)*C2;
     const weakSkills=Object.entries(skills).sort((a,b)=>a[1]-b[1]).slice(0,3);
     const weakSubjs=Object.entries(subjects).filter(([,g])=>(GRADE_MAP[g]||0)<3).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
     const typeCounts=practices.reduce((acc,p)=>{acc[p.type]=(acc[p.type]||0)+1;return acc;},{});
@@ -1053,7 +1055,7 @@ export default function ScarlettTracker(){
             <div style={{fontWeight:900,fontSize:22,letterSpacing:"-.5px",color:C.white,lineHeight:1}}><span style={{color:C.gold}}>✦</span> <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span></div>
             <div style={{fontSize:10,color:C.light,letterSpacing:"1px",fontWeight:800}}>{profile.grade} Grade{profile.teamName?` · ${profile.teamName}`:""} · {profile.primaryGoal}</div>
           </div>
-          <div style={{background:"linear-gradient(135deg,rgba(255,215,0,.30),rgba(255,26,140,.18))",border:`1px solid ${C.gold}77`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 28px ${C.gold}33,inset 0 1px 0 rgba(255,255,255,.2)`}}><div style={{fontWeight:900,fontSize:18,color:C.gold,textShadow:"0 0 20px rgba(255,215,0,.8)"}}>&#x2b50; {stars}</div><div style={{fontSize:8,color:"rgba(255,255,255,.7)",fontWeight:800,letterSpacing:"1px"}}>STARS</div></div>
+          <div style={{background:"linear-gradient(135deg,rgba(255,215,0,.30),rgba(255,26,140,.18))",border:`1px solid ${C.gold}77`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 28px ${C.gold}33,inset 0 1px 0 rgba(255,255,255,.2)`}}><div style={{fontWeight:900,fontSize:18,color:C.gold,textShadow:"0 0 20px rgba(255,215,0,.8)"}}>⭐ {stars}</div><div style={{fontSize:8,color:"rgba(255,255,255,.7)",fontWeight:800,letterSpacing:"1px"}}>STARS</div></div>
         </div>
         <div style={{display:"flex",overflowX:"auto",gap:7,paddingBottom:2}}>
           {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:900,fontSize:9,letterSpacing:"0.7px",color:tab===t.id?C.white:C.muted,padding:"8px 10px",border:`1px solid ${tab===t.id?"rgba(255,255,255,.20)":"rgba(255,255,255,.06)"}`,background:tab===t.id?glamGrad:"rgba(255,255,255,.045)",borderRadius:999,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui",boxShadow:tab===t.id?`0 0 18px ${C.pink}55`:"none"}}>{t.e} {t.label}</button>)}
