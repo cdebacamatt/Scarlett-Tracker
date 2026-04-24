@@ -136,17 +136,32 @@ function Sparkles(){return<>
   <div style={{position:"absolute",top:36,right:68,color:C.pink,fontSize:10,opacity:.75}}>✧</div>
   <div style={{position:"absolute",bottom:18,left:18,color:C.teal,fontSize:10,opacity:.7}}>✦</div>
 </>;}
-function ScarlettAvatar(){return<div aria-label="Scarlett avatar" style={{position:"relative",width:118,height:118,flexShrink:0}}>
-  <div style={{position:"absolute",inset:0,borderRadius:"50%",background:"radial-gradient(circle at 35% 30%,#FFE2A8,#FF75D9 42%,#4A1776 75%)",filter:"blur(12px)",opacity:.72}}/>
-  <div style={{position:"absolute",right:2,bottom:6,width:58,height:58,borderRadius:"50%",background:"radial-gradient(circle at 30% 28%,#FFB566,#B55B24 65%,#5B240C)",border:"2px solid rgba(255,255,255,.45)",boxShadow:"0 0 24px rgba(255,154,77,.48)"}}><div style={{position:"absolute",inset:8,borderLeft:"2px solid rgba(70,25,9,.55)",borderRight:"2px solid rgba(70,25,9,.55)",borderRadius:"50%"}}/><div style={{position:"absolute",left:3,right:3,top:27,borderTop:"2px solid rgba(70,25,9,.55)"}}/></div>
-  <div style={{position:"absolute",left:18,top:8,width:70,height:86,borderRadius:"38px 38px 28px 28px",background:"linear-gradient(180deg,#A56A35,#6C3D1F)",boxShadow:"0 8px 22px rgba(0,0,0,.35)"}}/>
-  <div style={{position:"absolute",left:22,top:26,width:62,height:60,borderRadius:"42% 42% 48% 48%",background:"#FFD9BF",border:"2px solid rgba(255,255,255,.38)"}}/>
-  <div style={{position:"absolute",left:19,top:22,width:68,height:26,borderRadius:"28px 28px 12px 12px",background:"linear-gradient(180deg,#B77A42,#7C4825)"}}/>
-  <div style={{position:"absolute",left:30,top:43,width:8,height:8,borderRadius:"50%",background:"#5B3828"}}/><div style={{position:"absolute",left:62,top:43,width:8,height:8,borderRadius:"50%",background:"#5B3828"}}/>
-  <div style={{position:"absolute",left:47,top:60,width:18,height:9,borderBottom:"3px solid #C15F70",borderRadius:"0 0 18px 18px"}}/>
-  <div style={{position:"absolute",left:23,top:24,width:62,height:9,borderRadius:99,background:`linear-gradient(90deg,${C.pink},${C.purple})`,boxShadow:`0 0 14px ${C.pink}77`}}/>
-  <div style={{position:"absolute",left:14,bottom:0,width:78,height:38,borderRadius:"24px 24px 16px 16px",background:"linear-gradient(135deg,#6D28D9,#FF5FD2)",border:"1px solid rgba(255,255,255,.25)"}}><div style={{position:"absolute",right:13,top:8,color:C.gold,fontSize:18,fontWeight:900}}>S</div></div>
-  <div style={{position:"absolute",left:6,top:2,color:C.gold,fontSize:18,transform:"rotate(-12deg)"}}>♛</div>
+function ScarlettAvatar(){return<div aria-label="Scarlett avatar" style={{position:"relative",width:138,height:142,flexShrink:0}}>
+  <div style={{position:"absolute",inset:10,borderRadius:28,background:"radial-gradient(circle at 30% 20%,rgba(255,95,210,.45),transparent 34%),radial-gradient(circle at 78% 18%,rgba(102,199,255,.35),transparent 28%),linear-gradient(160deg,#2B0E45,#12041F)",border:"1px solid rgba(255,255,255,.16)",boxShadow:"0 20px 50px rgba(0,0,0,.38),0 0 32px rgba(255,95,210,.18)",overflow:"hidden"}}/>
+  <div style={{position:"absolute",top:0,left:84,width:46,height:20,borderRadius:999,background:"linear-gradient(135deg,rgba(255,95,210,.95),rgba(183,108,255,.95))",border:"1px solid rgba(255,255,255,.2)",boxShadow:"0 8px 18px rgba(255,95,210,.28)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:950,color:C.white,letterSpacing:".5px"}}>FIT CHECK</div>
+  <div style={{position:"absolute",top:94,left:0,width:54,height:20,borderRadius:999,background:"linear-gradient(135deg,rgba(36,242,210,.95),rgba(102,199,255,.95))",border:"1px solid rgba(255,255,255,.18)",boxShadow:"0 8px 18px rgba(36,242,210,.25)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:950,color:"#16071F",letterSpacing:".5px"}}>SNEAKER GIRL</div>
+  <div style={{position:"absolute",top:18,left:19,width:100,height:110,borderRadius:24,background:"linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02))",overflow:"hidden"}}>
+    <div style={{position:"absolute",top:10,left:22,width:55,height:40,borderRadius:"36px 42px 18px 20px",background:"linear-gradient(180deg,#AE7A4E,#7B4B2B)",transform:"rotate(-3deg)",boxShadow:"0 8px 20px rgba(0,0,0,.32)"}}/>
+    <div style={{position:"absolute",top:22,left:29,width:42,height:46,borderRadius:"42% 42% 50% 50%",background:"linear-gradient(180deg,#F6DFC9,#EFC4A7)",boxShadow:"0 4px 10px rgba(0,0,0,.12)"}}/>
+    <div style={{position:"absolute",top:20,left:24,width:52,height:14,borderRadius:"18px 18px 8px 8px",background:"linear-gradient(180deg,#B07A48,#85502B)"}}/>
+    <div style={{position:"absolute",top:42,left:38,width:5,height:5,borderRadius:"50%",background:"#5D402C"}}/>
+    <div style={{position:"absolute",top:42,left:57,width:5,height:5,borderRadius:"50%",background:"#5D402C"}}/>
+    <div style={{position:"absolute",top:38,left:35,width:10,height:2,borderRadius:8,background:"rgba(93,64,44,.55)",transform:"rotate(-8deg)"}}/>
+    <div style={{position:"absolute",top:38,left:55,width:10,height:2,borderRadius:8,background:"rgba(93,64,44,.55)",transform:"rotate(8deg)"}}/>
+    <div style={{position:"absolute",top:51,left:47,width:6,height:8,borderRadius:"50%",borderLeft:"2px solid rgba(186,128,95,.55)"}}/>
+    <div style={{position:"absolute",top:56,left:43,width:13,height:6,borderBottom:"2px solid #CA7292",borderRadius:"0 0 12px 12px"}}/>
+    <div style={{position:"absolute",top:28,left:27,width:46,height:6,borderRadius:99,background:`linear-gradient(90deg,${C.pink},${C.purple})`,boxShadow:`0 0 12px ${C.pink}77`}}/>
+    <div style={{position:"absolute",top:67,left:31,width:38,height:18,borderRadius:99,background:"linear-gradient(180deg,#E8B896,#E1A781)"}}/>
+    <div style={{position:"absolute",top:76,left:20,width:60,height:36,borderRadius:"18px 18px 14px 14px",background:"linear-gradient(135deg,#6D28D9,#FF5FD2 70%,#24F2D2)",border:"1px solid rgba(255,255,255,.16)"}}>
+      <div style={{position:"absolute",left:9,top:9,width:22,height:4,borderRadius:99,background:"rgba(255,255,255,.34)"}}/>
+      <div style={{position:"absolute",right:10,top:8,fontSize:15,color:C.gold,fontWeight:950}}>23</div>
+    </div>
+    <div style={{position:"absolute",top:80,left:13,width:18,height:24,borderRadius:12,background:"linear-gradient(180deg,#FFD9BF,#F6B68D)",transform:"rotate(14deg)"}}/>
+    <div style={{position:"absolute",top:82,left:70,width:18,height:24,borderRadius:12,background:"linear-gradient(180deg,#FFD9BF,#F6B68D)",transform:"rotate(-12deg)"}}/>
+    <div style={{position:"absolute",top:86,left:10,width:16,height:7,borderRadius:8,background:"linear-gradient(90deg,#C9FFFA,#24F2D2)"}}/>
+    <div style={{position:"absolute",top:88,left:73,width:16,height:7,borderRadius:8,background:"linear-gradient(90deg,#FFD86B,#FF9A4D)"}}/>
+  </div>
+  <div style={{position:"absolute",right:13,bottom:16,width:28,height:28,borderRadius:"50%",background:"linear-gradient(135deg,rgba(255,216,107,.95),rgba(255,154,77,.95))",boxShadow:"0 0 18px rgba(255,216,107,.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>✨</div>
 </div>;}
 function GlamHero({children,style={}}){return<div style={{...cs,padding:18,background:"radial-gradient(circle at 78% 12%,rgba(255,95,210,.32),transparent 36%),radial-gradient(circle at 18% 0%,rgba(36,242,210,.18),transparent 32%),linear-gradient(145deg,rgba(61,20,94,.96),rgba(13,3,30,.98))",border:"1px solid rgba(255,255,255,.16)",boxShadow:"0 18px 50px rgba(255,95,210,.12),0 18px 50px rgba(0,0,0,.45)",...style}}><Sparkles/>{children}</div>;}
 function GlamButton({e,l,c,onClick}){return<button onClick={onClick} style={{background:`linear-gradient(135deg,${c}EE,${C.purple}DD)`,border:"1px solid rgba(255,255,255,.22)",borderRadius:18,padding:"13px 6px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,fontFamily:"system-ui",boxShadow:`0 12px 28px ${c}30`,color:C.white,position:"relative",overflow:"hidden"}}><span style={{position:"absolute",inset:"0 0 auto 0",height:"45%",background:"linear-gradient(180deg,rgba(255,255,255,.22),transparent)"}}/><div style={{fontSize:23,position:"relative"}}>{e}</div><div style={{fontSize:9,fontWeight:950,textAlign:"center",position:"relative"}}>{l}</div></button>;}
@@ -280,7 +295,7 @@ export default function ScarlettTracker(){
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:4}}>Plan · Practice · Glow · Repeat</div>
             <div style={{fontWeight:950,fontSize:24,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span> ✨</div>
-            <div style={{fontSize:11,color:C.light,lineHeight:1.5,marginTop:7}}>You’ve got big goals. Let’s make today count.</div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.5,marginTop:7}}>You’ve got goals, style, and game. Let’s make today count.</div>
           </div>
           <ScarlettAvatar/>
         </div>
