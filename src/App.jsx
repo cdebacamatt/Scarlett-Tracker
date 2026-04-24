@@ -59,8 +59,19 @@ const daysAgo=d=>{try{return Math.round((Date.now()-new Date(d+"T12:00:00"))/864
 const gpaCalc=subs=>{const v=Object.values(subs).map(g=>GRADE_MAP[g]||0);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):"—";};
 const pct=(n,d)=>d?Math.round(n/d*100):0;
 
-async function sg(k){try{if(window.storage){const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}return null;}catch{return null;}}
-async function ss(k,v){try{if(window.storage)await window.storage.set(k,JSON.stringify(v));}catch{}}
+async function sg(k){
+  try{
+    const raw=localStorage.getItem(k);
+    return raw?JSON.parse(raw):null;
+  }catch{
+    return null;
+  }
+}
+async function ss(k,v){
+  try{
+    localStorage.setItem(k,JSON.stringify(v));
+  }catch{}
+}
 const emptyDaily=()=>({c:{},w:0,n:"",vitals:clone(DEF_VITALS)});
 
 // ── COACH ENGINE ──────────────────────────────────────────────────────────
@@ -93,7 +104,7 @@ function generateInsights(profile,games,practices,skills,subjects,sleepEntries,v
   // Practice distribution
   if(practices.length>=3){const counts={};for(const p of practices)counts[p.type]=(counts[p.type]||0)+1;const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);const most=sorted[0],least=sorted[sorted.length-1];if(most&&least&&most[0]!==least[0]&&most[1]>=3)ins.push({icon:"📊",text:`You practice ${most[0]} most (${most[1]}x) and ${least[0]} least (${least[1]}x). Try balancing it out this week.`,col:C.purple});}
   // Sleep-performance correlation
-  if(games.length>=3&&sleepEntries.length>=3){const gamesWithSleep=games.slice(0,5).map(g=>{const matchSleep=sleepEntries.find(s=>daysAgo(g.dateISO||todayISO())<=daysAgo(s.dateISO||todayISO())+1);return{pts:g.pts||0,sleep:matchSleep?.hours||0};}).filter(x=>x.sleep>0);if(gamesWithSleep.length>=2){const highSleepGames=gamesWithSleep.filter(x=>x.sleep>=8),lowSleepGames=gamesWithSleep.filter(x=>x.sleep<7);if(highSleepGames.length>0&&lowSleepGames.length>0){const hAvg=Math.round(avgArr(highSleepGames.map(x=>x.pts))),lAvg=Math.round(avgArr(lowSleepGames.map(x=>x.pts)));if(hAvg>lAvg+2)ins.push({icon:"🌙",text:`You score ${hAvg-lAvg} more pts on nights with 8h+ sleep vs under 7h. Sleep is a performance tool.`,col:C.purple});}}}
+  if(games.length>=3&&sleepEntries.length>=3){const gamesWithSleep=games.slice(0,5).map(g=>{const matchSleep=sleepEntries.find(s=>daysAgo(g.dateISO||todayISO())<=daysAgo(s.dateISO||todayISO())+1);return{pts:g.pts||0,sleep:(matchSleep?matchSleep.hours:0)||0};}).filter(x=>x.sleep>0);if(gamesWithSleep.length>=2){const highSleepGames=gamesWithSleep.filter(x=>x.sleep>=8),lowSleepGames=gamesWithSleep.filter(x=>x.sleep<7);if(highSleepGames.length>0&&lowSleepGames.length>0){const hAvg=Math.round(avgArr(highSleepGames.map(x=>x.pts))),lAvg=Math.round(avgArr(lowSleepGames.map(x=>x.pts)));if(hAvg>lAvg+2)ins.push({icon:"🌙",text:`You score ${hAvg-lAvg} more pts on nights with 8h+ sleep vs under 7h. Sleep is a performance tool.`,col:C.purple});}}}
   // Skills
   const se=Object.entries(skills).sort((a,b)=>a[1]-b[1]);if(se.length){const[ws,wv]=se[0],[ss2,sv]=se[se.length-1];if(wv<40)ins.push({icon:"🎯",text:`${ws} (${wv}%) is your biggest growth opportunity — 15 min of focused daily reps compounds fast.`,col:C.coral});if(sv>=70)ins.push({icon:"⭐",text:`${ss2} is your strongest weapon at ${sv}% — lean on it in games.`,col:C.gold});}
   // Grades
@@ -249,7 +260,7 @@ export default function ScarlettTracker(){
       const week=practices.filter(p=>daysAgo(p.dateISO||todayISO())<=7),mins=week.reduce((a,p)=>a+(parseInt(p.duration)||0),0);
       const counts=practices.reduce((a,p)=>{a[p.type]=(a[p.type]||0)+1;return a;},{});
       const sorted=Object.entries(counts).sort((a,b)=>a[1]-b[1]);
-      const least=sorted[0]?.[0]||"a focus area";
+      const least=(sorted[0]||["a focus area"])[0];
       add("Practice","💪",C.purple,`You logged ${practices.length} practice session${practices.length===1?"":"s"}.`,mins<90?"Practice minutes this week are still low.":`You have ${mins} practice minutes this week — strong work.`,mins<90?"Next move: aim for 90+ total practice minutes this week.":`Next move: add one ${least} session so training stays balanced.`,`${mins} min this week`);
     }else add("Practice","💪",C.purple,"No practice sessions logged yet.","Coach cannot tell what she is working on without practice logs.","Next move: log one practice with effort, focus, and what was hard.","0 practices");
     const sk=Object.entries(skills).sort((a,b)=>a[1]-b[1]),weak=sk[0],strong=sk[sk.length-1];
@@ -260,9 +271,9 @@ export default function ScarlettTracker(){
     add("Goals","🎯",C.gold,done.length?`${done.length} goal${done.length===1?"":"s"} finished — that is momentum.`:"Goals are ready when she is.",active.length?`${active.length} active goal${active.length===1?"":"s"} still need action.`:"No active goal right now.",active.length?`Next move: choose one tiny action for “${active[0].text.slice(0,32)}${active[0].text.length>32?"...":""}”.`:"Next move: set one basketball, school, or style goal.",`${done.length}/${goals.length||0} done`);
     if(sleepEntries.length){const ah=Math.round(avgArr(sleepEntries.slice(0,7).map(e=>e.hours))*10)/10;add("Sleep","🌙",ah>=8?C.green:C.orange,ah>=8?`${ah}h average sleep — nice recovery habit.`:"Sleep is logged, which is already a win.",ah<8?"Average sleep is under the 8–10h target.":"Keep the bedtime routine steady.",ah<8?"Next move: move bedtime 20–30 minutes earlier tonight.":"Next move: keep the same bedtime routine three nights in a row.",`${ah}h avg`);}else add("Sleep","🌙",C.purple,"No sleep data yet.","Coach needs sleep logs to connect rest with energy and games.","Next move: log bedtime, wake time, and sleep quality tomorrow.","0 nights");
     const rDays=Object.entries(routineHist).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
-    const rAvg=rDays.length?Math.round(avgArr(rDays.map(([,e])=>pct(Object.values(e.c||{}).filter(Boolean).length,routineItems.length||1)))):0;
+    const rAvg=rDays.length?Math.round(avgArr(rDays.map(([_,e])=>pct(Object.values(e.c||{}).filter(Boolean).length,routineItems.length||1)))):0;
     const itemScores={}; routineItems.forEach(i=>itemScores[i.id]={label:i.label,done:0,total:0});
-    rDays.forEach(([,e])=>routineItems.forEach(i=>{itemScores[i.id].total++; if((e.c||{})[i.id])itemScores[i.id].done++;}));
+    rDays.forEach(([_,e])=>routineItems.forEach(i=>{itemScores[i.id].total++; if((e.c||{})[i.id])itemScores[i.id].done++;}));
     const miss=Object.values(itemScores).filter(x=>x.total>0).sort((a,b)=>(a.done/a.total)-(b.done/b.total))[0];
     add("Routine","✨",rAvg>=80?C.green:C.pink,rDays.length?`Routine average is ${rAvg}% over the last ${rDays.length} day${rDays.length===1?"":"s"}.`:"Routine is ready to track face care, outfit prep, and night habits.",miss&&rAvg<100?`${miss.label} is the easiest routine item to improve.`:"Build a streak by checking off the routine daily.",miss?`Next move: do “${miss.label}” tonight.`:"Next move: complete one routine today.",rDays.length?`${rAvg}% avg`:"0 days");
     const avgConf=styleLog.length?Math.round(avgArr(styleLog.filter(f=>f.confidence>0).map(f=>f.confidence||0))*10)/10:0;
@@ -279,7 +290,7 @@ export default function ScarlettTracker(){
     const r=(readiness.score!=null?readiness.score:0),displayVal=(readiness.displayValue!=null?readiness.displayValue:String(r)),circ=2*Math.PI*30,dash=circ-(((readiness.score!=null?readiness.score:0))/100)*circ;
     const weakestSkill=Object.entries(skills).sort((a,b)=>a[1]-b[1])[0]||["Dribbling",30];
     const gradeEntries=Object.entries(subjects).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
-    const worstSubj=gradeEntries.find(([,g])=>(GRADE_MAP[g]||0)<3);
+    const worstSubj=gradeEntries.find(([_,g])=>(GRADE_MAP[g]||0)<3);
     const activeGoal=goals.find(g=>!g.done);
     const recentDays=Object.keys(dailyHist).sort((a,b)=>b.localeCompare(a)).slice(0,7);
     const groups=allH.reduce((acc,h)=>{if(!acc[h.group])acc[h.group]=[];acc[h.group].push(h);return acc;},{});
@@ -319,13 +330,14 @@ export default function ScarlettTracker(){
           </div>
         </div>
 
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
           <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(255,61,127,.24),rgba(90,0,110,.50))"}}>
             <div style={{fontSize:8,color:C.coral,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}}>HOOPS MISSION 🏀</div>
-            <div style={{display:"flex",alignItems:"center",gap:10}}><svg width={54} height={54} style={{flexShrink:0,filter:`drop-shadow(0 0 12px ${C.coral}99)`}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={54}/></svg><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>Today's goal</div></div></div>
+            <div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={54}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>Today's goal</div></div></div>
           </div>
           <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(0,229,204,.22),rgba(16,60,100,.52))"}}>
             <div style={{fontSize:8,color:C.teal,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}}>SCHOOL FOCUS 📚</div>
-            {worstSubj?<div style={{display:"flex",alignItems:"center",gap:10}}><svg width={54} height={54} style={{flexShrink:0,filter:`drop-shadow(0 0 12px ${C.teal}99)`}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={54}/></svg><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{worstSubj[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>15 min tonight</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><div style={{fontSize:28}}>🌟</div><div><div style={{fontSize:12,fontWeight:900,color:C.green}}>All A's & B's!</div><div style={{fontSize:9,color:"rgba(255,255,255,.5)"}}>Keep it up!</div></div></div>}
+            {worstSubj?<div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={54}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:900,color:"white",lineHeight:1.2}}>{worstSubj[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>15 min tonight</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><div style={{fontSize:28}}>🌟</div><div><div style={{fontSize:12,fontWeight:900,color:C.green}}>All A's & B's!</div><div style={{fontSize:9,color:"rgba(255,255,255,.5)"}}>Keep it up!</div></div></div>}
           </div>
           <button onClick={()=>setTab("style")} style={{...glass,textAlign:"left",borderRadius:20,padding:14,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,26,140,.26),rgba(255,122,47,.18))",fontFamily:"system-ui",boxShadow:"inset 0 1px 0 rgba(255,255,255,.13)"}}>
             <div style={{fontSize:8,color:C.pink,fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",marginBottom:6}}>FIT CHECK 👟</div>
@@ -356,7 +368,7 @@ export default function ScarlettTracker(){
         <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:2}}>
           {recentDays.map(day=><button key={day} onClick={()=>setSelDay(day)} style={{minWidth:74,padding:"7px 8px",borderRadius:8,border:`1px solid ${day===selDay?C.purple:C.border}`,background:day===selDay?`${C.purple}18`:C.navy,color:day===selDay?C.purple:C.text,cursor:"pointer",textAlign:"left",flexShrink:0,fontFamily:"system-ui"}}>
             <div style={{fontSize:10,fontWeight:800}}>{toDisp(day).replace(/,\s*\d{4}$/,"")}</div>
-            <div style={{fontSize:9,color:C.muted}}>{allH.filter(h=>(dailyHist[day]?.c||{})[h.id]).length}/{allH.length}</div>
+            <div style={{fontSize:9,color:C.muted}}>{allH.filter(h=>(dailyHist[day]&&dailyHist[day].c||{})[h.id]).length}/{allH.length}</div>
           </button>)}
         </div>
       </div>
@@ -384,7 +396,7 @@ export default function ScarlettTracker(){
       {/* Habits */}
       {Object.entries(groups).map(([grp,items])=><div key={grp} style={cs}>
         <div style={{fontSize:9,fontWeight:800,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{grp}</div>
-        {items.map(h=>{const ok=checks[h.id];return<div key={h.id} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 6px",borderRadius:8,cursor:"pointer",opacity:ok?.45:1,background:ok?"#050712":"transparent",marginBottom:2}}>
+        {items.map(h=>{const ok=checks[h.id];return<div key={h.id} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 6px",borderRadius:8,cursor:"pointer",opacity:ok?0.45:1,background:ok?"#050712":"transparent",marginBottom:2}}>
           <div style={{width:22,height:22,borderRadius:6,border:ok?"none":`2px solid ${C.border}`,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"center",color:C.white,fontSize:11,boxShadow:ok?`0 0 16px ${C.green}66`:"none"}}>{ok&&"✓"}</div>
           <div style={{flex:1,fontSize:12,color:ok?C.muted:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
           <div style={{fontSize:10,color:C.purple,fontWeight:700}}>{h.time}</div>
@@ -427,7 +439,7 @@ export default function ScarlettTracker(){
           {[...last5].reverse().map((g,i)=>{const max=Math.max(...last5.map(x=>x.pts||1),1),h=Math.max(4,Math.round((g.pts||0)/max*54));return<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
             <div style={{fontSize:8,color:C.coral,fontWeight:800}}>{g.pts}</div>
             <div style={{width:"100%",height:h,background:g.result==="Win"?C.coral:`${C.coral}44`,borderRadius:"3px 3px 0 0",minHeight:4}}/>
-            <div style={{fontSize:7,color:C.muted}}>{g.opponent?.slice(0,5)||g.date?.slice(0,5)}</div>
+            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,5):""||(g.date?g.date.slice(0,5):"")}</div>
           </div>;})}
         </div>
       </div>}
@@ -707,7 +719,7 @@ export default function ScarlettTracker(){
     const addSleep=async()=>{if(!sleepForm.quality)return;const entry={date:toShort(todayISO()),dateISO:todayISO(),bedtime:sleepForm.bedtime,waketime:sleepForm.waketime,hours:calcH(sleepForm.bedtime,sleepForm.waketime),quality:sleepForm.quality,notes:sleepForm.notes};await saveSleep([entry,...sleepEntries].slice(0,90));setSleepForm({bedtime:"21:00",waketime:"06:30",quality:0,notes:""});};
     const avgH=sleepEntries.length?Math.round(avgArr(sleepEntries.slice(0,7).map(e=>e.hours))*10)/10:0;
     return<div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}><SBox value={avgH||"—"} label="Avg Hours" color={C.purple} sub="7-night avg"/><SBox value={sleepEntries[0]?.quality||"—"} label="Last Quality" color={C.gold} sub="out of 5"/><SBox value={sleepEntries.length} label="Nights Logged" color={C.teal}/></div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}><SBox value={avgH||"—"} label="Avg Hours" color={C.purple} sub="7-night avg"/><SBox value={(sleepEntries[0]?sleepEntries[0].quality:0)||"—"} label="Last Quality" color={C.gold} sub="out of 5"/><SBox value={sleepEntries.length} label="Nights Logged" color={C.teal}/></div>
       {avgH>0&&<div style={{background:avgH>=9?`${C.green}15`:`${C.orange}15`,border:`1px solid ${avgH>=9?C.green:C.orange}44`,borderRadius:10,padding:12,marginBottom:12,fontSize:12,color:C.text,lineHeight:1.7}}>{avgH>=9.5?"🌟 Elite sleep! Your skills and memory are consolidating every night.":avgH>=8?"✅ Good sleep. Aim for 9–10h for peak athletic performance.":avgH>=7?"⚠️ Slightly short. Try moving bedtime 30 minutes earlier.": `🔴 ${avgH.toFixed(1)}h is below what young athletes need. Sleep is when you grow.`}</div>}
       <div style={cs}>
         <CH e="➕" title="Log Sleep"/>
@@ -798,7 +810,7 @@ export default function ScarlettTracker(){
     const glowReport=getGlowReport();
     const r=(readiness.score!=null?readiness.score:0),displayVal=(readiness.displayValue!=null?readiness.displayValue:String(r)),C2=2*Math.PI*36,dash=C2-(((readiness.score!=null?readiness.score:0))/100)*C2;
     const weakSkills=Object.entries(skills).sort((a,b)=>a[1]-b[1]).slice(0,3);
-    const weakSubjs=Object.entries(subjects).filter(([,g])=>(GRADE_MAP[g]||0)<3).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
+    const weakSubjs=Object.entries(subjects).filter(([_,g])=>(GRADE_MAP[g]||0)<3).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
     const typeCounts=practices.reduce((acc,p)=>{acc[p.type]=(acc[p.type]||0)+1;return acc;},{});
     const practiceInsight=practices.length>=3?Object.entries(typeCounts).sort((a,b)=>a[1]-b[1])[0]:null;
     return<div>
@@ -904,7 +916,7 @@ export default function ScarlettTracker(){
     const tg=games.length,wins=games.filter(g=>g.result==="Win").length,winPct=tg?Math.round(wins/tg*100):0;
     const last8=[...games].slice(0,8).reverse();const maxPts=Math.max(...last8.map(g=>g.pts||1),1);
     const habitDays=Object.keys(dailyHist).sort((a,b)=>b.localeCompare(a)).slice(0,14);
-    const hScores=habitDays.map(day=>({pct:allH.length?Math.round(allH.filter(h=>(dailyHist[day]?.c||{})[h.id]).length/allH.length*100):0})).reverse();
+    const hScores=habitDays.map(day=>({pct:allH.length?Math.round(allH.filter(h=>(dailyHist[day]&&dailyHist[day].c||{})[h.id]).length/allH.length*100):0})).reverse();
     const weekMins=practices.filter(p=>daysAgo(p.dateISO||todayISO())<=7).reduce((a,p)=>a+(parseInt(p.duration)||0),0);
     const glowReport=getGlowReport();
     return<div>
@@ -958,7 +970,7 @@ export default function ScarlettTracker(){
           {last8.map((g,i)=>{const h=Math.max(4,Math.round((g.pts||0)/maxPts*60));return<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
             <div style={{fontSize:8,color:C.coral,fontWeight:800}}>{g.pts}</div>
             <div style={{width:"100%",height:h,background:g.result==="Win"?C.coral:`${C.coral}44`,borderRadius:"3px 3px 0 0",minHeight:4}}/>
-            <div style={{fontSize:7,color:C.muted}}>{g.opponent?.slice(0,4)||g.date?.slice(0,5)}</div>
+            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,4):""||(g.date?g.date.slice(0,5):"")}</div>
           </div>;})}
         </div>
       </div>}
