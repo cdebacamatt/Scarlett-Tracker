@@ -69,9 +69,14 @@ async function sg(k){
 }
 async function ss(k,v){
   try{
-    localStorage.setItem(k,JSON.stringify(v));
+    const payload=JSON.stringify(v);
+    localStorage.setItem(k,payload);
+    const saved=localStorage.getItem(k);
+    if(saved!==payload) throw new Error("Save verification failed");
+    return true;
   }catch(err){
     console.warn("Scarlett Tracker save failed:",k,err);
+    return false;
   }
 }
 const emptyDaily=()=>({c:{},w:0,n:"",vitals:clone(DEF_VITALS)});
@@ -283,18 +288,20 @@ export default function ScarlettTracker(){
   })();},[]);
 
   useEffect(()=>{if(!loaded)return;if(supRef.current){supRef.current=false;return;}clearTimeout(saveTmr.current);saveTmr.current=setTimeout(()=>{const entry={c:checks,w:water,n:notes,vitals};setDailyHist(prev=>{const next={...prev,[selDay]:entry};ss("sc_daily",{entries:next});return next;});setShowSaved(true);clearTimeout(savedTm.current);savedTm.current=setTimeout(()=>setShowSaved(false),1000);},450);},[checks,water,notes,vitals,selDay,loaded]);
+  useEffect(()=>{if(!loaded)return;const flush=()=>{const entry={c:checks,w:water,n:notes,vitals};const next={...dailyHist,[selDay]:entry};try{localStorage.setItem("sc_daily",JSON.stringify({entries:next}));}catch(err){console.warn("Scarlett Tracker final daily save failed:",err);}};window.addEventListener("pagehide",flush);window.addEventListener("beforeunload",flush);return()=>{window.removeEventListener("pagehide",flush);window.removeEventListener("beforeunload",flush);};},[loaded,checks,water,notes,vitals,selDay,dailyHist]);
   useEffect(()=>{if(!loaded)return;supRef.current=true;applyDay(dailyHist[selDay]);},[selDay,loaded]);
   useEffect(()=>{if(loaded)ss("sc_habits",{entries:habits});},[habits,loaded]);
   useEffect(()=>{if(loaded)ss("sc_profile",profile);},[profile,loaded]);
   useEffect(()=>{if(loaded)ss("sc_training",{days:trainingDays});},[trainingDays,loaded]);
 
-  const saveSleep=async e=>{setSleepEntries(e);await ss("sc_sleep",{entries:e});};
-  const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
-  const savePrax=async p=>{setPractices(p);await ss("sc_practices",{entries:p});};
-  const saveGoals=async(g,s=stars)=>{setGoals(g);setStars(s);await ss("sc_goals",{entries:g,stars:s});};
-  const saveStyle=async(fits=styleLog,shoes=shoeWish,trends=trendBoard)=>{setStyleLog(fits);setShoeWish(shoes);setTrendBoard(trends);await ss("sc_style",{fits,shoes,trends});};
-  const saveRoutine=async(entries=routineHist,items=routineItems)=>{setRoutineHist(entries);setRoutineItems(items);await ss("sc_routine",{entries,items});};
-  const saveSchool=async(sub,ql)=>{setSubjects(sub);setQuizLog(ql);await ss("sc_school",{subjects:sub,quizLog:ql});};
+  const markSaved=()=>{setShowSaved(true);clearTimeout(savedTm.current);savedTm.current=setTimeout(()=>setShowSaved(false),1100);};
+  const saveSleep=async e=>{setSleepEntries(e);const ok=await ss("sc_sleep",{entries:e});if(ok)markSaved();};
+  const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);const ok=await ss("sc_bball",{games:g,skills:sk});if(ok)markSaved();};
+  const savePrax=async p=>{setPractices(p);const ok=await ss("sc_practices",{entries:p});if(ok)markSaved();};
+  const saveGoals=async(g,s=stars)=>{setGoals(g);setStars(s);const ok=await ss("sc_goals",{entries:g,stars:s});if(ok)markSaved();};
+  const saveStyle=async(fits=styleLog,shoes=shoeWish,trends=trendBoard)=>{setStyleLog(fits);setShoeWish(shoes);setTrendBoard(trends);const ok=await ss("sc_style",{fits,shoes,trends});if(ok)markSaved();};
+  const saveRoutine=async(entries=routineHist,items=routineItems)=>{setRoutineHist(entries);setRoutineItems(items);const ok=await ss("sc_routine",{entries,items});if(ok)markSaved();};
+  const saveSchool=async(sub,ql)=>{setSubjects(sub);setQuizLog(ql);const ok=await ss("sc_school",{subjects:sub,quizLog:ql});if(ok)markSaved();};
   const getGlowReport=()=>{
     const report=[];
     const add=(area,e,col,doing,needs,next,stat)=>report.push({area,e,col,doing,needs,next,stat});
@@ -358,7 +365,7 @@ export default function ScarlettTracker(){
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-          <div style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,26,140,.20),rgba(139,92,246,.15))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)"}}>
+          <div role="button" tabIndex={0} onClick={()=>setTab("coach")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("coach");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,26,140,.20),rgba(139,92,246,.15))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)",cursor:"pointer"}}>
             <div style={{fontSize:8,color:C.pink,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>Today’s Vibe</div>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <svg width={58} height={58} style={{flexShrink:0,filter:`drop-shadow(0 0 14px ${readiness.level.col}77)`}}>
@@ -373,7 +380,7 @@ export default function ScarlettTracker(){
               </div>
             </div>
           </div>
-          <div style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,26,140,.14))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)"}}>
+          <div role="button" tabIndex={0} onClick={()=>setTab("progress")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("progress");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,26,140,.14))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)",cursor:"pointer"}}>
             <div style={{fontSize:8,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:5}}>Stars Earned</div>
             <div style={{display:"flex",alignItems:"baseline",gap:6}}><div style={{fontSize:38,fontWeight:900,color:C.gold,lineHeight:1,textShadow:"0 0 30px rgba(255,215,0,.9)",letterSpacing:"-1px"}}>⭐ {stars}</div></div>
             <div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:5}}>Games · Goals · Practice</div>
@@ -381,11 +388,11 @@ export default function ScarlettTracker(){
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-          <div style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,61,127,.24),rgba(90,0,110,.46))"}}>
+          <div role="button" tabIndex={0} onClick={()=>setTab("skills")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("skills");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,61,127,.24),rgba(90,0,110,.46))",cursor:"pointer"}}>
             <div style={{fontSize:8,color:C.coral,fontWeight:900,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:7}}>Hoops Mission</div>
             <div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={48}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:900,color:"white",lineHeight:1.15}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>Today’s focus</div></div></div>
           </div>
-          <div style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(0,229,204,.22),rgba(16,60,100,.50))"}}>
+          <div role="button" tabIndex={0} onClick={()=>setTab("school")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("school");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(0,229,204,.22),rgba(16,60,100,.50))",cursor:"pointer"}}>
             <div style={{fontSize:8,color:C.teal,fontWeight:900,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:7}}>School Focus</div>
             {worstSubj?<div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={48}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:900,color:"white",lineHeight:1.15}}>{worstSubj[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>15 min tonight</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}><div style={{fontSize:25}}>🌟</div><div><div style={{fontSize:12,fontWeight:900,color:C.green}}>All A's & B's!</div><div style={{fontSize:9,color:"rgba(255,255,255,.5)"}}>Keep it up!</div></div></div>}
           </div>
@@ -439,7 +446,7 @@ export default function ScarlettTracker(){
       <div style={{...cs,padding:14}}>
         <CH e="💧" title="Water" sub="8 glasses target"/>
         <div style={{display:"flex",flexWrap:"wrap",gap:4,justifyContent:"center",marginBottom:6}}>
-          {Array.from({length:8},(_,i)=><div key={i} onClick={()=>setWater(i<water?i:i+1)} style={{width:28,height:36,borderRadius:"3px 3px 6px 6px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,boxShadow:i<water?`0 0 14px ${C.teal}55`:"none",cursor:"pointer",position:"relative",overflow:"hidden",background:i<water?"#00100D":C.card2}}>
+          {Array.from({length:8},(_,i)=><div key={i} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setWater(i<water?i:i+1);}}} onClick={()=>setWater(i<water?i:i+1)} style={{width:28,height:36,borderRadius:"3px 3px 6px 6px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,boxShadow:i<water?`0 0 14px ${C.teal}55`:"none",cursor:"pointer",position:"relative",overflow:"hidden",background:i<water?"#00100D":C.card2}}>
             {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"70%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
           </div>)}
         </div>
@@ -448,7 +455,7 @@ export default function ScarlettTracker(){
 
       {Object.entries(groups).map(([grp,items])=><div key={grp} style={cs}>
         <div style={{fontSize:9,fontWeight:800,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{grp}</div>
-        {items.map(h=>{const ok=checks[h.id];return<div key={h.id} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 6px",borderRadius:8,cursor:"pointer",opacity:ok?0.45:1,background:ok?"#050712":"transparent",marginBottom:2}}>
+        {items.map(h=>{const ok=checks[h.id];return<div key={h.id} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setChecks(p=>({...p,[h.id]:!p[h.id]}));}}} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 6px",borderRadius:8,cursor:"pointer",opacity:ok?0.45:1,background:ok?"#050712":"transparent",marginBottom:2}}>
           <div style={{width:22,height:22,borderRadius:6,border:ok?"none":`2px solid ${C.border}`,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"center",color:C.white,fontSize:11,boxShadow:ok?`0 0 16px ${C.green}66`:"none"}}>{ok&&"✓"}</div>
           <div style={{flex:1,fontSize:12,color:ok?C.muted:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
           <div style={{fontSize:10,color:C.purple,fontWeight:700}}>{h.time}</div>
@@ -1111,7 +1118,14 @@ export default function ScarlettTracker(){
 
   const CONTENT={today:Today,games:Games,practice:Practice,style:Style,routine:Routine,sleep:Sleep,skills:Skills,school:School,coach:Coach,goals:Goals2,progress:Progress,settings:Settings};
   if(!loaded)return<div style={{background:"radial-gradient(circle at 20% 0%,#5E1D8A,transparent 35%),radial-gradient(circle at 80% 20%,#FF5FD255,transparent 35%),#090015",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:46,filter:`drop-shadow(0 0 18px ${C.gold})`}}>⭐</div><div style={{fontWeight:900}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
-  return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
+  return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}><style>{`
+        *{box-sizing:border-box}
+        button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+        button{appearance:none}
+        button:active,[role="button"]:active{filter:brightness(1.08)}
+        input,textarea,select{font-size:16px!important}
+        ::-webkit-scrollbar{display:none}
+      `}</style>
     <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(255,26,140,.12),0 0 200px rgba(139,92,246,.06)"}}>
       <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 12px 8px",background:"linear-gradient(180deg,rgba(15,0,28,.95),rgba(15,0,28,.78))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
@@ -1121,13 +1135,13 @@ export default function ScarlettTracker(){
           </div>
           <div style={{background:"linear-gradient(135deg,rgba(255,215,0,.30),rgba(255,26,140,.18))",border:`1px solid ${C.gold}77`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 28px ${C.gold}33,inset 0 1px 0 rgba(255,255,255,.2)`}}><div style={{fontWeight:900,fontSize:18,color:C.gold,textShadow:"0 0 20px rgba(255,215,0,.8)"}}>⭐ {stars}</div><div style={{fontSize:8,color:"rgba(255,255,255,.7)",fontWeight:800,letterSpacing:"1px"}}>STARS</div></div>
         </div>
-        <div style={{display:"flex",overflowX:"auto",gap:7,paddingBottom:2}}>
+        <div style={{display:"flex",overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",gap:7,paddingBottom:2,paddingRight:46}}>
           {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:900,fontSize:9,letterSpacing:"0.7px",color:tab===t.id?C.white:C.muted,padding:"8px 9px",border:`1px solid ${tab===t.id?"rgba(255,255,255,.20)":"rgba(255,255,255,.06)"}`,background:tab===t.id?glamGrad:"rgba(255,255,255,.045)",borderRadius:999,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui",boxShadow:tab===t.id?`0 0 18px ${C.pink}55`:"none"}}>{t.e} {t.label}</button>)}
         </div>
       </div>
-      <div style={{padding:"12px 12px calc(132px + env(safe-area-inset-bottom, 0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
-      <div style={{position:"fixed",left:"50%",bottom:"max(10px, env(safe-area-inset-bottom, 0px))",transform:"translateX(-50%)",width:"min(406px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,background:"rgba(12,0,25,.88)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:24,padding:"8px 8px calc(8px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
-        {[["today","🏠","Home"],["goals","🎯","Goals"],["practice","＋","Log"],["progress","📈","Glow"],["style","👟","Style"]].map(([id,e,l])=><button key={id} onClick={()=>setTab(id)} style={{background:tab===id?`${C.pink}22`:"transparent",border:"none",borderRadius:16,color:tab===id?C.pink:C.muted,padding:"7px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:id==="practice"?24:18,lineHeight:1}}>{e}</div><div style={{fontSize:8,marginTop:3}}>{l}</div></button>)}
+      <div style={{padding:"12px 12px calc(182px + env(safe-area-inset-bottom, 0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
+      <div style={{position:"fixed",left:"50%",bottom:"max(8px, env(safe-area-inset-bottom, 0px))",transform:"translateX(-50%)",width:"min(406px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,background:"rgba(12,0,25,.88)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"6px 7px calc(6px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
+        {[["today","🏠","Home"],["goals","🎯","Goals"],["practice","＋","Log"],["progress","📈","Glow"],["style","👟","Style"]].map(([id,e,l])=><button key={id} onClick={()=>setTab(id)} style={{background:tab===id?`${C.pink}22`:"transparent",border:"none",borderRadius:15,color:tab===id?C.pink:C.muted,padding:"5px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:id==="practice"?22:17,lineHeight:1}}>{e}</div><div style={{fontSize:7,marginTop:2}}>{l}</div></button>)}
       </div>
     </div>
   </div>;
