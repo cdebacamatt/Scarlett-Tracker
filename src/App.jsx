@@ -230,7 +230,9 @@ function StableRenderer({render}){return render();}
 
 export default function ScarlettTracker(){
   const[loaded,setLoaded]=useState(false);
-  const[tab,setTab]=useState("today");
+  const[tab,setTab]=useState(()=>{
+    try{return localStorage.getItem("sc_last_tab")||"today";}catch{return "today";}
+  });
   const[selDay,setSelDay]=useState(todayISO());
   const[dailyHist,setDailyHist]=useState({});
   const[checks,setChecks]=useState({});
@@ -264,6 +266,10 @@ export default function ScarlettTracker(){
   const[trainingDays,setTrainingDays]=useState(clone(DEF_TRAINING));
   const supRef=useRef(false),saveTmr=useRef(null),savedTm=useRef(null);
   const allH=habits,habitPct=allH.length?Math.round(allH.filter(h=>checks[h.id]).length/allH.length*100):0;
+
+  useEffect(()=>{
+    try{localStorage.setItem("sc_last_tab",tab);}catch{}
+  },[tab]);
 
   const applyDay=useCallback(entry=>{const d={...emptyDaily(),...(entry||{})};setChecks(d.c||{});setWater(d.w||0);setNotes(d.n||"");setVitals(d.vitals||clone(DEF_VITALS));},[]);
 
