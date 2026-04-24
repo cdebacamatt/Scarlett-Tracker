@@ -637,7 +637,22 @@ export default function ScarlettTracker(){
 
   // ── STYLE LOCKER ───────────────────────────────────────────────────────
   const Style=()=>{
+    const[styleMode,setStyleMode]=useState("fit");
     const avgConf=styleLog.length?Math.round(avgArr(styleLog.map(f=>f.confidence||0))*10)/10:0;
+    const styleStreak=styleLog.filter(f=>daysAgo(f.dateISO||todayISO())<=7).length;
+    const wishTop=shoeWish[0];
+    const moodWord=avgConf>=4.5?"Icon Era":avgConf>=4?"Locked In":avgConf>=3?"Building":styleLog.length?"Finding Vibe":"Start Styling";
+    const quickFits=[
+      {name:"Game-Day Drip",type:"Game Day Fit",shoes:"Basketball shoes",outfit:"Jersey, shorts, hoodie, fresh socks",hair:"Ponytail or headband",trend:"sporty glam",notes:"I felt confident and ready to play."},
+      {name:"Practice Ready",type:"Practice Fit",shoes:"Practice shoes",outfit:"Shorts, tee, hoodie, water bottle",hair:"High ponytail",trend:"athlete mode",notes:"Comfortable, focused, ready to work."},
+      {name:"School Streetwear",type:"School Fit",shoes:"Favorite sneakers",outfit:"Jeans or cargos, hoodie, clean colors",hair:"Clean ponytail or braids",trend:"streetwear",notes:"Felt cute and confident at school."},
+      {name:"Weekend Glow",type:"Weekend Fit",shoes:"Cute sneakers",outfit:"Comfy outfit with one bold color",hair:"Hair accessory",trend:"glow-up",notes:"Fun style idea for the weekend."}
+    ];
+    const quickShoes=["Sabrina 2","Kobe","Ja 2","Jordan 1","AE 1","Book 1","LeBron Witness","KD Trey"];
+    const trendIdeas=["glowy skin","clean ponytail","game-day braids","pink shoes","streetwear","sporty glam","cute hoodie","fresh socks","headband","night routine","lip balm","face care"];
+    const applyFit=p=>setStyleForm(v=>({...v,type:p.type,shoes:p.shoes,outfit:p.outfit,hair:p.hair,trend:p.trend,notes:p.notes}));
+    const quickShoe=name=>setShoeForm(p=>({...p,name,why:p.why||"I like the colors, style, and game-day look.",priority:p.priority||"Dream"}));
+    const quickTrend=async txt=>{if(trendBoard.some(t=>t.text.toLowerCase()===txt.toLowerCase()))return;const item={id:uid(),date:toShort(todayISO()),text:txt};await saveStyle(styleLog,shoeWish,[item,...trendBoard].slice(0,40));};
     const logFit=async()=>{
       if(!styleForm.shoes&&!styleForm.outfit&&!styleForm.hair&&!styleForm.trend&&!styleForm.notes)return;
       const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...styleForm};
@@ -658,95 +673,125 @@ export default function ScarlettTracker(){
       await saveStyle(styleLog,shoeWish,[item,...trendBoard].slice(0,40));
       setTrendForm("");
     };
-    return<div>
-      <GlamHero>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:14}}>
-          <div>
-            <div style={{fontSize:30,fontWeight:900,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Style Locker</div>
-            <div style={{fontSize:11,color:C.light,letterSpacing:"1px",fontWeight:850,marginTop:5}}>LOOK GOOD · FEEL GOOD · PLAY GREAT</div>
+    const modeButton=(id,e,l,c)=><button onClick={()=>setStyleMode(id)} style={{background:styleMode===id?`linear-gradient(135deg,${c},${C.purple})`:"rgba(255,255,255,.06)",border:`1px solid ${styleMode===id?"rgba(255,255,255,.24)":C.border}`,borderRadius:16,padding:"10px 8px",color:styleMode===id?C.white:C.light,fontFamily:"system-ui",fontWeight:900,cursor:"pointer",boxShadow:styleMode===id?`0 10px 24px ${c}33`:"none"}}><div style={{fontSize:20,lineHeight:1}}>{e}</div><div style={{fontSize:9,marginTop:4,letterSpacing:".4px"}}>{l}</div></button>;
+    return <div>
+      <GlamHero style={{padding:16}}>
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:34,fontWeight:950,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent",letterSpacing:"-.9px"}}>Style Locker</div>
+            <div style={{fontSize:10,color:C.light,letterSpacing:"1.5px",fontWeight:900,marginTop:6}}>LOOK GOOD · FEEL GOOD · PLAY GREAT</div>
           </div>
-          <div style={{width:50,height:50,borderRadius:16,background:"linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.04))",border:"1px solid rgba(255,255,255,.16)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:25,boxShadow:`0 0 22px ${C.pink}33`}}>🛍️</div>
+          <div style={{width:58,height:58,borderRadius:20,background:"linear-gradient(145deg,rgba(255,95,200,.24),rgba(255,215,0,.12))",border:"1px solid rgba(255,255,255,.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,boxShadow:`0 0 28px ${C.pink}33`}}>🛍️</div>
         </div>
-        <div style={{...glass,borderRadius:18,padding:12,marginBottom:12}}>
+
+        <div style={{display:"grid",gridTemplateColumns:"1.15fr .85fr",gap:10,marginBottom:12}}>
+          <div style={{...glass,borderRadius:18,padding:13,background:"linear-gradient(145deg,rgba(248,95,200,.20),rgba(139,92,246,.13))"}}>
+            <div style={{fontSize:8,color:C.pink,fontWeight:950,letterSpacing:"1.7px",textTransform:"uppercase",marginBottom:7}}>Style Level</div>
+            <div style={{fontSize:28,fontWeight:950,color:C.white,lineHeight:1,textShadow:`0 0 20px ${C.pink}55`}}>{moodWord}</div>
+            <div style={{fontSize:10,color:C.muted,marginTop:6}}>Confidence Avg: {avgConf||"—"}/5 · {styleStreak} fits this week</div>
+          </div>
+          <button onClick={()=>setStyleMode("shoes")} style={{...glass,borderRadius:18,padding:13,background:"linear-gradient(145deg,rgba(255,215,0,.18),rgba(255,95,200,.12))",textAlign:"left",fontFamily:"system-ui",cursor:"pointer"}}>
+            <div style={{fontSize:8,color:C.gold,fontWeight:950,letterSpacing:"1.7px",textTransform:"uppercase",marginBottom:7}}>Shoe Goal</div>
+            <div style={{fontSize:22,fontWeight:950,color:C.gold,lineHeight:1}}>👟 {shoeWish.length}</div>
+            <div style={{fontSize:10,color:C.muted,marginTop:6}}>{wishTop?`Top pick: ${wishTop.name}`:"Add her dream pair"}</div>
+          </button>
+        </div>
+
+        <div style={{...glass,borderRadius:18,padding:12}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-            <div style={{fontWeight:900,fontSize:12,color:C.pink,letterSpacing:"1px"}}>SNEAKER WISHLIST 👟✨</div>
-            <div style={{fontSize:10,color:C.gold,fontWeight:900}}>{shoeWish.length} saved</div>
+            <div style={{fontWeight:950,fontSize:12,color:C.pink,letterSpacing:"1px"}}>SNEAKER WISHLIST 👟✨</div>
+            <button onClick={()=>setStyleMode("shoes")} style={{background:`${C.gold}22`,border:`1px solid ${C.gold}55`,color:C.gold,borderRadius:999,padding:"5px 10px",fontSize:10,fontWeight:900,fontFamily:"system-ui",cursor:"pointer"}}>{shoeWish.length} saved</button>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-            {(shoeWish.length?shoeWish.slice(0,3):[{name:"Sabrina 2",priority:"Dream"},{name:"Kobe",priority:"Next Up"},{name:"Ja 2",priority:"Maybe"}]).map((s,i)=><div key={s.id||i} style={{background:"linear-gradient(145deg,#FBE7FF,#FFF5F9)",borderRadius:14,padding:8,minHeight:72,color:"#2A0C35",boxShadow:"0 12px 22px rgba(0,0,0,.18)"}}>
-              <div style={{height:32,borderRadius:12,background:i===0?"linear-gradient(135deg,#DAB8FF,#8F55FF)":i===1?"linear-gradient(135deg,#0D0D13,#C78A2B)":"linear-gradient(135deg,#68B7FF,#1550A8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:6}}>👟</div>
-              <div style={{fontSize:10,fontWeight:900,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.name}</div>
-              <div style={{fontSize:8,fontWeight:900,color:i===0?"#9333EA":i===1?"#D97706":"#0891B2"}}>{s.priority||"Dream"} ♥</div>
-            </div>)}
+            {(shoeWish.length?shoeWish.slice(0,3):[{name:"Sabrina 2",priority:"Dream"},{name:"Kobe",priority:"Next Up"},{name:"Ja 2",priority:"Maybe"}]).map((s,i)=><button key={s.id||i} onClick={()=>{quickShoe(s.name);setStyleMode("shoes");}} style={{background:"linear-gradient(145deg,#FBE7FF,#FFF5F9)",border:"none",borderRadius:16,padding:8,minHeight:78,color:"#2A0C35",boxShadow:"0 12px 22px rgba(0,0,0,.18)",fontFamily:"system-ui",cursor:"pointer",textAlign:"left"}}>
+              <div style={{height:34,borderRadius:13,background:i===0?"linear-gradient(135deg,#DAB8FF,#8F55FF)":i===1?"linear-gradient(135deg,#0D0D13,#C78A2B)":"linear-gradient(135deg,#68B7FF,#1550A8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:7}}>👟</div>
+              <div style={{fontSize:10,fontWeight:950,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",color:"#271033"}}>{s.name}</div>
+              <div style={{fontSize:8,fontWeight:950,color:i===0?"#9333EA":i===1?"#D97706":"#0891B2"}}>{s.priority||"Dream"} ♥</div>
+            </button>)}
           </div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-          <SBox value={styleLog.length} label="Fits Logged" color={C.pink}/>
-          <SBox value={shoeWish.length} label="Shoe List" color={C.gold}/>
-          <SBox value={avgConf||"—"} label="Vibe Avg" color={C.purple} sub="out of 5"/>
         </div>
       </GlamHero>
 
-      <div style={cs}>
-        <CH e="🔥" title="Log a Fit" sub="Game day, practice, school, or weekend"/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>FIT TYPE</div><select value={styleForm.type} onChange={e=>setStyleForm(p=>({...p,type:e.target.value}))} style={{...INP,appearance:"none"}}>{STYLE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>SHOES</div><input value={styleForm.shoes} onChange={e=>setStyleForm(p=>({...p,shoes:e.target.value}))} placeholder="e.g. Jordans, Kobes, Sabrinas" style={INP}/></div>
-        </div>
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>OUTFIT IDEA</div><input value={styleForm.outfit} onChange={e=>setStyleForm(p=>({...p,outfit:e.target.value}))} placeholder="Jersey, hoodie, cargos, sweats, colors..." style={INP}/></div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>HAIR / ACCESSORIES</div><input value={styleForm.hair} onChange={e=>setStyleForm(p=>({...p,hair:e.target.value}))} placeholder="Braids, ponytail, headband..." style={INP}/></div>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>TREND INSPO</div><input value={styleForm.trend} onChange={e=>setStyleForm(p=>({...p,trend:e.target.value}))} placeholder="Clean girl, streetwear, sporty..." style={INP}/></div>
-        </div>
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:6}}>CONFIDENCE VIBE (1–5)</div><RD val={styleForm.confidence} max={5} col={C.pink} onSet={v=>setStyleForm(p=>({...p,confidence:v}))}/></div>
-        <textarea value={styleForm.notes} onChange={e=>setStyleForm(p=>({...p,notes:e.target.value}))} placeholder="What made this fit feel good? Any ideas for next time?" style={{...TXT,minHeight:54,marginBottom:10}}/>
-        <button onClick={logFit} style={{width:"100%",padding:12,background:`linear-gradient(135deg,${C.pink},${C.purple})`,color:C.white,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Save Fit ⭐</button>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+        {modeButton("fit","🔥","Fit Check",C.pink)}
+        {modeButton("shoes","👟","Shoes",C.gold)}
+        {modeButton("trends","💄","Trends",C.teal)}
       </div>
 
-      <div style={cs}>
-        <CH e="👟" title="Basketball Shoe Wishlist" sub="Track shoes she likes and why"/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 100px",gap:8,marginBottom:8}}>
+      {styleMode==="fit"&&<div style={cs}>
+        <CH e="🔥" title="Fit Check Studio" sub="Tap a vibe, then customize it"/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
+          {quickFits.map(p=><button key={p.name} onClick={()=>applyFit(p)} style={{background:"linear-gradient(145deg,rgba(255,95,200,.18),rgba(255,255,255,.05))",border:`1px solid ${C.border}`,borderRadius:16,padding:11,textAlign:"left",color:C.text,fontFamily:"system-ui",cursor:"pointer"}}>
+            <div style={{fontSize:18,marginBottom:5}}>{p.type==="Game Day Fit"?"🏀":p.type==="Practice Fit"?"💪":p.type==="School Fit"?"📚":"✨"}</div>
+            <div style={{fontSize:12,fontWeight:950,color:C.white}}>{p.name}</div>
+            <div style={{fontSize:9,color:C.muted,marginTop:3}}>{p.trend}</div>
+          </button>)}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10,marginBottom:10}}>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:3}}>FIT TYPE</div><select value={styleForm.type} onChange={e=>setStyleForm(p=>({...p,type:e.target.value}))} style={{...INP,appearance:"none"}}>{STYLE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:3}}>SHOES</div><input value={styleForm.shoes} onChange={e=>setStyleForm(p=>({...p,shoes:e.target.value}))} placeholder="e.g. Sabrinas, Jordans, Kobes" style={INP}/></div>
+        </div>
+        <div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:3}}>OUTFIT IDEA</div><input value={styleForm.outfit} onChange={e=>setStyleForm(p=>({...p,outfit:e.target.value}))} placeholder="Jersey, hoodie, cargos, sweats, colors..." style={INP}/></div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10,marginBottom:10}}>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:3}}>HAIR / ACCESSORIES</div><input value={styleForm.hair} onChange={e=>setStyleForm(p=>({...p,hair:e.target.value}))} placeholder="Braids, ponytail, headband..." style={INP}/></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:3}}>TREND INSPO</div><input value={styleForm.trend} onChange={e=>setStyleForm(p=>({...p,trend:e.target.value}))} placeholder="Clean girl, streetwear, sporty..." style={INP}/></div>
+        </div>
+        <div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:6}}>CONFIDENCE VIBE (1–5)</div><RD val={styleForm.confidence} max={5} col={C.pink} onSet={v=>setStyleForm(p=>({...p,confidence:v}))}/></div>
+        <textarea value={styleForm.notes} onChange={e=>setStyleForm(p=>({...p,notes:e.target.value}))} placeholder="What made this fit feel good? Any ideas for next time?" style={{...TXT,minHeight:62,marginBottom:12}}/>
+        <button onClick={logFit} style={{width:"100%",padding:14,background:`linear-gradient(135deg,${C.pink},${C.purple})`,color:C.white,border:"none",borderRadius:12,fontWeight:950,cursor:"pointer",fontSize:15,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.pink}33`}}>Save Fit ⭐</button>
+      </div>}
+
+      {styleMode==="shoes"&&<div style={cs}>
+        <CH e="👟" title="Basketball Shoe Wishlist" sub="Tap a shoe idea or type her own"/>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:8,marginBottom:10}}>
+          {quickShoes.map(n=><button key={n} onClick={()=>quickShoe(n)} style={{flexShrink:0,background:`${C.gold}18`,border:`1px solid ${C.gold}44`,color:C.gold,borderRadius:999,padding:"8px 11px",fontSize:11,fontWeight:900,fontFamily:"system-ui",cursor:"pointer"}}>👟 {n}</button>)}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 112px",gap:8,marginBottom:10}}>
           <input value={shoeForm.name} onChange={e=>setShoeForm(p=>({...p,name:e.target.value}))} placeholder="Shoe name" style={INP}/>
           <select value={shoeForm.priority} onChange={e=>setShoeForm(p=>({...p,priority:e.target.value}))} style={{...INP,appearance:"none"}}>{SHOE_PRIORITY.map(x=><option key={x} value={x}>{x}</option>)}</select>
         </div>
-        <input value={shoeForm.why} onChange={e=>setShoeForm(p=>({...p,why:e.target.value}))} placeholder="Why she likes them: color, player, style, comfort..." style={{...INP,marginBottom:8}}/>
-        <button onClick={addShoe} style={{width:"100%",padding:10,background:C.gold,color:C.bg,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Add Shoe</button>
-        {shoeWish.length>0&&<div style={{marginTop:12}}>
-          {shoeWish.slice(0,10).map(s=><div key={s.id} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"9px 0",borderTop:`1px solid ${C.border}`}}>
-            <div style={{fontSize:20}}>👟</div>
-            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:900,color:C.text}}>{s.name}</div><div style={{fontSize:10,color:C.gold,fontWeight:800}}>{s.priority}</div>{s.why&&<div style={{fontSize:10,color:C.muted,marginTop:2}}>{s.why}</div>}</div>
-            <button onClick={()=>saveStyle(styleLog,shoeWish.filter(x=>x.id!==s.id),trendBoard)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16}}>×</button>
+        <input value={shoeForm.why} onChange={e=>setShoeForm(p=>({...p,why:e.target.value}))} placeholder="Why she likes them: color, player, style, comfort..." style={{...INP,marginBottom:10}}/>
+        <button onClick={addShoe} style={{width:"100%",padding:13,background:C.gold,color:C.bg,border:"none",borderRadius:12,fontWeight:950,cursor:"pointer",fontSize:14,fontFamily:"system-ui",boxShadow:`0 12px 26px ${C.gold}33`}}>Add Shoe ✨</button>
+        {shoeWish.length>0&&<div style={{marginTop:14,display:"grid",gap:8}}>
+          {shoeWish.slice(0,12).map(s=><div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:10,borderRadius:14,background:"rgba(255,255,255,.06)",border:`1px solid ${C.border}`}}>
+            <div style={{fontSize:22}}>👟</div>
+            <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:950,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.name}</div><div style={{fontSize:10,color:C.gold,fontWeight:850}}>{s.priority}</div>{s.why&&<div style={{fontSize:10,color:C.muted,marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.why}</div>}</div>
+            <button onClick={()=>saveStyle(styleLog,shoeWish.filter(x=>x.id!==s.id),trendBoard)} style={{width:32,height:32,borderRadius:10,background:"rgba(255,100,122,.12)",border:`1px solid ${C.red}44`,color:C.red,cursor:"pointer",fontSize:16}}>×</button>
           </div>)}
         </div>}
-      </div>
+      </div>}
 
-      <div style={cs}>
-        <CH e="💄" title="Trend Board" sub="Age-appropriate makeup, face care, streetwear, hair, inspo"/>
-        <div style={{display:"flex",gap:8,marginBottom:10}}>
+      {styleMode==="trends"&&<div style={cs}>
+        <CH e="💄" title="Trend Board" sub="Face care, hair, streetwear, shoe colors, ideas"/>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:8,marginBottom:10}}>
+          {trendIdeas.map(t=><button key={t} onClick={()=>quickTrend(t)} style={{flexShrink:0,background:`${C.pink}18`,border:`1px solid ${C.pink}44`,color:C.pink,borderRadius:999,padding:"8px 11px",fontSize:11,fontWeight:900,fontFamily:"system-ui",cursor:"pointer"}}>✨ {t}</button>)}
+        </div>
+        <div style={{display:"flex",gap:8,marginBottom:12}}>
           <input value={trendForm} onChange={e=>setTrendForm(e.target.value)} placeholder="Add a trend or idea she likes..." style={INP}/>
-          <button onClick={addTrend} style={{padding:"0 14px",borderRadius:8,border:"none",background:C.pink,color:C.white,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>+</button>
+          <button onClick={addTrend} style={{minWidth:54,borderRadius:12,border:"none",background:C.pink,color:C.white,fontWeight:950,fontSize:20,cursor:"pointer",fontFamily:"system-ui",boxShadow:`0 10px 22px ${C.pink}33`}}>+</button>
         </div>
-        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-          {trendBoard.length?trendBoard.slice(0,16).map(t=><div key={t.id} onClick={()=>saveStyle(styleLog,shoeWish,trendBoard.filter(x=>x.id!==t.id))} style={{background:`${C.pink}18`,border:`1px solid ${C.pink}44`,borderRadius:20,padding:"6px 10px",fontSize:11,fontWeight:800,color:C.pink,cursor:"pointer"}}>✨ {t.text}</div>):<div style={{fontSize:11,color:C.muted}}>Add trends like “glowy skin,” “clean ponytail,” “pink shoes,” or “game-day braids.”</div>}
+        <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+          {trendBoard.length?trendBoard.slice(0,28).map(t=><button key={t.id} onClick={()=>saveStyle(styleLog,shoeWish,trendBoard.filter(x=>x.id!==t.id))} style={{background:`${C.pink}18`,border:`1px solid ${C.pink}44`,borderRadius:999,padding:"7px 11px",fontSize:11,fontWeight:900,color:C.pink,cursor:"pointer",fontFamily:"system-ui"}}>✨ {t.text}</button>):<div style={{fontSize:11,color:C.muted,lineHeight:1.6}}>Tap the chips above or add ideas like “glowy skin,” “clean ponytail,” “pink shoes,” or “game-day braids.”</div>}
         </div>
-      </div>
+      </div>}
 
       {styleLog.length>0&&<div style={cs}>
         <CH e="📸" title="Fit History" sub="What made her feel confident"/>
         {styleLog.slice(0,12).map(f=><div key={f.id} style={{padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
           <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
-            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:900,color:C.pink}}>{f.type} · {f.date}</div>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:950,color:C.pink}}>{f.type} · {f.date}</div>
               {f.shoes&&<div style={{fontSize:10,color:C.gold,marginTop:2}}>👟 {f.shoes}</div>}
               {f.outfit&&<div style={{fontSize:10,color:C.text,marginTop:2}}>👚 {f.outfit}</div>}
               {f.hair&&<div style={{fontSize:10,color:C.muted,marginTop:2}}>🎀 {f.hair}</div>}
               {f.trend&&<div style={{fontSize:10,color:C.purple,marginTop:2}}>✨ {f.trend}</div>}
               {f.confidence>0&&<div style={{fontSize:10,color:C.pink,marginTop:2}}>Confidence: {"⭐".repeat(f.confidence)}</div>}
-              {f.notes&&<div style={{fontSize:10,color:C.muted,marginTop:2,fontStyle:"italic"}}>{f.notes.slice(0,80)}</div>}
+              {f.notes&&<div style={{fontSize:10,color:C.muted,marginTop:2,fontStyle:"italic"}}>{f.notes.slice(0,90)}</div>}
             </div>
-            <button onClick={()=>saveStyle(styleLog.filter(x=>x.id!==f.id),shoeWish,trendBoard)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16}}>×</button>
+            <button onClick={()=>saveStyle(styleLog.filter(x=>x.id!==f.id),shoeWish,trendBoard)} style={{width:32,height:32,borderRadius:10,background:"rgba(255,100,122,.12)",border:`1px solid ${C.red}44`,color:C.red,cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
           </div>
         </div>)}
       </div>}
+      <SubmitSpacer/>
     </div>;
   };
 
