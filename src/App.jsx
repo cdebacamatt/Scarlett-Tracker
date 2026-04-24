@@ -240,6 +240,7 @@ export default function ScarlettTracker(){
   const[notes,setNotes]=useState("");
   const[vitals,setVitals]=useState(clone(DEF_VITALS));
   const[showSaved,setShowSaved]=useState(false);
+  const[editing,setEditing]=useState(false);
   const[sleepEntries,setSleepEntries]=useState([]);
   const[sleepForm,setSleepForm]=useState({bedtime:"21:00",waketime:"06:30",quality:0,notes:""});
   const[games,setGames]=useState([]);
@@ -264,8 +265,23 @@ export default function ScarlettTracker(){
   const[habits,setHabits]=useState(clone(DEF_HABITS));
   const[profile,setProfile]=useState(clone(DEF_PROFILE));
   const[trainingDays,setTrainingDays]=useState(clone(DEF_TRAINING));
-  const supRef=useRef(false),saveTmr=useRef(null),savedTm=useRef(null);
+  const supRef=useRef(false),saveTmr=useRef(null),savedTm=useRef(null),editBlurT=useRef(null);
   const allH=habits,habitPct=allH.length?Math.round(allH.filter(h=>checks[h.id]).length/allH.length*100):0;
+
+  const onEditFocus=e=>{
+    const t=e.target;
+    if(t&&["INPUT","TEXTAREA","SELECT"].includes(t.tagName)){
+      clearTimeout(editBlurT.current);
+      setEditing(true);
+    }
+  };
+  const onEditBlur=e=>{
+    const t=e.target;
+    if(t&&["INPUT","TEXTAREA","SELECT"].includes(t.tagName)){
+      clearTimeout(editBlurT.current);
+      editBlurT.current=setTimeout(()=>setEditing(false),160);
+    }
+  };
 
   useEffect(()=>{
     try{localStorage.setItem("sc_last_tab",tab);}catch{}
@@ -512,12 +528,12 @@ export default function ScarlettTracker(){
         <CH e="➕" title="Log a Game"/>
         <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>MAIN STATS</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6}}>
-            {[["PTS","pts"],["AST","ast"],["REB","reb"],["STL","stl"],["BLK","blk"],["TOV","tov"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:2}}>{l}</div><input type="number" min="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
+            {[["PTS","pts"],["AST","ast"],["REB","reb"],["STL","stl"],["BLK","blk"],["TOV","tov"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:2}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
           </div>
         </div>
         <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>SHOOTING</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
-            {[["FGM","fgm"],["FGA","fga"],["FTM","ftm"],["FTA","fta"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:2}}>{l}</div><input type="number" min="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
+            {[["FGM","fgm"],["FGA","fga"],["FTM","ftm"],["FTA","fta"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:2}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
@@ -583,7 +599,7 @@ export default function ScarlettTracker(){
         <CH e="➕" title="Log a Practice Session"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
           <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>PRACTICE TYPE</div><select value={practiceForm.type} onChange={e=>setPracticeForm(p=>({...p,type:e.target.value}))} style={{...INP,appearance:"none"}}>{PRACTICE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DURATION (min)</div><input type="number" min="0" value={practiceForm.duration} onChange={e=>setPracticeForm(p=>({...p,duration:e.target.value}))} placeholder="e.g. 60" style={INP}/></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DURATION (min)</div><input type="number" inputMode="numeric" min="0" placeholder="60" value={practiceForm.duration} onChange={e=>setPracticeForm(p=>({...p,duration:e.target.value}))} placeholder="e.g. 60" style={INP}/></div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
           <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:6}}>EFFORT (1–5)</div><RD val={practiceForm.effort} max={5} col={C.orange} onSet={v=>setPracticeForm(p=>({...p,effort:v}))}/></div>
@@ -856,7 +872,7 @@ export default function ScarlettTracker(){
       </div>
       <div style={cs}>
         <CH e="📊" title="Log a Test or Quiz"/>
-        <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:8,marginBottom:8}}><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>SUBJECT</div><select value={quizForm.subject} onChange={e=>setQuizForm(p=>({...p,subject:e.target.value}))} style={{...INP,appearance:"none"}}>{Object.keys(subjects).map(s=><option key={s} value={s}>{s}</option>)}</select></div><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>SCORE</div><input type="number" value={quizForm.score} onChange={e=>setQuizForm(p=>({...p,score:e.target.value}))} style={INP}/></div><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>OUT OF</div><input type="number" value={quizForm.total} onChange={e=>setQuizForm(p=>({...p,total:e.target.value}))} style={INP}/></div></div>
+        <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:8,marginBottom:8}}><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>SUBJECT</div><select value={quizForm.subject} onChange={e=>setQuizForm(p=>({...p,subject:e.target.value}))} style={{...INP,appearance:"none"}}>{Object.keys(subjects).map(s=><option key={s} value={s}>{s}</option>)}</select></div><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>SCORE</div><input type="number" inputMode="numeric" placeholder="95" value={quizForm.score} onChange={e=>setQuizForm(p=>({...p,score:e.target.value}))} style={INP}/></div><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>OUT OF</div><input type="number" inputMode="numeric" placeholder="100" value={quizForm.total} onChange={e=>setQuizForm(p=>({...p,total:e.target.value}))} style={INP}/></div></div>
         <textarea value={quizForm.notes} onChange={e=>setQuizForm(p=>({...p,notes:e.target.value}))} placeholder="Notes about this test..." style={{...TXT,marginBottom:10}}/>
         <button onClick={logQuiz} style={{width:"100%",padding:12,background:C.teal,color:C.navy,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Log Test ⭐</button>
       </div>
@@ -1141,12 +1157,12 @@ export default function ScarlettTracker(){
           </div>
           <div style={{background:"linear-gradient(135deg,rgba(255,215,0,.30),rgba(255,26,140,.18))",border:`1px solid ${C.gold}77`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 28px ${C.gold}33,inset 0 1px 0 rgba(255,255,255,.2)`}}><div style={{fontWeight:900,fontSize:18,color:C.gold,textShadow:"0 0 20px rgba(255,215,0,.8)"}}>⭐ {stars}</div><div style={{fontSize:8,color:"rgba(255,255,255,.7)",fontWeight:800,letterSpacing:"1px"}}>STARS</div></div>
         </div>
-        <div style={{display:"flex",overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",gap:7,paddingBottom:2,paddingRight:46}}>
+        <div style={{display:"flex",overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",gap:7,paddingBottom:2,paddingRight:86}}>
           {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:900,fontSize:9,letterSpacing:"0.7px",color:tab===t.id?C.white:C.muted,padding:"8px 9px",border:`1px solid ${tab===t.id?"rgba(255,255,255,.20)":"rgba(255,255,255,.06)"}`,background:tab===t.id?glamGrad:"rgba(255,255,255,.045)",borderRadius:999,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui",boxShadow:tab===t.id?`0 0 18px ${C.pink}55`:"none"}}>{t.e} {t.label}</button>)}
         </div>
       </div>
-      <div style={{padding:"12px 12px calc(182px + env(safe-area-inset-bottom, 0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
-      <div style={{position:"fixed",left:"50%",bottom:"max(8px, env(safe-area-inset-bottom, 0px))",transform:"translateX(-50%)",width:"min(406px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,background:"rgba(12,0,25,.88)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"6px 7px calc(6px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
+      <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"12px 12px calc(210px + env(safe-area-inset-bottom, 0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
+      <div style={{position:"fixed",left:"50%",bottom:"max(8px, env(safe-area-inset-bottom, 0px))",transform:editing?"translate(-50%, calc(125% + 24px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease, opacity .18s ease",width:"min(406px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,background:"rgba(12,0,25,.88)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"6px 7px calc(6px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
         {[["today","🏠","Home"],["goals","🎯","Goals"],["practice","＋","Log"],["progress","📈","Glow"],["style","👟","Style"]].map(([id,e,l])=><button key={id} onClick={()=>setTab(id)} style={{background:tab===id?`${C.pink}22`:"transparent",border:"none",borderRadius:15,color:tab===id?C.pink:C.muted,padding:"5px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:id==="practice"?22:17,lineHeight:1}}>{e}</div><div style={{fontSize:7,marginTop:2}}>{l}</div></button>)}
       </div>
     </div>
