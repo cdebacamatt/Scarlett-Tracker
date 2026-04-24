@@ -138,27 +138,78 @@ function Sparkles(){return<>
   <div style={{position:"absolute",top:36,right:68,color:C.pink,fontSize:10,opacity:.75}}>✧</div>
   <div style={{position:"absolute",bottom:18,left:18,color:C.teal,fontSize:10,opacity:.7}}>✦</div>
 </>;}
-function ScarlettAvatar(){return <div aria-label="Scarlett athlete photo card" style={{position:"relative",width:142,height:156,flexShrink:0}}>
-  <div style={{position:"absolute",inset:0,borderRadius:28,background:"linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04))",border:"1px solid rgba(255,255,255,.18)",boxShadow:"0 22px 55px rgba(0,0,0,.42),0 0 36px rgba(248,95,200,.18)",overflow:"hidden"}}>
-    <div style={{position:"absolute",inset:0,background:"radial-gradient(circle at 30% 10%,rgba(248,95,200,.28),transparent 36%),radial-gradient(circle at 78% 20%,rgba(44,230,209,.16),transparent 28%),linear-gradient(160deg,#24133F,#0C0719)"}}/>
-    <div style={{position:"absolute",left:8,right:8,top:8,bottom:34,borderRadius:22,overflow:"hidden",background:"linear-gradient(145deg,#2C174A,#11091F)",border:"1px solid rgba(255,255,255,.14)"}}>
+function ScarlettAvatar(){return <div aria-label="Scarlett athlete portrait card" style={{position:"relative",width:176,height:190,flexShrink:0}}>
+  <div style={{
+    position:"absolute",
+    inset:0,
+    borderRadius:28,
+    background:"linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.035))",
+    border:"1px solid rgba(255,255,255,.18)",
+    boxShadow:"0 22px 55px rgba(0,0,0,.42),0 0 34px rgba(248,95,200,.16)",
+    overflow:"hidden"
+  }}>
+    <div style={{
+      position:"absolute",
+      inset:0,
+      background:"radial-gradient(circle at 30% 5%,rgba(248,95,200,.22),transparent 36%),radial-gradient(circle at 80% 12%,rgba(255,209,102,.18),transparent 25%),linear-gradient(160deg,#2A164B,#110820)"
+    }}/>
+    <div style={{
+      position:"absolute",
+      left:8,
+      right:8,
+      top:8,
+      height:122,
+      borderRadius:22,
+      overflow:"hidden",
+      background:"linear-gradient(145deg,#29154A,#110820)",
+      border:"1px solid rgba(255,255,255,.15)"
+    }}>
       <img
         src={`${import.meta.env.BASE_URL}scarlett-avatar.png`}
         alt="Scarlett athlete avatar"
         onError={(e)=>{e.currentTarget.style.display="none";}}
-        style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top",filter:"saturate(1.08) contrast(1.04)"}}
+        style={{
+          position:"absolute",
+          inset:0,
+          width:"100%",
+          height:"100%",
+          objectFit:"cover",
+          objectPosition:"center top",
+          filter:"saturate(1.08) contrast(1.04)"
+        }}
       />
-      <div style={{position:"absolute",inset:0,background:"linear-gradient(180deg,rgba(5,0,14,.02),rgba(5,0,14,.18) 55%,rgba(5,0,14,.72))"}}/>
-      <div style={{position:"absolute",left:10,top:10,borderRadius:999,padding:"4px 8px",background:"rgba(0,0,0,.42)",border:"1px solid rgba(255,255,255,.16)",fontSize:8,fontWeight:950,letterSpacing:"1px",color:C.gold,backdropFilter:"blur(8px)"}}>ATHLETE</div>
-      <div style={{position:"absolute",right:10,top:10,fontSize:17,filter:`drop-shadow(0 0 10px ${C.gold})`}}>👑</div>
-      <div style={{position:"absolute",left:10,right:10,bottom:9}}>
-        <div style={{fontSize:12,fontWeight:950,color:C.white,lineHeight:1,textShadow:"0 2px 10px rgba(0,0,0,.65)"}}>SCARLETT</div>
-        <div style={{fontSize:8,fontWeight:900,letterSpacing:"1.4px",color:C.pink,marginTop:3}}>HOOPS · STYLE · GLOW</div>
-      </div>
+      <div style={{
+        position:"absolute",
+        inset:0,
+        background:"linear-gradient(180deg,rgba(5,0,14,.02),rgba(5,0,14,.12) 52%,rgba(5,0,14,.62))"
+      }}/>
+      <div style={{
+        position:"absolute",
+        top:7,
+        right:8,
+        color:C.gold,
+        fontSize:20,
+        textShadow:"0 0 14px rgba(255,209,102,.8)"
+      }}>✦</div>
     </div>
-    <div style={{position:"absolute",left:10,right:10,bottom:8,display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-      <div style={{background:"rgba(248,95,200,.18)",border:"1px solid rgba(248,95,200,.32)",borderRadius:11,padding:"6px 4px",textAlign:"center",fontSize:8,fontWeight:950,color:C.pink}}>FIT CHECK</div>
-      <div style={{background:"rgba(44,230,209,.14)",border:"1px solid rgba(44,230,209,.30)",borderRadius:11,padding:"6px 4px",textAlign:"center",fontSize:8,fontWeight:950,color:C.teal}}>GAME DAY</div>
+
+    <div style={{position:"absolute",left:10,right:10,bottom:13,textAlign:"center"}}>
+      <div style={{
+        fontSize:23,
+        fontWeight:950,
+        color:C.white,
+        lineHeight:1,
+        letterSpacing:"-.6px",
+        textShadow:"0 2px 16px rgba(0,0,0,.55)"
+      }}>Scarlett <span style={{color:C.gold}}>♛</span></div>
+      <div style={{
+        marginTop:6,
+        fontSize:10,
+        fontWeight:950,
+        letterSpacing:"2.5px",
+        color:C.pink,
+        textTransform:"uppercase"
+      }}>Athlete</div>
     </div>
   </div>
 </div>;}
@@ -303,7 +354,7 @@ export default function ScarlettTracker(){
             <div style={{fontWeight:900,fontSize:20,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{profile.name}</span> ✨</div>
             <div style={{fontSize:10,color:C.light,lineHeight:1.45,marginTop:6}}>Big goals. One strong day at a time.</div>
           </div>
-          <div style={{transform:"scale(.88)",transformOrigin:"right center",marginRight:-10}}><ScarlettAvatar/></div>
+          <div style={{transform:"scale(.82)",transformOrigin:"right center",marginRight:-14}}><ScarlettAvatar/></div>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
