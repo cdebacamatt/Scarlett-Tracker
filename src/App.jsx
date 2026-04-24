@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const C={bg:"#0D0919",nav:"#120E24",navy:"#130D22",navy2:"#1C1535",card:"#1C1535",card2:"#241C42",border:"#2D2050",coral:"#FF6B6B",teal:"#00C9A7",purple:"#A78BFA",gold:"#FFD700",green:"#4ADE80",blue:"#60A5FA",pink:"#F472B6",orange:"#FB923C",red:"#F87171",white:"#FFFFFF",text:"#EDE9FE",muted:"#7C6FA0",light:"#C4B5FD"};
-const TABS=[{id:"today",e:"🏠",label:"Today"},{id:"games",e:"🏀",label:"Games"},{id:"practice",e:"💪",label:"Practice"},{id:"sleep",e:"🌙",label:"Sleep"},{id:"skills",e:"📊",label:"Skills"},{id:"school",e:"📚",label:"School"},{id:"coach",e:"🤖",label:"Coach"},{id:"goals",e:"🎯",label:"Goals"},{id:"progress",e:"📈",label:"Progress"},{id:"settings",e:"⚙️",label:"Settings"}];
+const TABS=[{id:"today",e:"🏠",label:"Today"},{id:"games",e:"🏀",label:"Games"},{id:"practice",e:"💪",label:"Practice"},{id:"style",e:"👟",label:"Style"},{id:"routine",e:"✨",label:"Routine"},{id:"sleep",e:"🌙",label:"Sleep"},{id:"skills",e:"📊",label:"Skills"},{id:"school",e:"📚",label:"School"},{id:"coach",e:"🤖",label:"Coach"},{id:"goals",e:"🎯",label:"Goals"},{id:"progress",e:"📈",label:"Glow Up"},{id:"settings",e:"⚙️",label:"Setup"}];
 const DEF_VITALS={energy:0,mood:0};
 const DEF_HABITS=[{id:"h1",time:"Morning",label:"Drink water first thing",group:"MORNING"},{id:"h2",time:"Morning",label:"Make my bed",group:"MORNING"},{id:"h3",time:"After School",label:"Homework before screens",group:"SCHOOL"},{id:"h4",time:"Evening",label:"Basketball practice or drills",group:"BASKETBALL"},{id:"h5",time:"Night",label:"Read for 20 minutes",group:"WIND DOWN"},{id:"h6",time:"Night",label:"In bed by 9:00 PM",group:"WIND DOWN"}];
 const DEF_SKILLS={"Ball Handling":35,"Shooting Form":30,"Layups":35,"Free Throws":30,"Passing":35,"Court Vision":30,"Defense":30,"Rebounding":30,"Footwork":30,"Speed & Agility":35,"Conditioning":35,"Basketball IQ":30,"Confidence":45,"Leadership":40};
@@ -9,6 +9,18 @@ const DEF_SUBJECTS={Math:"B",Reading:"A",Science:"B","Social Studies":"B",Writin
 const DEF_TRAINING=[{id:"td1",day:"MON",focus:"Ball Handling",detail:"Stationary handles, cone weave, off-hand"},{id:"td2",day:"WED",focus:"Shooting",detail:"Form shooting, spot shooting, free throws"},{id:"td3",day:"THU",focus:"Defense & Footwork",detail:"Slides, close-outs, jump rope, agility"},{id:"td4",day:"SAT",focus:"Full Workout",detail:"Handles + shooting + defense + conditioning"}];
 const DEF_PROFILE={name:"Scarlett",grade:"5th",teamName:"",emoji:"⭐",primaryGoal:"All-around player",focus:"Improve every skill and get better at everything",notes:"Work hard every day. Be the best teammate you can be."};
 const PRACTICE_TYPES=["Team Practice","Home Workout","Shooting","Ball Handling","Defense","Conditioning","Full Workout","Film Study"];
+const STYLE_TYPES=["Game Day Fit","Practice Fit","School Fit","Weekend Fit","Wishlist Look"];
+const SHOE_PRIORITY=["Dream","Next Up","Maybe","Already Have"];
+const ROUTINE_ITEMS=[
+  {id:"face",e:"🫧",label:"Wash face",group:"FACE CARE"},
+  {id:"moisturizer",e:"💧",label:"Moisturizer",group:"FACE CARE"},
+  {id:"teeth",e:"🪥",label:"Brush teeth",group:"NIGHT ROUTINE"},
+  {id:"hair",e:"🎀",label:"Hair care",group:"NIGHT ROUTINE"},
+  {id:"outfit",e:"👚",label:"Pick tomorrow's outfit",group:"STYLE PREP"},
+  {id:"backpack",e:"🎒",label:"Pack backpack",group:"SCHOOL PREP"},
+  {id:"water",e:"💦",label:"Water bottle ready",group:"SCHOOL PREP"},
+  {id:"read",e:"📖",label:"Read or calm down time",group:"WIND DOWN"}
+];
 const GRADE_MAP={A:4,B:3,C:2,D:1,F:0};
 const GRADE_COL={A:C.green,B:C.teal,C:C.gold,D:C.orange,F:C.red};
 const SKILL_LEVEL=v=>v>=75?"Elite":v>=55?"Strong":v>=35?"Building":"Beginner";
@@ -129,6 +141,13 @@ export default function ScarlettTracker(){
   const[gameForm,setGameForm]=useState({pts:"",ast:"",reb:"",stl:"",blk:"",tov:"",fgm:"",fga:"",ftm:"",fta:"",minutes:"",effort:0,confidence:0,result:"Win",opponent:"",notes:"",coachNote:""});
   const[practices,setPractices]=useState([]);
   const[practiceForm,setPracticeForm]=useState({type:"Team Practice",duration:"",effort:0,focus:0,whatWorked:"",whatWasHard:"",drillsDone:"",coachNote:""});
+  const[styleLog,setStyleLog]=useState([]);
+  const[styleForm,setStyleForm]=useState({type:"Game Day Fit",shoes:"",outfit:"",hair:"",trend:"",confidence:0,notes:""});
+  const[shoeWish,setShoeWish]=useState([]);
+  const[shoeForm,setShoeForm]=useState({name:"",why:"",priority:"Dream"});
+  const[trendBoard,setTrendBoard]=useState([]);
+  const[trendForm,setTrendForm]=useState("");
+  const[routineHist,setRoutineHist]=useState({});
   const[skills,setSkills]=useState(clone(DEF_SKILLS));
   const[subjects,setSubjects]=useState(clone(DEF_SUBJECTS));
   const[quizLog,setQuizLog]=useState([]);
@@ -148,6 +167,8 @@ export default function ScarlettTracker(){
     const daily=await sg("sc_daily")||{entries:{}};
     const bball=await sg("sc_bball")||{games:[],skills:clone(DEF_SKILLS)};
     const prax=await sg("sc_practices")||{entries:[]};
+    const styleD=await sg("sc_style")||{fits:[],shoes:[],trends:[]};
+    const routineD=await sg("sc_routine")||{entries:{}};
     const slp=await sg("sc_sleep")||{entries:[]};
     const school=await sg("sc_school")||{subjects:clone(DEF_SUBJECTS),quizLog:[]};
     const gd=await sg("sc_goals")||{entries:[],stars:0};
@@ -155,7 +176,7 @@ export default function ScarlettTracker(){
     const pd=await sg("sc_profile")||clone(DEF_PROFILE);
     const td=await sg("sc_training")||{days:clone(DEF_TRAINING)};
     setDailyHist(daily.entries||{});setGames(bball.games||[]);setSkills(bball.skills||clone(DEF_SKILLS));
-    setPractices(prax.entries||[]);setSleepEntries(slp.entries||[]);
+    setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);setTrendBoard(styleD.trends||[]);setRoutineHist(routineD.entries||{});setSleepEntries(slp.entries||[]);
     setSubjects(school.subjects||clone(DEF_SUBJECTS));setQuizLog(school.quizLog||[]);
     setGoals(gd.entries||[]);setStars(gd.stars||0);setHabits(hd2.entries||clone(DEF_HABITS));
     setProfile(pd);setTrainingDays(td.days||clone(DEF_TRAINING));
@@ -171,6 +192,8 @@ export default function ScarlettTracker(){
   const saveSleep=async e=>{setSleepEntries(e);await ss("sc_sleep",{entries:e});};
   const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
   const savePrax=async p=>{setPractices(p);await ss("sc_practices",{entries:p});};
+  const saveStyle=async(fits=styleLog,shoes=shoeWish,trends=trendBoard)=>{setStyleLog(fits);setShoeWish(shoes);setTrendBoard(trends);await ss("sc_style",{fits,shoes,trends});};
+  const saveRoutine=async entries=>{setRoutineHist(entries);await ss("sc_routine",{entries});};
   const saveSchool=async(sub,ql)=>{setSubjects(sub);setQuizLog(ql);await ss("sc_school",{subjects:sub,quizLog:ql});};
   const saveGoals=async(g,s)=>{setGoals(g);setStars(s);await ss("sc_goals",{entries:g,stars:s});};
 
@@ -231,9 +254,9 @@ export default function ScarlettTracker(){
       </div>
 
       {/* Action buttons */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:12}}>
-        {[{e:"💪",l:"Log Practice",t:"practice",c:C.purple},{e:"🏀",l:"Log Game",t:"games",c:C.coral},{e:"📚",l:"Log School",t:"school",c:C.teal}].map(b=><button key={b.t} onClick={()=>setTab(b.t)} style={{background:`${b.c}18`,border:`2px solid ${b.c}44`,borderRadius:12,padding:"14px 6px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,fontFamily:"system-ui"}}>
-          <div style={{fontSize:24}}>{b.e}</div><div style={{fontSize:10,fontWeight:800,color:b.c,textAlign:"center"}}>{b.l}</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8,marginBottom:12}}>
+        {[{e:"💪",l:"Practice",t:"practice",c:C.purple},{e:"🏀",l:"Game",t:"games",c:C.coral},{e:"👟",l:"Style",t:"style",c:C.pink},{e:"✨",l:"Routine",t:"routine",c:C.gold},{e:"📚",l:"School",t:"school",c:C.teal}].map(b=><button key={b.t} onClick={()=>setTab(b.t)} style={{background:`${b.c}18`,border:`2px solid ${b.c}44`,borderRadius:12,padding:"12px 4px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:5,fontFamily:"system-ui"}}>
+          <div style={{fontSize:22}}>{b.e}</div><div style={{fontSize:9,fontWeight:800,color:b.c,textAlign:"center"}}>{b.l}</div>
         </button>)}
       </div>
 
@@ -430,6 +453,145 @@ export default function ScarlettTracker(){
       </div>}
     </div>;
   };
+
+
+  // ── STYLE LOCKER ───────────────────────────────────────────────────────
+  const Style=()=>{
+    const avgConf=styleLog.length?Math.round(avgArr(styleLog.map(f=>f.confidence||0))*10)/10:0;
+    const logFit=async()=>{
+      if(!styleForm.shoes&&!styleForm.outfit&&!styleForm.hair&&!styleForm.trend&&!styleForm.notes)return;
+      const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...styleForm};
+      const nf=[entry,...styleLog].slice(0,80);
+      const ns=stars+(styleForm.confidence>=4?2:1);
+      await saveStyle(nf,shoeWish,trendBoard);await saveGoals(goals,ns);
+      setStyleForm({type:"Game Day Fit",shoes:"",outfit:"",hair:"",trend:"",confidence:0,notes:""});
+    };
+    const addShoe=async()=>{
+      if(!shoeForm.name.trim())return;
+      const item={id:uid(),date:toShort(todayISO()),...shoeForm,name:shoeForm.name.trim()};
+      await saveStyle(styleLog,[item,...shoeWish].slice(0,40),trendBoard);
+      setShoeForm({name:"",why:"",priority:"Dream"});
+    };
+    const addTrend=async()=>{
+      if(!trendForm.trim())return;
+      const item={id:uid(),date:toShort(todayISO()),text:trendForm.trim()};
+      await saveStyle(styleLog,shoeWish,[item,...trendBoard].slice(0,40));
+      setTrendForm("");
+    };
+    return<div>
+      <div style={{...cs,background:C.card2,padding:18}}>
+        <CH e="👟" title="Style Locker" sub="Sneakers · fits · hair · trends · confidence"/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+          <SBox value={styleLog.length} label="Fits Logged" color={C.pink}/>
+          <SBox value={shoeWish.length} label="Shoe List" color={C.gold}/>
+          <SBox value={avgConf||"—"} label="Avg Confidence" color={C.purple} sub="out of 5"/>
+        </div>
+      </div>
+
+      <div style={cs}>
+        <CH e="🔥" title="Log a Fit" sub="Game day, practice, school, or weekend"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>FIT TYPE</div><select value={styleForm.type} onChange={e=>setStyleForm(p=>({...p,type:e.target.value}))} style={{...INP,appearance:"none"}}>{STYLE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>SHOES</div><input value={styleForm.shoes} onChange={e=>setStyleForm(p=>({...p,shoes:e.target.value}))} placeholder="e.g. Jordans, Kobes, Sabrinas" style={INP}/></div>
+        </div>
+        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>OUTFIT IDEA</div><input value={styleForm.outfit} onChange={e=>setStyleForm(p=>({...p,outfit:e.target.value}))} placeholder="Jersey, hoodie, cargos, sweats, colors..." style={INP}/></div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>HAIR / ACCESSORIES</div><input value={styleForm.hair} onChange={e=>setStyleForm(p=>({...p,hair:e.target.value}))} placeholder="Braids, ponytail, headband..." style={INP}/></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>TREND INSPO</div><input value={styleForm.trend} onChange={e=>setStyleForm(p=>({...p,trend:e.target.value}))} placeholder="Clean girl, streetwear, sporty..." style={INP}/></div>
+        </div>
+        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:6}}>CONFIDENCE VIBE (1–5)</div><RD val={styleForm.confidence} max={5} col={C.pink} onSet={v=>setStyleForm(p=>({...p,confidence:v}))}/></div>
+        <textarea value={styleForm.notes} onChange={e=>setStyleForm(p=>({...p,notes:e.target.value}))} placeholder="What made this fit feel good? Any ideas for next time?" style={{...TXT,minHeight:54,marginBottom:10}}/>
+        <button onClick={logFit} style={{width:"100%",padding:12,background:`linear-gradient(135deg,${C.pink},${C.purple})`,color:C.white,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Save Fit ⭐</button>
+      </div>
+
+      <div style={cs}>
+        <CH e="👟" title="Basketball Shoe Wishlist" sub="Track shoes she likes and why"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 100px",gap:8,marginBottom:8}}>
+          <input value={shoeForm.name} onChange={e=>setShoeForm(p=>({...p,name:e.target.value}))} placeholder="Shoe name" style={INP}/>
+          <select value={shoeForm.priority} onChange={e=>setShoeForm(p=>({...p,priority:e.target.value}))} style={{...INP,appearance:"none"}}>{SHOE_PRIORITY.map(x=><option key={x} value={x}>{x}</option>)}</select>
+        </div>
+        <input value={shoeForm.why} onChange={e=>setShoeForm(p=>({...p,why:e.target.value}))} placeholder="Why she likes them: color, player, style, comfort..." style={{...INP,marginBottom:8}}/>
+        <button onClick={addShoe} style={{width:"100%",padding:10,background:C.gold,color:C.bg,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Add Shoe</button>
+        {shoeWish.length>0&&<div style={{marginTop:12}}>
+          {shoeWish.slice(0,10).map(s=><div key={s.id} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"9px 0",borderTop:`1px solid ${C.border}`}}>
+            <div style={{fontSize:20}}>👟</div>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:900,color:C.text}}>{s.name}</div><div style={{fontSize:10,color:C.gold,fontWeight:800}}>{s.priority}</div>{s.why&&<div style={{fontSize:10,color:C.muted,marginTop:2}}>{s.why}</div>}</div>
+            <button onClick={()=>saveStyle(styleLog,shoeWish.filter(x=>x.id!==s.id),trendBoard)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16}}>×</button>
+          </div>)}
+        </div>}
+      </div>
+
+      <div style={cs}>
+        <CH e="💄" title="Trend Board" sub="Age-appropriate makeup, face care, streetwear, hair, inspo"/>
+        <div style={{display:"flex",gap:8,marginBottom:10}}>
+          <input value={trendForm} onChange={e=>setTrendForm(e.target.value)} placeholder="Add a trend or idea she likes..." style={INP}/>
+          <button onClick={addTrend} style={{padding:"0 14px",borderRadius:8,border:"none",background:C.pink,color:C.white,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>+</button>
+        </div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          {trendBoard.length?trendBoard.slice(0,16).map(t=><div key={t.id} onClick={()=>saveStyle(styleLog,shoeWish,trendBoard.filter(x=>x.id!==t.id))} style={{background:`${C.pink}18`,border:`1px solid ${C.pink}44`,borderRadius:20,padding:"6px 10px",fontSize:11,fontWeight:800,color:C.pink,cursor:"pointer"}}>✨ {t.text}</div>):<div style={{fontSize:11,color:C.muted}}>Add trends like “glowy skin,” “clean ponytail,” “pink shoes,” or “game-day braids.”</div>}
+        </div>
+      </div>
+
+      {styleLog.length>0&&<div style={cs}>
+        <CH e="📸" title="Fit History" sub="What made her feel confident"/>
+        {styleLog.slice(0,12).map(f=><div key={f.id} style={{padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:900,color:C.pink}}>{f.type} · {f.date}</div>
+              {f.shoes&&<div style={{fontSize:10,color:C.gold,marginTop:2}}>👟 {f.shoes}</div>}
+              {f.outfit&&<div style={{fontSize:10,color:C.text,marginTop:2}}>👚 {f.outfit}</div>}
+              {f.hair&&<div style={{fontSize:10,color:C.muted,marginTop:2}}>🎀 {f.hair}</div>}
+              {f.trend&&<div style={{fontSize:10,color:C.purple,marginTop:2}}>✨ {f.trend}</div>}
+              {f.confidence>0&&<div style={{fontSize:10,color:C.pink,marginTop:2}}>Confidence: {"⭐".repeat(f.confidence)}</div>}
+              {f.notes&&<div style={{fontSize:10,color:C.muted,marginTop:2,fontStyle:"italic"}}>{f.notes.slice(0,80)}</div>}
+            </div>
+            <button onClick={()=>saveStyle(styleLog.filter(x=>x.id!==f.id),shoeWish,trendBoard)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16}}>×</button>
+          </div>
+        </div>)}
+      </div>}
+    </div>;
+  };
+
+  // ── GLOW ROUTINE ───────────────────────────────────────────────────────
+  const Routine=()=>{
+    const dayEntry=routineHist[selDay]||{c:{},note:""};
+    const checked=dayEntry.c||{};
+    const done=ROUTINE_ITEMS.filter(i=>checked[i.id]).length;
+    const rpct=ROUTINE_ITEMS.length?Math.round(done/ROUTINE_ITEMS.length*100):0;
+    const groups=ROUTINE_ITEMS.reduce((acc,i)=>{if(!acc[i.group])acc[i.group]=[];acc[i.group].push(i);return acc;},{});
+    const updateRoutine=async(next)=>{
+      const entries={...routineHist,[selDay]:{...dayEntry,...next}};
+      await saveRoutine(entries);
+    };
+    const toggle=id=>updateRoutine({c:{...checked,[id]:!checked[id]}});
+    return<div>
+      <div style={{...cs,background:C.card2,textAlign:"center",padding:20}}>
+        <div style={{fontSize:34,marginBottom:4}}>✨</div>
+        <div style={{fontWeight:900,fontSize:18,color:C.white}}>Glow Routine</div>
+        <div style={{fontSize:11,color:C.muted,marginTop:3}}>Face care · outfit prep · school prep · wind down</div>
+        <div style={{height:10,background:C.navy,borderRadius:100,overflow:"hidden",marginTop:14}}>
+          <div style={{height:"100%",width:`${rpct}%`,background:rpct>=100?C.green:rpct>=60?C.pink:C.purple,borderRadius:100,transition:"width .4s"}}/>
+        </div>
+        <div style={{fontSize:12,fontWeight:900,color:rpct>=100?C.green:C.pink,marginTop:7}}>{done}/{ROUTINE_ITEMS.length} done · {rpct}%</div>
+      </div>
+      {Object.entries(groups).map(([g,items])=><div key={g} style={cs}>
+        <div style={{fontSize:9,fontWeight:900,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{g}</div>
+        {items.map(item=>{const ok=checked[item.id];return<div key={item.id} onClick={()=>toggle(item.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 6px",borderRadius:8,cursor:"pointer",background:ok?`${C.green}12`:"transparent",marginBottom:2}}>
+          <div style={{width:26,height:26,borderRadius:8,border:ok?"none":`2px solid ${C.border}`,background:ok?C.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>{ok?"✓":item.e}</div>
+          <div style={{flex:1,fontSize:13,fontWeight:700,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{item.label}</div>
+        </div>;})}
+      </div>)}
+      <div style={cs}>
+        <CH e="📝" title="Routine Notes" sub="Favorite products, outfit ideas, or what felt good"/>
+        <textarea value={dayEntry.note||""} onChange={e=>updateRoutine({note:e.target.value})} placeholder="Example: liked my hairstyle, skin felt good, packed my bag early..." style={TXT}/>
+      </div>
+      {rpct>=100&&<div style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:12,padding:14,marginBottom:12,textAlign:"center"}}>
+        <div style={{fontSize:24}}>🌟</div>
+        <div style={{fontSize:14,fontWeight:900,color:C.green}}>Routine Queen!</div>
+        <div style={{fontSize:11,color:C.muted,marginTop:3}}>Everything is done for today. That is real discipline.</div>
+      </div>}
+    </div>;
+  };
+
 
   // ── SLEEP ──────────────────────────────────────────────────────────────
   const Sleep=()=>{
@@ -726,7 +888,7 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  const CONTENT={today:<Today/>,games:<Games/>,practice:<Practice/>,sleep:<Sleep/>,skills:<Skills/>,school:<School/>,coach:<Coach/>,goals:<Goals2/>,progress:<Progress/>,settings:<Settings/>};
+  const CONTENT={today:<Today/>,games:<Games/>,practice:<Practice/>,style:<Style/>,routine:<Routine/>,sleep:<Sleep/>,skills:<Skills/>,school:<School/>,coach:<Coach/>,goals:<Goals2/>,progress:<Progress/>,settings:<Settings/>};
   if(!loaded)return<div style={{background:C.bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:40}}>⭐</div><div style={{fontWeight:700}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
   return<div style={{background:C.bg,minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,maxWidth:430,margin:"0 auto"}}>
     <div style={{background:C.nav,padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50,boxShadow:"0 2px 24px rgba(0,0,0,.9)"}}>
