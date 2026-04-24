@@ -507,12 +507,12 @@ export default function ScarlettTracker(){
     return<div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:8}}>
         <SBox value={tg} label="Games" color={C.coral}/><SBox value={tg?Math.round(wins/tg*100)+"%":"—"} label="Win Rate" color={C.green}/>
-        <SBox value={a("pts")} label="Avg Pts" color={C.gold}/><SBox value={a("ast")} label="Avg Ast" color={C.purple}/>
+        <SBox value={a("pts")} label="Avg Points" color={C.gold}/><SBox value={a("ast")} label="Avg Assists" color={C.purple}/>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}>
-        <SBox value={a("reb")} label="Avg Reb" color={C.teal}/><SBox value={a("stl")} label="Avg Stl" color={C.blue}/>
-        <SBox value={ftPct?ftPct+"%":"—"} label="FT%" color={ftPct>=75?C.green:ftPct>=60?C.gold:C.coral} sub={s("fta")>0?`${s("ftm")}/${s("fta")}`:""}/>
-        <SBox value={fgPct?fgPct+"%":"—"} label="FG%" color={fgPct>=45?C.green:fgPct>=35?C.gold:C.coral} sub={s("fga")>0?`${s("fgm")}/${s("fga")}`:""}/>
+        <SBox value={a("reb")} label="Avg Rebounds" color={C.teal}/><SBox value={a("stl")} label="Avg Steals" color={C.blue}/>
+        <SBox value={ftPct?ftPct+"%":"—"} label="Free Throw %" color={ftPct>=75?C.green:ftPct>=60?C.gold:C.coral} sub={s("fta")>0?`${s("ftm")}/${s("fta")}`:""}/>
+        <SBox value={fgPct?fgPct+"%":"—"} label="Shot %" color={fgPct>=45?C.green:fgPct>=35?C.gold:C.coral} sub={s("fga")>0?`${s("fgm")}/${s("fga")}`:""}/>
       </div>
       {last5.length>=2&&<div style={cs}>
         <CH e="📊" title="Last 5 Games" sub="Points trend"/>
@@ -526,14 +526,14 @@ export default function ScarlettTracker(){
       </div>}
       <div style={cs}>
         <CH e="➕" title="Log a Game"/>
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>MAIN STATS</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6}}>
-            {[["PTS","pts"],["AST","ast"],["REB","reb"],["STL","stl"],["BLK","blk"],["TOV","tov"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:2}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
+        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>MAIN GAME STATS</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+            {[["Points","pts"],["Assists","ast"],["Rebounds","reb"],["Steals","stl"],["Blocks","blk"],["Turnovers","tov"]].map(([l,k])=><div key={k}><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:3}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
           </div>
         </div>
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>SHOOTING</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
-            {[["FGM","fgm"],["FGA","fga"],["FTM","ftm"],["FTA","fta"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:2}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
+        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:4}}>SHOOTING</div><div style={{fontSize:9,color:C.muted,marginBottom:6,lineHeight:1.4}}>Shots made = baskets that went in. Shots tried = total shots taken.</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>
+            {[["Shots Made","fgm"],["Shots Tried","fga"],["Free Throws Made","ftm"],["Free Throws Tried","fta"]].map(([l,k])=><div key={k}><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:3}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gameForm[k]} onChange={e=>setGameForm(p=>({...p,[k]:e.target.value}))} style={{...INP,padding:"6px 8px"}}/></div>)}
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
@@ -557,8 +557,8 @@ export default function ScarlettTracker(){
               {g.opponent&&<span style={{fontSize:10,color:C.muted}}>vs {g.opponent}</span>}
             </div>
             <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-              {[{v:g.pts,l:"pts",c:C.coral},{v:g.ast,l:"ast",c:C.purple},{v:g.reb,l:"reb",c:C.teal},{v:g.stl,l:"stl",c:C.blue},{v:g.tov,l:"tov",c:C.orange}].filter(x=>(x.v||0)>0||x.l==="pts").map(x=><span key={x.l} style={{background:`${x.c}22`,color:x.c,padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:800}}>{x.v||0} {x.l}</span>)}
-              {g.fta>0&&<span style={{background:`${C.gold}22`,color:C.gold,padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:800}}>{g.ftm}/{g.fta} FT</span>}
+              {[{v:g.pts,l:"points",c:C.coral},{v:g.ast,l:"assists",c:C.purple},{v:g.reb,l:"rebounds",c:C.teal},{v:g.stl,l:"steals",c:C.blue},{v:g.tov,l:"turnovers",c:C.orange}].filter(x=>(x.v||0)>0||x.l==="pts").map(x=><span key={x.l} style={{background:`${x.c}22`,color:x.c,padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:800}}>{x.v||0} {x.l}</span>)}
+              {g.fta>0&&<span style={{background:`${C.gold}22`,color:C.gold,padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:800}}>{g.ftm}/{g.fta} free throws</span>}
             </div>
             {(g.effort>0||g.confidence>0)&&<div style={{fontSize:10,color:C.muted,marginTop:3}}>Effort: {"⭐".repeat(g.effort||0)} · Confidence: {"⭐".repeat(g.confidence||0)}</div>}
             {g.coachNote&&<div style={{fontSize:10,color:C.blue,marginTop:2,fontStyle:"italic"}}>💬 {g.coachNote.slice(0,60)}</div>}
