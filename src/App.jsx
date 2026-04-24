@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const C={bg:"#0D0919",nav:"#120E24",navy:"#130D22",navy2:"#1C1535",card:"#1C1535",card2:"#241C42",border:"#2D2050",coral:"#FF6B6B",teal:"#00C9A7",purple:"#A78BFA",gold:"#FFD700",green:"#4ADE80",blue:"#60A5FA",pink:"#F472B6",orange:"#FB923C",red:"#F87171",white:"#FFFFFF",text:"#EDE9FE",muted:"#7C6FA0",light:"#C4B5FD"};
+const C={bg:"#090015",nav:"#170824",navy:"#13051F",navy2:"#22113A",card:"#22113A",card2:"#32144F",border:"rgba(255,255,255,.12)",coral:"#FF6B9A",teal:"#24F2D2",purple:"#B76CFF",gold:"#FFD86B",green:"#60F098",blue:"#66C7FF",pink:"#FF5FD2",orange:"#FF9A4D",red:"#FF5F73",white:"#FFFFFF",text:"#FFF7FF",muted:"#BDA8D8",light:"#F0D7FF"};
 const TABS=[{id:"today",e:"🏠",label:"Today"},{id:"games",e:"🏀",label:"Games"},{id:"practice",e:"💪",label:"Practice"},{id:"style",e:"👟",label:"Style"},{id:"routine",e:"✨",label:"Routine"},{id:"sleep",e:"🌙",label:"Sleep"},{id:"skills",e:"📊",label:"Skills"},{id:"school",e:"📚",label:"School"},{id:"coach",e:"🤖",label:"Coach"},{id:"goals",e:"🎯",label:"Goals"},{id:"progress",e:"📈",label:"Glow Up"},{id:"settings",e:"⚙️",label:"Setup"}];
 const DEF_VITALS={energy:0,mood:0};
 const DEF_HABITS=[{id:"h1",time:"Morning",label:"Drink water first thing",group:"MORNING"},{id:"h2",time:"Morning",label:"Make my bed",group:"MORNING"},{id:"h3",time:"After School",label:"Homework before screens",group:"SCHOOL"},{id:"h4",time:"Evening",label:"Basketball practice or drills",group:"BASKETBALL"},{id:"h5",time:"Night",label:"Read for 20 minutes",group:"WIND DOWN"},{id:"h6",time:"Night",label:"In bed by 9:00 PM",group:"WIND DOWN"}];
@@ -117,16 +117,40 @@ function generateInsights(profile,games,practices,skills,subjects,sleepEntries,v
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────
-const cs={background:C.card,borderRadius:12,border:`1px solid ${C.border}`,padding:16,marginBottom:12};
-const tt={fontWeight:800,fontSize:11,letterSpacing:"1.5px",color:C.text,textTransform:"uppercase",marginBottom:1};
+const cs={background:"linear-gradient(145deg,rgba(49,20,82,.92),rgba(18,7,35,.96))",borderRadius:18,border:`1px solid ${C.border}`,padding:16,marginBottom:14,boxShadow:"0 16px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06)",position:"relative",overflow:"hidden",backdropFilter:"blur(14px)"};
+const tt={fontWeight:950,fontSize:11,letterSpacing:"1.7px",color:C.text,textTransform:"uppercase",marginBottom:1};
 const ts={fontSize:11,color:C.muted};
 const hd={display:"flex",alignItems:"center",gap:10,marginBottom:12};
-const INP={width:"100%",background:C.navy,border:`1px solid ${C.border}`,borderRadius:7,padding:"8px 10px",color:C.text,fontSize:13,outline:"none",fontFamily:"system-ui",boxSizing:"border-box"};
-const TXT={...INP,minHeight:70,resize:"vertical"};
-function CH({e,title,sub}){return<div style={hd}><div style={{fontSize:16}}>{e}</div><div><div style={tt}>{title}</div>{sub&&<div style={ts}>{sub}</div>}</div></div>;}
-function RD({val,max=5,col,onSet}){return<div style={{display:"flex",gap:6}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:28,height:28,borderRadius:7,background:i<val?col:`${col}20`,border:`1px solid ${i<val?col:`${col}40`}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:9,fontWeight:800,color:i<val?C.white:`${col}80`}}>{i+1}</span></div>)}</div>;}
-function SBox({value,label,color,sub}){return<div style={{background:C.card2,borderRadius:10,padding:12,textAlign:"center",borderTop:`2px solid ${color}`}}><div style={{fontWeight:900,fontSize:22,color,lineHeight:1}}>{value}</div><div style={{fontSize:10,fontWeight:700,color:C.light,marginTop:3}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted}}>{sub}</div>}</div>;}
+const INP={width:"100%",background:"rgba(7,2,18,.62)",border:`1px solid ${C.border}`,borderRadius:12,padding:"10px 12px",color:C.text,fontSize:13,outline:"none",fontFamily:"system-ui",boxSizing:"border-box",boxShadow:"inset 0 1px 0 rgba(255,255,255,.05)"};
+const TXT={...INP,minHeight:74,resize:"vertical"};
+const glamGrad=`linear-gradient(135deg,${C.pink},${C.purple} 50%,${C.teal})`;
+const hotGrad=`linear-gradient(135deg,${C.orange},${C.pink} 55%,${C.purple})`;
+const glass={background:"rgba(255,255,255,.075)",border:`1px solid ${C.border}`,boxShadow:"inset 0 1px 0 rgba(255,255,255,.08),0 12px 28px rgba(0,0,0,.25)"};
+function CH({e,title,sub}){return<div style={hd}><div style={{fontSize:18,filter:"drop-shadow(0 0 10px rgba(255,95,210,.35))"}}>{e}</div><div><div style={tt}>{title}</div>{sub&&<div style={ts}>{sub}</div>}</div></div>;}
+function RD({val,max=5,col,onSet}){return<div style={{display:"flex",gap:6}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:30,height:30,borderRadius:10,background:i<val?`linear-gradient(135deg,${col},${C.pink})`:`${col}18`,border:`1px solid ${i<val?col:`${col}44`}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 18px ${col}55`:"none",transition:"all .18s ease"}}><span style={{fontSize:9,fontWeight:900,color:i<val?C.white:`${col}90`}}>{i+1}</span></div>)}</div>;}
+function SBox({value,label,color,sub}){return<div style={{...glass,borderRadius:16,padding:12,textAlign:"center",borderTop:`3px solid ${color}`,position:"relative",overflow:"hidden"}}><div style={{position:"absolute",inset:"-30% -20% auto auto",width:70,height:70,borderRadius:"50%",background:`${color}28`,filter:"blur(8px)"}}/><div style={{fontWeight:950,fontSize:22,color,lineHeight:1,textShadow:`0 0 20px ${color}55`,position:"relative"}}>{value}</div><div style={{fontSize:10,fontWeight:850,color:C.light,marginTop:4,position:"relative"}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,position:"relative"}}>{sub}</div>}</div>;}
 function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return<div style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,fontWeight:700,color:C.text}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}22`,color:col,fontSize:9,fontWeight:800,padding:"1px 7px",borderRadius:4}}>{level}</span><span style={{fontSize:12,fontWeight:900,color:col}}>{val}%</span></div></div><div style={{height:8,background:C.navy,borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:col,borderRadius:100,width:`${val}%`,transition:"width .4s ease"}}/></div></div>;}
+
+function Sparkles(){return<>
+  <div style={{position:"absolute",top:10,right:18,color:C.gold,fontSize:14,opacity:.9}}>✦</div>
+  <div style={{position:"absolute",top:36,right:68,color:C.pink,fontSize:10,opacity:.75}}>✧</div>
+  <div style={{position:"absolute",bottom:18,left:18,color:C.teal,fontSize:10,opacity:.7}}>✦</div>
+</>;}
+function ScarlettAvatar(){return<div aria-label="Scarlett avatar" style={{position:"relative",width:118,height:118,flexShrink:0}}>
+  <div style={{position:"absolute",inset:0,borderRadius:"50%",background:"radial-gradient(circle at 35% 30%,#FFE2A8,#FF75D9 42%,#4A1776 75%)",filter:"blur(12px)",opacity:.72}}/>
+  <div style={{position:"absolute",right:2,bottom:6,width:58,height:58,borderRadius:"50%",background:"radial-gradient(circle at 30% 28%,#FFB566,#B55B24 65%,#5B240C)",border:"2px solid rgba(255,255,255,.45)",boxShadow:"0 0 24px rgba(255,154,77,.48)"}}><div style={{position:"absolute",inset:8,borderLeft:"2px solid rgba(70,25,9,.55)",borderRight:"2px solid rgba(70,25,9,.55)",borderRadius:"50%"}}/><div style={{position:"absolute",left:3,right:3,top:27,borderTop:"2px solid rgba(70,25,9,.55)"}}/></div>
+  <div style={{position:"absolute",left:18,top:8,width:70,height:86,borderRadius:"38px 38px 28px 28px",background:"linear-gradient(180deg,#A56A35,#6C3D1F)",boxShadow:"0 8px 22px rgba(0,0,0,.35)"}}/>
+  <div style={{position:"absolute",left:22,top:26,width:62,height:60,borderRadius:"42% 42% 48% 48%",background:"#FFD9BF",border:"2px solid rgba(255,255,255,.38)"}}/>
+  <div style={{position:"absolute",left:19,top:22,width:68,height:26,borderRadius:"28px 28px 12px 12px",background:"linear-gradient(180deg,#B77A42,#7C4825)"}}/>
+  <div style={{position:"absolute",left:30,top:43,width:8,height:8,borderRadius:"50%",background:"#5B3828"}}/><div style={{position:"absolute",left:62,top:43,width:8,height:8,borderRadius:"50%",background:"#5B3828"}}/>
+  <div style={{position:"absolute",left:47,top:60,width:18,height:9,borderBottom:"3px solid #C15F70",borderRadius:"0 0 18px 18px"}}/>
+  <div style={{position:"absolute",left:23,top:24,width:62,height:9,borderRadius:99,background:`linear-gradient(90deg,${C.pink},${C.purple})`,boxShadow:`0 0 14px ${C.pink}77`}}/>
+  <div style={{position:"absolute",left:14,bottom:0,width:78,height:38,borderRadius:"24px 24px 16px 16px",background:"linear-gradient(135deg,#6D28D9,#FF5FD2)",border:"1px solid rgba(255,255,255,.25)"}}><div style={{position:"absolute",right:13,top:8,color:C.gold,fontSize:18,fontWeight:900}}>S</div></div>
+  <div style={{position:"absolute",left:6,top:2,color:C.gold,fontSize:18,transform:"rotate(-12deg)"}}>♛</div>
+</div>;}
+function GlamHero({children,style={}}){return<div style={{...cs,padding:18,background:"radial-gradient(circle at 78% 12%,rgba(255,95,210,.32),transparent 36%),radial-gradient(circle at 18% 0%,rgba(36,242,210,.18),transparent 32%),linear-gradient(145deg,rgba(61,20,94,.96),rgba(13,3,30,.98))",border:"1px solid rgba(255,255,255,.16)",boxShadow:"0 18px 50px rgba(255,95,210,.12),0 18px 50px rgba(0,0,0,.45)",...style}}><Sparkles/>{children}</div>;}
+function GlamButton({e,l,c,onClick}){return<button onClick={onClick} style={{background:`linear-gradient(135deg,${c}EE,${C.purple}DD)`,border:"1px solid rgba(255,255,255,.22)",borderRadius:18,padding:"13px 6px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,fontFamily:"system-ui",boxShadow:`0 12px 28px ${c}30`,color:C.white,position:"relative",overflow:"hidden"}}><span style={{position:"absolute",inset:"0 0 auto 0",height:"45%",background:"linear-gradient(180deg,rgba(255,255,255,.22),transparent)"}}/><div style={{fontSize:23,position:"relative"}}>{e}</div><div style={{fontSize:9,fontWeight:950,textAlign:"center",position:"relative"}}>{l}</div></button>;}
+function MiniChart({color=C.pink}){return<div style={{height:22,display:"flex",alignItems:"end",gap:3}}>{[35,48,44,62,76].map((h,i)=><div key={i} style={{width:7,height:h/2,background:i===4?color:`${color}66`,borderRadius:4,boxShadow:i===4?`0 0 12px ${color}77`:"none"}}/> )}</div>;}
 
 // ══════════════════════════════════════════════════════════════════════════
 export default function ScarlettTracker(){
@@ -250,53 +274,69 @@ export default function ScarlettTracker(){
     const recentDays=Object.keys(dailyHist).sort((a,b)=>b.localeCompare(a)).slice(0,7);
     const groups=allH.reduce((acc,h)=>{if(!acc[h.group])acc[h.group]=[];acc[h.group].push(h);return acc;},{});
     return<div>
-      {/* Hero readiness + mission */}
-      <div style={{...cs,background:C.card2,padding:18}}>
-        <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:16}}>
-          <svg width={72} height={72} style={{flexShrink:0}}>
-            <circle cx={36} cy={36} r={30} fill="none" stroke={C.border} strokeWidth={6}/>
-            <circle cx={36} cy={36} r={30} fill="none" stroke={readiness.level.col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dash} transform="rotate(-90 36 36)" style={{transition:"all .5s ease"}}/>
-            <text x={36} y={33} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?14:17} fontWeight={800} fontFamily="system-ui">{displayVal}</text>
-            <text x={36} y={48} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?7:8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text>
-          </svg>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:900,fontSize:16,color:C.text,marginBottom:2}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, {profile.name}!</div>
-            <div style={{fontSize:11,color:C.muted,lineHeight:1.5,marginBottom:8}}>{mod.note}</div>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-              <div style={{background:C.navy,borderRadius:6,padding:"3px 10px",fontSize:10,fontWeight:800,color:C.gold}}>⭐ {stars}</div>
-              <div style={{background:habitPct>=80?`${C.green}20`:C.navy,border:`1px solid ${habitPct>=80?C.green:C.border}`,borderRadius:6,padding:"3px 10px",fontSize:10,fontWeight:700,color:habitPct>=80?C.green:C.muted,display:showSaved?"none":"flex"}}>{habitPct}% habits</div>
-              {showSaved&&<div style={{background:`${C.green}20`,borderRadius:6,padding:"3px 10px",fontSize:9,color:C.green,fontWeight:800}}>SAVED ✓</div>}
-            </div>
+      {/* Sporty-glam hero */}
+      <GlamHero>
+        <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:14}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:4}}>Plan · Practice · Glow · Repeat</div>
+            <div style={{fontWeight:950,fontSize:24,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span> ✨</div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.5,marginTop:7}}>You’ve got big goals. Let’s make today count.</div>
           </div>
+          <ScarlettAvatar/>
         </div>
-        <div style={{fontWeight:800,fontSize:10,letterSpacing:"1.5px",color:C.muted,textTransform:"uppercase",marginBottom:8}}>TODAY'S MISSION</div>
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-          <div style={{background:`${C.coral}12`,border:`1px solid ${C.coral}33`,borderRadius:8,padding:"8px 12px",display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:14,flexShrink:0}}>🏀</span>
-            <div><div style={{fontSize:9,color:C.coral,fontWeight:800,textTransform:"uppercase",marginBottom:1}}>PRACTICE FOCUS</div><div style={{fontSize:12,color:C.text}}><strong style={{color:C.coral}}>{weakestSkill[0]}</strong> — your next level-up skill ({weakestSkill[1]}%)</div></div>
-          </div>
-          {worstSubj?<div style={{background:`${C.teal}12`,border:`1px solid ${C.teal}33`,borderRadius:8,padding:"8px 12px",display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:14,flexShrink:0}}>📚</span>
-            <div><div style={{fontSize:9,color:C.teal,fontWeight:800,textTransform:"uppercase",marginBottom:1}}>STUDY FOCUS</div><div style={{fontSize:12,color:C.text}}><strong style={{color:C.teal}}>{worstSubj[0]}</strong> needs 15 min of review tonight</div></div>
-          </div>:<div style={{background:`${C.green}12`,border:`1px solid ${C.green}33`,borderRadius:8,padding:"8px 12px",display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:14}}>🌟</span><div style={{fontSize:12,color:C.green,fontWeight:700}}>All grades are solid. Keep it up!</div>
-          </div>}
-          <div style={{background:`${C.purple}12`,border:`1px solid ${C.purple}33`,borderRadius:8,padding:"8px 12px",display:"flex",alignItems:"center",gap:10}}>
-            <span style={{fontSize:14,flexShrink:0}}>🎯</span>
-            <div><div style={{fontSize:9,color:C.purple,fontWeight:800,textTransform:"uppercase",marginBottom:1}}>ACTIVE GOAL</div><div style={{fontSize:12,color:C.text}}>{activeGoal?<>{activeGoal.text.slice(0,40)}{activeGoal.text.length>40?"...":""}</>:<span style={{color:C.muted,fontStyle:"italic"}}>Set a goal in the Goals tab →</span>}</div></div>
-          </div>
-        </div>
-        {topIn&&<div style={{display:"flex",alignItems:"flex-start",gap:6,marginTop:10,padding:"8px 10px",background:`${topIn.col}12`,border:`1px solid ${topIn.col}33`,borderRadius:8}}>
-          <span style={{fontSize:12}}>{topIn.icon}</span>
-          <div style={{fontSize:10,color:topIn.col,lineHeight:1.5}}>{topIn.text}</div>
-        </div>}
-      </div>
 
-      {/* Action buttons */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8,marginBottom:12}}>
-        {[{e:"💪",l:"Practice",t:"practice",c:C.purple},{e:"🏀",l:"Game",t:"games",c:C.coral},{e:"👟",l:"Style",t:"style",c:C.pink},{e:"✨",l:"Routine",t:"routine",c:C.gold},{e:"📚",l:"School",t:"school",c:C.teal}].map(b=><button key={b.t} onClick={()=>setTab(b.t)} style={{background:`${b.c}18`,border:`2px solid ${b.c}44`,borderRadius:12,padding:"12px 4px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:5,fontFamily:"system-ui"}}>
-          <div style={{fontSize:22}}>{b.e}</div><div style={{fontSize:9,fontWeight:800,color:b.c,textAlign:"center"}}>{b.l}</div>
-        </button>)}
+        <div style={{display:"grid",gridTemplateColumns:"1.05fr .95fr",gap:10,marginBottom:10}}>
+          <div style={{...glass,borderRadius:18,padding:14,background:"linear-gradient(145deg,rgba(255,95,210,.16),rgba(183,108,255,.12))"}}>
+            <div style={{fontSize:9,color:C.pink,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>TODAY’S VIBE</div>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <svg width={62} height={62} style={{flexShrink:0}}>
+                <circle cx={31} cy={31} r={25} fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.13)" strokeWidth={6}/>
+                <circle cx={31} cy={31} r={25} fill="none" stroke={readiness.level.col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dash} transform="rotate(-90 31 31)" style={{transition:"all .5s ease",filter:`drop-shadow(0 0 9px ${readiness.level.col})`}}/>
+                <text x={31} y={28} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?14:17} fontWeight={950} fontFamily="system-ui">{displayVal}</text>
+                <text x={31} y={42} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?6:7} fontWeight={950} fontFamily="system-ui">{readiness.level.label}</text>
+              </svg>
+              <div style={{minWidth:0}}>
+                <div style={{fontSize:17,fontWeight:950,color:readiness.level.col,textShadow:`0 0 18px ${readiness.level.col}55`}}>{readiness.level.label}</div>
+                <div style={{fontSize:10,color:C.light,lineHeight:1.4,marginTop:2}}>{mod.note}</div>
+              </div>
+            </div>
+            <div style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:6,background:"rgba(0,0,0,.22)",border:"1px solid rgba(255,255,255,.12)",borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.gold}}>Keep the energy ⚡</div>
+          </div>
+          <div style={{...glass,borderRadius:18,padding:14,background:"linear-gradient(145deg,rgba(255,216,107,.18),rgba(255,95,210,.10))"}}>
+            <div style={{fontSize:9,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase"}}>STARS EARNED</div>
+            <div style={{fontSize:42,fontWeight:950,color:C.gold,lineHeight:1,textShadow:`0 0 20px ${C.gold}66`}}>⭐ {stars}</div>
+            <div style={{fontSize:10,color:C.light}}>Badges, goals, practices & wins</div>
+          </div>
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
+          <div style={{...glass,borderRadius:16,padding:12,background:"linear-gradient(145deg,rgba(255,107,154,.20),rgba(75,16,98,.42))"}}>
+            <div style={{fontSize:9,color:C.coral,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>HOOPS MISSION 🏀</div>
+            <div style={{fontSize:14,fontWeight:950,color:C.text,marginTop:4}}>{weakestSkill[0]}</div>
+            <div style={{height:8,background:"rgba(0,0,0,.25)",borderRadius:99,overflow:"hidden",marginTop:8}}><div style={{width:`${weakestSkill[1]}%`,height:"100%",borderRadius:99,background:`linear-gradient(90deg,${C.coral},${C.gold})`,boxShadow:`0 0 14px ${C.coral}77`}}/></div>
+            <div style={{fontSize:10,color:C.light,marginTop:5}}>{weakestSkill[1]}% · today’s level-up</div>
+          </div>
+          <div style={{...glass,borderRadius:16,padding:12,background:"linear-gradient(145deg,rgba(36,242,210,.18),rgba(25,16,74,.42))"}}>
+            <div style={{fontSize:9,color:C.teal,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>SCHOOL FOCUS 📚</div>
+            <div style={{fontSize:14,fontWeight:950,color:C.text,marginTop:4}}>{worstSubj?worstSubj[0]:"All grades solid"}</div>
+            <div style={{fontSize:10,color:C.light,lineHeight:1.5,marginTop:6}}>{worstSubj?"15 min review tonight":"Keep homework-before-screens going"}</div>
+          </div>
+          <button onClick={()=>setTab("style")} style={{...glass,textAlign:"left",borderRadius:16,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,95,210,.22),rgba(255,154,77,.12))",fontFamily:"system-ui"}}>
+            <div style={{fontSize:9,color:C.pink,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>STYLE PICK 👟</div>
+            <div style={{fontSize:14,fontWeight:950,color:C.text,marginTop:4}}>Game-Day Fit</div>
+            <div style={{display:"flex",gap:5,marginTop:8}}>{["10","👟","🎒"].map((x,i)=><div key={i} style={{width:32,height:32,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.14)",fontSize:13,fontWeight:950,color:C.white}}>{x}</div>)}</div>
+          </button>
+          <button onClick={()=>setTab("routine")} style={{...glass,textAlign:"left",borderRadius:16,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,216,107,.18),rgba(255,95,210,.12))",fontFamily:"system-ui"}}>
+            <div style={{fontSize:9,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>ROUTINE STREAK 🔥</div>
+            <div style={{fontSize:26,fontWeight:950,color:C.white,lineHeight:1,marginTop:4}}>{Object.keys(routineHist).length}</div>
+            <div style={{fontSize:10,color:C.light,marginTop:4}}>days tracked</div>
+          </button>
+        </div>
+      </GlamHero>
+
+      {/* Quick actions */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8,marginBottom:14}}>
+        {[{e:"💪",l:"Practice",t:"practice",c:C.purple},{e:"🏀",l:"Game",t:"games",c:C.coral},{e:"👟",l:"Style",t:"style",c:C.pink},{e:"✨",l:"Routine",t:"routine",c:C.gold},{e:"📚",l:"School",t:"school",c:C.teal}].map(b=><GlamButton key={b.t} e={b.e} l={b.l} c={b.c} onClick={()=>setTab(b.t)}/>)}
       </div>
 
       {/* Date nav */}
@@ -518,14 +558,33 @@ export default function ScarlettTracker(){
       setTrendForm("");
     };
     return<div>
-      <div style={{...cs,background:C.card2,padding:18}}>
-        <CH e="👟" title="Style Locker" sub="Sneakers · fits · hair · trends · confidence"/>
+      <GlamHero>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:14}}>
+          <div>
+            <div style={{fontSize:30,fontWeight:950,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Style Locker</div>
+            <div style={{fontSize:11,color:C.light,letterSpacing:"1px",fontWeight:850,marginTop:5}}>LOOK GOOD · FEEL GOOD · PLAY GREAT</div>
+          </div>
+          <div style={{width:50,height:50,borderRadius:16,background:"linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.04))",border:"1px solid rgba(255,255,255,.16)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:25,boxShadow:`0 0 22px ${C.pink}33`}}>🛍️</div>
+        </div>
+        <div style={{...glass,borderRadius:18,padding:12,marginBottom:12}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontWeight:950,fontSize:12,color:C.pink,letterSpacing:"1px"}}>SNEAKER WISHLIST 👟✨</div>
+            <div style={{fontSize:10,color:C.gold,fontWeight:900}}>{shoeWish.length} saved</div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+            {(shoeWish.length?shoeWish.slice(0,3):[{name:"Sabrina 2",priority:"Dream"},{name:"Kobe",priority:"Next Up"},{name:"Ja 2",priority:"Maybe"}]).map((s,i)=><div key={s.id||i} style={{background:"linear-gradient(145deg,#FBE7FF,#FFF5F9)",borderRadius:14,padding:8,minHeight:72,color:"#2A0C35",boxShadow:"0 12px 22px rgba(0,0,0,.18)"}}>
+              <div style={{height:32,borderRadius:12,background:i===0?"linear-gradient(135deg,#DAB8FF,#8F55FF)":i===1?"linear-gradient(135deg,#0D0D13,#C78A2B)":"linear-gradient(135deg,#68B7FF,#1550A8)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,marginBottom:6}}>👟</div>
+              <div style={{fontSize:10,fontWeight:950,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.name}</div>
+              <div style={{fontSize:8,fontWeight:900,color:i===0?"#9333EA":i===1?"#D97706":"#0891B2"}}>{s.priority||"Dream"} ♥</div>
+            </div>)}
+          </div>
+        </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
           <SBox value={styleLog.length} label="Fits Logged" color={C.pink}/>
           <SBox value={shoeWish.length} label="Shoe List" color={C.gold}/>
-          <SBox value={avgConf||"—"} label="Avg Confidence" color={C.purple} sub="out of 5"/>
+          <SBox value={avgConf||"—"} label="Vibe Avg" color={C.purple} sub="out of 5"/>
         </div>
-      </div>
+      </GlamHero>
 
       <div style={cs}>
         <CH e="🔥" title="Log a Fit" sub="Game day, practice, school, or weekend"/>
@@ -603,15 +662,19 @@ export default function ScarlettTracker(){
     };
     const toggle=id=>updateRoutine({c:{...checked,[id]:!checked[id]}});
     return<div>
-      <div style={{...cs,background:C.card2,textAlign:"center",padding:20}}>
-        <div style={{fontSize:34,marginBottom:4}}>✨</div>
-        <div style={{fontWeight:900,fontSize:18,color:C.white}}>Glow Routine</div>
-        <div style={{fontSize:11,color:C.muted,marginTop:3}}>Face care · outfit prep · school prep · wind down</div>
-        <div style={{height:10,background:C.navy,borderRadius:100,overflow:"hidden",marginTop:14}}>
-          <div style={{height:"100%",width:`${rpct}%`,background:rpct>=100?C.green:rpct>=60?C.pink:C.purple,borderRadius:100,transition:"width .4s"}}/>
+      <GlamHero style={{textAlign:"center"}}>
+        <div style={{fontSize:44,filter:`drop-shadow(0 0 18px ${C.gold})`}}>✨</div>
+        <div style={{fontWeight:950,fontSize:26,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Glow Routine</div>
+        <div style={{fontSize:11,color:C.light,marginTop:6}}>Face care · outfit prep · school prep · wind down</div>
+        <div style={{height:14,background:"rgba(0,0,0,.28)",borderRadius:100,overflow:"hidden",marginTop:16,border:"1px solid rgba(255,255,255,.10)"}}>
+          <div style={{height:"100%",width:`${rpct}%`,background:rpct>=100?`linear-gradient(90deg,${C.green},${C.teal})`:rpct>=60?`linear-gradient(90deg,${C.pink},${C.gold})`:glamGrad,borderRadius:100,transition:"width .4s",boxShadow:`0 0 18px ${rpct>=100?C.green:C.pink}`}}/>
         </div>
-        <div style={{fontSize:12,fontWeight:900,color:rpct>=100?C.green:C.pink,marginTop:7}}>{done}/{routineItems.length} done · {rpct}%</div>
-      </div>
+        <div style={{display:"inline-flex",gap:8,alignItems:"center",background:"rgba(255,255,255,.09)",border:"1px solid rgba(255,255,255,.14)",borderRadius:999,padding:"7px 12px",marginTop:12}}>
+          <span style={{fontSize:13,fontWeight:950,color:rpct>=100?C.green:C.pink}}>{done}/{routineItems.length} done</span>
+          <span style={{fontSize:11,color:C.muted}}>·</span>
+          <span style={{fontSize:13,fontWeight:950,color:C.gold}}>{rpct}% glow</span>
+        </div>
+      </GlamHero>
       {Object.entries(groups).map(([g,items])=><div key={g} style={cs}>
         <div style={{fontSize:9,fontWeight:900,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{g}</div>
         {items.map(item=>{const ok=checked[item.id];return<div key={item.id} onClick={()=>toggle(item.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 6px",borderRadius:8,cursor:"pointer",background:ok?`${C.green}12`:"transparent",marginBottom:2}}>
@@ -839,11 +902,20 @@ export default function ScarlettTracker(){
     const weekMins=practices.filter(p=>daysAgo(p.dateISO||todayISO())<=7).reduce((a,p)=>a+(parseInt(p.duration)||0),0);
     const glowReport=getGlowReport();
     return<div>
-      <div style={{...cs,background:C.card2,textAlign:"center",padding:20}}>
-        <div style={{fontWeight:900,fontSize:56,color:C.gold,lineHeight:1}}>{stars}</div>
-        <div style={{fontSize:14,fontWeight:700,color:C.text,marginTop:4}}>⭐ Total Stars Earned</div>
-        <div style={{fontSize:11,color:C.muted,marginTop:4}}>Games · Tests · Goals · Practice · Skills</div>
-      </div>
+      <GlamHero style={{textAlign:"center"}}>
+        <div style={{fontSize:12,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase"}}>My Glow-Up Report ✨</div>
+        <div style={{fontWeight:950,fontSize:64,color:C.gold,lineHeight:1,textShadow:`0 0 26px ${C.gold}77`}}>{stars}</div>
+        <div style={{fontSize:15,fontWeight:900,color:C.text,marginTop:4}}>⭐ Stars Earned</div>
+        <div style={{fontSize:11,color:C.light,marginTop:5}}>Your progress. Your power. Your next move.</div>
+        <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:14}}>
+          {earned.slice(0,3).map(b=><div key={b.id} style={{...glass,borderRadius:16,padding:"9px 10px",minWidth:82}}>
+            <div style={{fontSize:24}}>{b.icon}</div><div style={{fontSize:8,fontWeight:950,color:C.light,marginTop:3}}>{b.name}</div>
+          </div>)}
+          {earned.length===0&&["Routine Queen","Sneaker Star","Goal Getter"].map((b,i)=><div key={b} style={{...glass,borderRadius:16,padding:"9px 10px",minWidth:82,opacity:.85}}>
+            <div style={{fontSize:24}}>{["👑","👟","🎯"][i]}</div><div style={{fontSize:8,fontWeight:950,color:C.light,marginTop:3}}>{b}</div>
+          </div>)}
+        </div>
+      </GlamHero>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}>
         <SBox value={tg} label="Games" color={C.coral}/><SBox value={`${winPct}%`} label="Win Rate" color={C.green}/>
         <SBox value={practices.length} label="Practices" color={C.purple}/><SBox value={weekMins||"0"} label="Mins/Week" color={C.teal} sub="this week"/>
@@ -968,15 +1040,25 @@ export default function ScarlettTracker(){
   };
 
   const CONTENT={today:<Today/>,games:<Games/>,practice:<Practice/>,style:<Style/>,routine:<Routine/>,sleep:<Sleep/>,skills:<Skills/>,school:<School/>,coach:<Coach/>,goals:<Goals2/>,progress:<Progress/>,settings:<Settings/>};
-  if(!loaded)return<div style={{background:C.bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:40}}>⭐</div><div style={{fontWeight:700}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
-  return<div style={{background:C.bg,minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,maxWidth:430,margin:"0 auto"}}>
-    <div style={{background:C.nav,padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50,boxShadow:"0 2px 24px rgba(0,0,0,.9)"}}>
-      <div><div style={{fontWeight:900,fontSize:18,letterSpacing:"1px",color:C.white}}>{profile.emoji} <span style={{color:C.purple}}>{profile.name}</span></div><div style={{fontSize:10,color:C.muted}}>{profile.grade} Grade{profile.teamName?` · ${profile.teamName}`:""} · {profile.primaryGoal}</div></div>
-      <div style={{background:`${C.gold}20`,border:`1px solid ${C.gold}55`,borderRadius:10,padding:"6px 12px",textAlign:"center"}}><div style={{fontWeight:900,fontSize:18,color:C.gold}}>⭐ {stars}</div><div style={{fontSize:8,color:C.muted,fontWeight:800}}>STARS</div></div>
+  if(!loaded)return<div style={{background:"radial-gradient(circle at 20% 0%,#5E1D8A,transparent 35%),radial-gradient(circle at 80% 20%,#FF5FD255,transparent 35%),#090015",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:46,filter:`drop-shadow(0 0 18px ${C.gold})`}}>⭐</div><div style={{fontWeight:900}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
+  return<div style={{background:"radial-gradient(circle at 10% -5%,rgba(255,95,210,.23),transparent 30%),radial-gradient(circle at 95% 8%,rgba(36,242,210,.16),transparent 28%),linear-gradient(180deg,#10001D,#090015 55%,#05000C)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 80px rgba(255,95,210,.10)"}}>
+      <div style={{position:"sticky",top:0,zIndex:50,padding:"12px 14px 8px",background:"linear-gradient(180deg,rgba(15,0,28,.95),rgba(15,0,28,.78))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
+          <div>
+            <div style={{fontWeight:950,fontSize:22,letterSpacing:"-.5px",color:C.white,lineHeight:1}}><span style={{color:C.gold}}>✦</span> <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span></div>
+            <div style={{fontSize:10,color:C.light,letterSpacing:"1px",fontWeight:800}}>{profile.grade} Grade{profile.teamName?` · ${profile.teamName}`:""} · {profile.primaryGoal}</div>
+          </div>
+          <div style={{background:"linear-gradient(135deg,rgba(255,216,107,.28),rgba(255,95,210,.14))",border:`1px solid ${C.gold}66`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 22px ${C.gold}22`}}><div style={{fontWeight:950,fontSize:18,color:C.gold}}>⭐ {stars}</div><div style={{fontSize:8,color:C.light,fontWeight:900}}>STARS</div></div>
+        </div>
+        <div style={{display:"flex",overflowX:"auto",gap:7,paddingBottom:2}}>
+          {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:950,fontSize:9,letterSpacing:"0.7px",color:tab===t.id?C.white:C.muted,padding:"8px 10px",border:`1px solid ${tab===t.id?"rgba(255,255,255,.20)":"rgba(255,255,255,.06)"}`,background:tab===t.id?glamGrad:"rgba(255,255,255,.045)",borderRadius:999,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui",boxShadow:tab===t.id?`0 0 18px ${C.pink}55`:"none"}}>{t.e} {t.label}</button>)}
+        </div>
+      </div>
+      <div style={{padding:"14px 12px 96px"}}>{CONTENT[tab]||<Today/>}</div>
+      <div style={{position:"fixed",left:"50%",bottom:12,transform:"translateX(-50%)",width:"min(406px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,background:"rgba(12,0,25,.82)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:24,padding:8,boxShadow:"0 18px 50px rgba(0,0,0,.45)"}}>
+        {[["today","🏠","Home"],["goals","🎯","Goals"],["practice","＋","Log"],["progress","📈","Glow"],["style","👟","Style"]].map(([id,e,l])=><button key={id} onClick={()=>setTab(id)} style={{background:tab===id?`${C.pink}22`:"transparent",border:"none",borderRadius:16,color:tab===id?C.pink:C.muted,padding:"7px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:id==="practice"?24:18,lineHeight:1}}>{e}</div><div style={{fontSize:8,marginTop:3}}>{l}</div></button>)}
+      </div>
     </div>
-    <div style={{background:C.navy2,display:"flex",overflowX:"auto",borderBottom:`2px solid ${C.border}`}}>
-      {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{fontWeight:800,fontSize:9,letterSpacing:"0.8px",color:tab===t.id?C.purple:C.muted,padding:"10px 11px",border:"none",background:"none",cursor:"pointer",borderBottom:`3px solid ${tab===t.id?C.purple:"transparent"}`,whiteSpace:"nowrap",flexShrink:0,textTransform:"uppercase",fontFamily:"system-ui"}}>{t.e} {t.label}</button>)}
-    </div>
-    <div style={{padding:"12px 12px 80px"}}>{CONTENT[tab]||<Today/>}</div>
   </div>;
 }
