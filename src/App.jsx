@@ -21,6 +21,7 @@ const ROUTINE_ITEMS=[
   {id:"water",e:"💦",label:"Water bottle ready",group:"SCHOOL PREP"},
   {id:"read",e:"📖",label:"Read or calm down time",group:"WIND DOWN"}
 ];
+const ROUTINE_GROUPS=["MORNING","FACE CARE","SCHOOL PREP","STYLE PREP","GAME DAY","NIGHT ROUTINE","WIND DOWN","CUSTOM"];
 const GRADE_MAP={A:4,B:3,C:2,D:1,F:0};
 const GRADE_COL={A:C.green,B:C.teal,C:C.gold,D:C.orange,F:C.red};
 const SKILL_LEVEL=v=>v>=75?"Elite":v>=55?"Strong":v>=35?"Building":"Beginner";
@@ -40,6 +41,9 @@ const BADGE_DEFS=[
   {id:"hydrated",icon:"💧",name:"Hydrated",desc:"Hit water goal 5 days",check:d=>Object.values(d.dailyHist).filter(e=>(e.w||0)>=8).length>=5},
   {id:"iron_will",icon:"🔩",name:"Iron Will",desc:"Log 10 practices",check:d=>d.practices.length>=10},
   {id:"comeback",icon:"🌅",name:"Comeback",desc:"Win after a loss",check:d=>{const r=d.games.map(g=>g.result);for(let i=0;i<r.length-1;i++)if(r[i]==="Win"&&r[i+1]==="Loss")return true;return false;}},
+  {id:"sneaker_star",icon:"👟",name:"Sneaker Star",desc:"Add 3 shoes to wishlist",check:d=>(d.shoeWish||[]).length>=3},
+  {id:"style_confidence",icon:"💅",name:"Confidence Era",desc:"Log 5 fits",check:d=>(d.styleLog||[]).length>=5},
+  {id:"routine_queen",icon:"✨",name:"Routine Queen",desc:"Finish routine 5 days",check:d=>Object.values(d.routineHist||{}).filter(e=>{const c=e.c||{};const total=(d.routineItems||[]).length||1;return Object.values(c).filter(Boolean).length>=total;}).length>=5},
 ];
 
 const uid=()=>`${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
@@ -148,6 +152,7 @@ export default function ScarlettTracker(){
   const[trendBoard,setTrendBoard]=useState([]);
   const[trendForm,setTrendForm]=useState("");
   const[routineHist,setRoutineHist]=useState({});
+  const[routineItems,setRoutineItems]=useState(clone(ROUTINE_ITEMS));
   const[skills,setSkills]=useState(clone(DEF_SKILLS));
   const[subjects,setSubjects]=useState(clone(DEF_SUBJECTS));
   const[quizLog,setQuizLog]=useState([]);
@@ -168,7 +173,7 @@ export default function ScarlettTracker(){
     const bball=await sg("sc_bball")||{games:[],skills:clone(DEF_SKILLS)};
     const prax=await sg("sc_practices")||{entries:[]};
     const styleD=await sg("sc_style")||{fits:[],shoes:[],trends:[]};
-    const routineD=await sg("sc_routine")||{entries:{}};
+    const routineD=await sg("sc_routine")||{entries:{},items:clone(ROUTINE_ITEMS)};
     const slp=await sg("sc_sleep")||{entries:[]};
     const school=await sg("sc_school")||{subjects:clone(DEF_SUBJECTS),quizLog:[]};
     const gd=await sg("sc_goals")||{entries:[],stars:0};
@@ -176,7 +181,7 @@ export default function ScarlettTracker(){
     const pd=await sg("sc_profile")||clone(DEF_PROFILE);
     const td=await sg("sc_training")||{days:clone(DEF_TRAINING)};
     setDailyHist(daily.entries||{});setGames(bball.games||[]);setSkills(bball.skills||clone(DEF_SKILLS));
-    setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);setTrendBoard(styleD.trends||[]);setRoutineHist(routineD.entries||{});setSleepEntries(slp.entries||[]);
+    setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);setTrendBoard(styleD.trends||[]);setRoutineHist(routineD.entries||{});setRoutineItems(routineD.items||clone(ROUTINE_ITEMS));setSleepEntries(slp.entries||[]);
     setSubjects(school.subjects||clone(DEF_SUBJECTS));setQuizLog(school.quizLog||[]);
     setGoals(gd.entries||[]);setStars(gd.stars||0);setHabits(hd2.entries||clone(DEF_HABITS));
     setProfile(pd);setTrainingDays(td.days||clone(DEF_TRAINING));
@@ -193,9 +198,43 @@ export default function ScarlettTracker(){
   const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
   const savePrax=async p=>{setPractices(p);await ss("sc_practices",{entries:p});};
   const saveStyle=async(fits=styleLog,shoes=shoeWish,trends=trendBoard)=>{setStyleLog(fits);setShoeWish(shoes);setTrendBoard(trends);await ss("sc_style",{fits,shoes,trends});};
-  const saveRoutine=async entries=>{setRoutineHist(entries);await ss("sc_routine",{entries});};
+  const saveRoutine=async(entries=routineHist,items=routineItems)=>{setRoutineHist(entries);setRoutineItems(items);await ss("sc_routine",{entries,items});};
   const saveSchool=async(sub,ql)=>{setSubjects(sub);setQuizLog(ql);await ss("sc_school",{subjects:sub,quizLog:ql});};
-  const saveGoals=async(g,s)=>{setGoals(g);setStars(s);await ss("sc_goals",{entries:g,stars:s});};
+  const getGlowReport=()=>{
+    const report=[];
+    const add=(area,e,col,doing,needs,next,stat)=>report.push({area,e,col,doing,needs,next,stat});
+    const tg=games.length;
+    const avg=(key,arr=games)=>arr.length?Math.round(avgArr(arr.map(x=>parseInt(x[key])||0))*10)/10:0;
+    if(tg){
+      const wins=games.filter(g=>g.result==="Win").length,wr=Math.round(wins/tg*100);
+      const fta=games.reduce((a,g)=>a+(g.fta||0),0),ftm=games.reduce((a,g)=>a+(g.ftm||0),0),ft=Math.round((ftm/(fta||1))*100);
+      const tov=avg("tov",games.slice(0,5));
+      add("Hoops","🏀",C.coral,`You have ${tg} game${tg===1?"":"s"} logged and a ${wr}% win rate.`,fta>=10&&ft<65?`Free throws are at ${ft}% — that is the easiest place to gain points.`:tov>=4?`Turnovers are averaging ${tov}. Protecting the ball is the next level-up.`:"Keep building a bigger game sample so Coach can see stronger trends.",fta>=10&&ft<65?"Next move: make 20 free throws after every practice.":tov>=4?"Next move: add 5 minutes of strong-hand and weak-hand control drills.":"Next move: log every game, even small stats.",tg>=2?`Last game: ${games[0].pts||0} pts`:`${tg} game logged`);
+    }else add("Hoops","🏀",C.coral,"No game data yet — that is totally okay.","Coach needs game logs to find scoring, passing, rebound, and turnover trends.","Next move: log the next game right after it ends.","0 games");
+    if(practices.length){
+      const week=practices.filter(p=>daysAgo(p.dateISO||todayISO())<=7),mins=week.reduce((a,p)=>a+(parseInt(p.duration)||0),0);
+      const counts=practices.reduce((a,p)=>{a[p.type]=(a[p.type]||0)+1;return a;},{});
+      const sorted=Object.entries(counts).sort((a,b)=>a[1]-b[1]);
+      const least=sorted[0]?.[0]||"a focus area";
+      add("Practice","💪",C.purple,`You logged ${practices.length} practice session${practices.length===1?"":"s"}.`,mins<90?"Practice minutes this week are still low.":`You have ${mins} practice minutes this week — strong work.`,mins<90?"Next move: aim for 90+ total practice minutes this week.":`Next move: add one ${least} session so training stays balanced.`,`${mins} min this week`);
+    }else add("Practice","💪",C.purple,"No practice sessions logged yet.","Coach cannot tell what she is working on without practice logs.","Next move: log one practice with effort, focus, and what was hard.","0 practices");
+    const sk=Object.entries(skills).sort((a,b)=>a[1]-b[1]),weak=sk[0],strong=sk[sk.length-1];
+    if(weak&&strong)add("Skills","📊",SKILL_COL(strong[1]),`${strong[0]} is her strongest skill at ${strong[1]}%.`,`${weak[0]} is the next level-up skill at ${weak[1]}%.`,`Next move: 15 minutes of ${weak[0]} reps today.`,`${Math.round(avgArr(Object.values(skills)))}% overall`);
+    const grades=Object.entries(subjects).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0)),low=grades[0],high=grades[grades.length-1];
+    if(low&&high)add("School","📚",(GRADE_MAP[low[1]]||0)<3?C.orange:C.teal,`${high[0]} is looking strong with a ${high[1]}.`,(GRADE_MAP[low[1]]||0)<3?`${low[0]} needs attention at ${low[1]}.`:"Grades look solid right now.",(GRADE_MAP[low[1]]||0)<3?`Next move: 15 minutes of ${low[0]} review tonight.`:"Next move: keep homework-before-screens going.",`GPA ${gpaCalc(subjects)}`);
+    const active=goals.filter(g=>!g.done),done=goals.filter(g=>g.done);
+    add("Goals","🎯",C.gold,done.length?`${done.length} goal${done.length===1?"":"s"} finished — that is momentum.`:"Goals are ready when she is.",active.length?`${active.length} active goal${active.length===1?"":"s"} still need action.`:"No active goal right now.",active.length?`Next move: choose one tiny action for “${active[0].text.slice(0,32)}${active[0].text.length>32?"...":""}”.`:"Next move: set one basketball, school, or style goal.",`${done.length}/${goals.length||0} done`);
+    if(sleepEntries.length){const ah=Math.round(avgArr(sleepEntries.slice(0,7).map(e=>e.hours))*10)/10;add("Sleep","🌙",ah>=8?C.green:C.orange,ah>=8?`${ah}h average sleep — nice recovery habit.`:"Sleep is logged, which is already a win.",ah<8?"Average sleep is under the 8–10h target.":"Keep the bedtime routine steady.",ah<8?"Next move: move bedtime 20–30 minutes earlier tonight.":"Next move: keep the same bedtime routine three nights in a row.",`${ah}h avg`);}else add("Sleep","🌙",C.purple,"No sleep data yet.","Coach needs sleep logs to connect rest with energy and games.","Next move: log bedtime, wake time, and sleep quality tomorrow.","0 nights");
+    const rDays=Object.entries(routineHist).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
+    const rAvg=rDays.length?Math.round(avgArr(rDays.map(([,e])=>pct(Object.values(e.c||{}).filter(Boolean).length,routineItems.length||1)))):0;
+    const itemScores={}; routineItems.forEach(i=>itemScores[i.id]={label:i.label,done:0,total:0});
+    rDays.forEach(([,e])=>routineItems.forEach(i=>{itemScores[i.id].total++; if((e.c||{})[i.id])itemScores[i.id].done++;}));
+    const miss=Object.values(itemScores).filter(x=>x.total>0).sort((a,b)=>(a.done/a.total)-(b.done/b.total))[0];
+    add("Routine","✨",rAvg>=80?C.green:C.pink,rDays.length?`Routine average is ${rAvg}% over the last ${rDays.length} day${rDays.length===1?"":"s"}.`:"Routine is ready to track face care, outfit prep, and night habits.",miss&&rAvg<100?`${miss.label} is the easiest routine item to improve.`:"Build a streak by checking off the routine daily.",miss?`Next move: do “${miss.label}” tonight.`:"Next move: complete one routine today.",rDays.length?`${rAvg}% avg`:"0 days");
+    const avgConf=styleLog.length?Math.round(avgArr(styleLog.filter(f=>f.confidence>0).map(f=>f.confidence||0))*10)/10:0;
+    add("Style","👟",C.pink,styleLog.length?`${styleLog.length} fit${styleLog.length===1?"":"s"} logged. ${shoeWish.length} shoe${shoeWish.length===1?"":"s"} on the wishlist.`:"Style board is ready for shoes, fits, hair, and trend ideas.",styleLog.length&&avgConf<4?"Confidence ratings are still building.":"Keep using style as a confidence boost, not pressure.",styleLog.length?"Next move: log a game-day or school fit with confidence rating.":"Next move: add one shoe to the wishlist or one outfit idea.",styleLog.length?`${avgConf||"—"}/5 vibe`:`${shoeWish.length} shoes`);
+    return report;
+  };
 
   // ── TODAY ──────────────────────────────────────────────────────────────
   const Today=()=>{
@@ -555,9 +594,9 @@ export default function ScarlettTracker(){
   const Routine=()=>{
     const dayEntry=routineHist[selDay]||{c:{},note:""};
     const checked=dayEntry.c||{};
-    const done=ROUTINE_ITEMS.filter(i=>checked[i.id]).length;
-    const rpct=ROUTINE_ITEMS.length?Math.round(done/ROUTINE_ITEMS.length*100):0;
-    const groups=ROUTINE_ITEMS.reduce((acc,i)=>{if(!acc[i.group])acc[i.group]=[];acc[i.group].push(i);return acc;},{});
+    const done=routineItems.filter(i=>checked[i.id]).length;
+    const rpct=routineItems.length?Math.round(done/routineItems.length*100):0;
+    const groups=routineItems.reduce((acc,i)=>{if(!acc[i.group])acc[i.group]=[];acc[i.group].push(i);return acc;},{});
     const updateRoutine=async(next)=>{
       const entries={...routineHist,[selDay]:{...dayEntry,...next}};
       await saveRoutine(entries);
@@ -571,7 +610,7 @@ export default function ScarlettTracker(){
         <div style={{height:10,background:C.navy,borderRadius:100,overflow:"hidden",marginTop:14}}>
           <div style={{height:"100%",width:`${rpct}%`,background:rpct>=100?C.green:rpct>=60?C.pink:C.purple,borderRadius:100,transition:"width .4s"}}/>
         </div>
-        <div style={{fontSize:12,fontWeight:900,color:rpct>=100?C.green:C.pink,marginTop:7}}>{done}/{ROUTINE_ITEMS.length} done · {rpct}%</div>
+        <div style={{fontSize:12,fontWeight:900,color:rpct>=100?C.green:C.pink,marginTop:7}}>{done}/{routineItems.length} done · {rpct}%</div>
       </div>
       {Object.entries(groups).map(([g,items])=><div key={g} style={cs}>
         <div style={{fontSize:9,fontWeight:900,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{g}</div>
@@ -686,8 +725,9 @@ export default function ScarlettTracker(){
     const readiness=computeReadiness(vitals,sleepEntries);
     const mod=intensityMod(readiness);
     const insights=generateInsights(profile,games,practices,skills,subjects,sleepEntries,vitals,goals);
-    const dataPoints=games.length+practices.length+sleepEntries.length;
-    const r=readiness.score,C2=2*Math.PI*36,dash=C2-(r/100)*C2;
+    const dataPoints=games.length+practices.length+sleepEntries.length+styleLog.length+Object.keys(routineHist).length;
+    const glowReport=getGlowReport();
+    const r=readiness.score??0,displayVal=readiness.displayValue??String(r),C2=2*Math.PI*36,dash=C2-((readiness.score??0)/100)*C2;
     const weakSkills=Object.entries(skills).sort((a,b)=>a[1]-b[1]).slice(0,3);
     const weakSubjs=Object.entries(subjects).filter(([,g])=>(GRADE_MAP[g]||0)<3).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
     const typeCounts=practices.reduce((acc,p)=>{acc[p.type]=(acc[p.type]||0)+1;return acc;},{});
@@ -699,10 +739,21 @@ export default function ScarlettTracker(){
       </div>}
       <div style={{...cs,background:C.card2}}>
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:12}}>
-          <svg width={90} height={90}><circle cx={45} cy={45} r={36} fill="none" stroke={C.border} strokeWidth={7}/><circle cx={45} cy={45} r={36} fill="none" stroke={readiness.level.col} strokeWidth={7} strokeLinecap="round" strokeDasharray={C2} strokeDashoffset={dash} transform="rotate(-90 45 45)" style={{transition:"all .5s ease"}}/><text x={45} y={42} textAnchor="middle" fill={C.text} fontSize={18} fontWeight={800} fontFamily="system-ui">{r}</text><text x={45} y={57} textAnchor="middle" fill={readiness.level.col} fontSize={8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text></svg>
+          <svg width={90} height={90}><circle cx={45} cy={45} r={36} fill="none" stroke={C.border} strokeWidth={7}/><circle cx={45} cy={45} r={36} fill="none" stroke={readiness.level.col} strokeWidth={7} strokeLinecap="round" strokeDasharray={C2} strokeDashoffset={dash} transform="rotate(-90 45 45)" style={{transition:"all .5s ease"}}/><text x={45} y={42} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?16:18} fontWeight={800} fontFamily="system-ui">{displayVal}</text><text x={45} y={57} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?7:8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text></svg>
           <div style={{flex:1}}><div style={{fontWeight:900,fontSize:20,color:readiness.level.col,marginBottom:3}}>{readiness.level.label}</div><div style={{fontSize:11,color:C.muted,lineHeight:1.5,marginBottom:8}}>{mod.note}</div><div style={{background:`${params.col}22`,border:`1px solid ${params.col}55`,borderRadius:6,padding:"3px 8px",fontSize:9,fontWeight:800,color:params.col,display:"inline-block"}}>{params.label}</div></div>
         </div>
         {readiness.reasons.slice(0,2).map((rs,i)=><div key={i} style={{display:"flex",gap:8,padding:"5px 0",borderTop:`1px solid ${C.border}`,alignItems:"flex-start"}}><span style={{fontSize:12}}>{rs.icon}</span><div style={{fontSize:11,color:C.muted,lineHeight:1.5}}>{rs.txt}</div></div>)}
+      </div>
+      <div style={cs}>
+        <CH e="✨" title="My Glow-Up Report" sub="What is strong, what needs work, and the next move"/>
+        {glowReport.map((x,i)=><div key={x.area} style={{background:`${x.col}10`,border:`1px solid ${x.col}33`,borderRadius:10,padding:10,marginBottom:i<glowReport.length-1?8:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
+            <span style={{fontSize:16}}>{x.e}</span><div style={{fontWeight:900,fontSize:12,color:x.col,letterSpacing:"1px",textTransform:"uppercase",flex:1}}>{x.area}</div><div style={{fontSize:9,color:C.muted,fontWeight:800}}>{x.stat}</div>
+          </div>
+          <div style={{fontSize:11,color:C.text,lineHeight:1.5}}>✅ {x.doing}</div>
+          <div style={{fontSize:11,color:C.muted,lineHeight:1.5,marginTop:2}}>🔎 {x.needs}</div>
+          <div style={{fontSize:11,color:x.col,fontWeight:800,lineHeight:1.5,marginTop:3}}>➡️ {x.next}</div>
+        </div>)}
       </div>
       {insights.length>0&&<div style={cs}>
         <div style={{fontWeight:800,fontSize:10,letterSpacing:"1.5px",color:C.text,textTransform:"uppercase",marginBottom:10}}>📊 Trend Analysis · {dataPoints} data points</div>
@@ -778,7 +829,7 @@ export default function ScarlettTracker(){
 
   // ── PROGRESS ───────────────────────────────────────────────────────────
   const Progress=()=>{
-    const badgeData={games,practices,skills,subjects,goals,dailyHist,sleepEntries};
+    const badgeData={games,practices,skills,subjects,goals,dailyHist,sleepEntries,styleLog,shoeWish,routineHist,routineItems};
     const earned=BADGE_DEFS.filter(b=>{try{return b.check(badgeData);}catch{return false;}});
     const locked=BADGE_DEFS.filter(b=>{try{return !b.check(badgeData);}catch{return true;}});
     const tg=games.length,wins=games.filter(g=>g.result==="Win").length,winPct=tg?Math.round(wins/tg*100):0;
@@ -786,6 +837,7 @@ export default function ScarlettTracker(){
     const habitDays=Object.keys(dailyHist).sort((a,b)=>b.localeCompare(a)).slice(0,14);
     const hScores=habitDays.map(day=>({pct:allH.length?Math.round(allH.filter(h=>(dailyHist[day]?.c||{})[h.id]).length/allH.length*100):0})).reverse();
     const weekMins=practices.filter(p=>daysAgo(p.dateISO||todayISO())<=7).reduce((a,p)=>a+(parseInt(p.duration)||0),0);
+    const glowReport=getGlowReport();
     return<div>
       <div style={{...cs,background:C.card2,textAlign:"center",padding:20}}>
         <div style={{fontWeight:900,fontSize:56,color:C.gold,lineHeight:1}}>{stars}</div>
@@ -795,6 +847,18 @@ export default function ScarlettTracker(){
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}>
         <SBox value={tg} label="Games" color={C.coral}/><SBox value={`${winPct}%`} label="Win Rate" color={C.green}/>
         <SBox value={practices.length} label="Practices" color={C.purple}/><SBox value={weekMins||"0"} label="Mins/Week" color={C.teal} sub="this week"/>
+      </div>
+      <div style={cs}>
+        <CH e="✨" title="Glow-Up Report" sub="All areas organized into next moves"/>
+        {glowReport.map((x,i)=><div key={x.area} style={{display:"flex",gap:9,padding:"9px 0",borderBottom:i<glowReport.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
+          <div style={{fontSize:18,width:24,textAlign:"center",flexShrink:0}}>{x.e}</div>
+          <div style={{flex:1}}>
+            <div style={{display:"flex",justifyContent:"space-between",gap:8,marginBottom:2}}><div style={{fontWeight:900,fontSize:12,color:x.col}}>{x.area}</div><div style={{fontSize:9,color:C.muted,fontWeight:800}}>{x.stat}</div></div>
+            <div style={{fontSize:11,color:C.text,lineHeight:1.45}}>✅ {x.doing}</div>
+            <div style={{fontSize:11,color:C.muted,lineHeight:1.45}}>🔎 {x.needs}</div>
+            <div style={{fontSize:11,color:x.col,fontWeight:800,lineHeight:1.45}}>➡️ {x.next}</div>
+          </div>
+        </div>)}
       </div>
       <div style={cs}>
         <CH e="🏅" title={`Badges — ${earned.length}/${BADGE_DEFS.length} Earned`}/>
@@ -872,19 +936,34 @@ export default function ScarlettTracker(){
         {(adding||editId)&&<div style={{background:C.navy2,borderRadius:8,padding:12,marginTop:12,border:`1px solid ${C.purple}33`}}><div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DAY</div><select value={form.day||"MON"} onChange={e=>setForm(p=>({...p,day:e.target.value}))} style={{...INP,appearance:"none"}}>{DAYS.map(d=><option key={d} value={d}>{d}</option>)}</select></div><div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>FOCUS</div><input value={form.focus||""} onChange={e=>setForm(p=>({...p,focus:e.target.value}))} placeholder="e.g. Shooting, Defense, Full Workout" style={INP}/></div><div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>DETAIL</div><input value={form.detail||""} onChange={e=>setForm(p=>({...p,detail:e.target.value}))} style={INP}/></div><div style={{display:"flex",gap:8}}><button onClick={saveItem} style={{flex:1,padding:9,background:C.purple,color:C.white,border:"none",borderRadius:7,fontWeight:800,cursor:"pointer",fontFamily:"system-ui"}}>Save</button><button onClick={stopEdit} style={{padding:"9px 16px",background:"none",color:C.muted,border:`1px solid ${C.border}`,borderRadius:7,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button></div></div>}
       </div>;
     };
+    const RoutineEd=()=>{
+      const cleanEntriesAfterDelete=(id)=>Object.fromEntries(Object.entries(routineHist).map(([day,entry])=>{
+        const c={...(entry.c||{})};delete c[id];return[day,{...entry,c}];
+      }));
+      const saveItem=async()=>{if(!form.label)return;const item={id:editId||uid(),e:form.e||"✨",label:form.label,group:(form.group||"NIGHT ROUTINE").toUpperCase()};const items=editId?routineItems.map(i=>i.id===editId?item:i):[...routineItems,item];await saveRoutine(routineHist,items);stopEdit();};
+      const delItem=async id=>{const items=routineItems.filter(i=>i.id!==id);const entries=cleanEntriesAfterDelete(id);await saveRoutine(entries,items);};
+      return<div style={cs}><CH e="✨" title="Routine Builder" sub="Customize face care, outfit prep, school prep, game day, and night routine"/>
+        {routineItems.map(item=><div key={item.id} style={{padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"center"}}><div style={{display:"flex",gap:9,alignItems:"center"}}><div style={{width:28,height:28,borderRadius:8,background:`${C.pink}18`,border:`1px solid ${C.pink}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{item.e}</div><div><div style={{fontSize:12,color:C.text,fontWeight:800}}>{item.label}</div><div style={{fontSize:10,color:C.muted}}>{item.group}</div></div></div><div style={{display:"flex",gap:6}}><button onClick={()=>{setEditId(item.id);setAdding(false);setForm({...item});}} style={{background:"none",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Edit</button><button onClick={()=>delItem(item.id)} style={{background:"none",border:`1px solid ${C.border}`,color:C.red,borderRadius:6,padding:"3px 9px",cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Del</button></div></div></div>)}
+        {!adding&&!editId&&<button onClick={()=>{setAdding(true);setForm({e:"✨",label:"",group:"NIGHT ROUTINE"});}} style={{width:"100%",marginTop:12,padding:10,borderRadius:8,border:`1px dashed ${C.pink}`,background:"transparent",color:C.pink,cursor:"pointer",fontWeight:800,fontFamily:"system-ui"}}>+ Add Routine Item</button>}
+        {(adding||editId)&&<div style={{background:C.navy2,borderRadius:8,padding:12,marginTop:12,border:`1px solid ${C.pink}33`}}><div style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:8,marginBottom:8}}><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>ICON</div><input value={form.e||""} onChange={e=>setForm(p=>({...p,e:e.target.value}))} placeholder="✨" style={INP}/></div><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>ITEM</div><input value={form.label||""} onChange={e=>setForm(p=>({...p,label:e.target.value}))} placeholder="e.g. Clean basketball shoes" style={INP}/></div></div><div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>GROUP</div><select value={form.group||"NIGHT ROUTINE"} onChange={e=>setForm(p=>({...p,group:e.target.value}))} style={{...INP,appearance:"none"}}>{ROUTINE_GROUPS.map(g=><option key={g} value={g}>{g}</option>)}</select></div><div style={{display:"flex",gap:8}}><button onClick={saveItem} style={{flex:1,padding:9,background:C.pink,color:C.white,border:"none",borderRadius:7,fontWeight:800,cursor:"pointer",fontFamily:"system-ui"}}>Save Routine Item</button><button onClick={stopEdit} style={{padding:"9px 16px",background:"none",color:C.muted,border:`1px solid ${C.border}`,borderRadius:7,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button></div></div>}
+        <button onClick={()=>saveRoutine(routineHist,clone(ROUTINE_ITEMS))} style={{width:"100%",marginTop:10,padding:9,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Routine Items to Default</button>
+      </div>;
+    };
     const DataEd=()=><div style={cs}><CH e="🗑️" title="Data Management"/><div style={{fontSize:12,color:C.muted,marginBottom:12,lineHeight:1.6}}>All data saves automatically. Use buttons below to reset specific sections.</div><div style={{display:"flex",flexDirection:"column",gap:8}}>
       <button onClick={async()=>{setGames([]);await saveBball([],skills);}} style={{padding:10,background:"transparent",border:`1px solid ${C.red}55`,color:C.red,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Games Log</button>
       <button onClick={async()=>{setPractices([]);await savePrax([]);}} style={{padding:10,background:"transparent",border:`1px solid ${C.red}55`,color:C.red,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Practice Log</button>
       <button onClick={async()=>{setGoals([]);setStars(0);await saveGoals([],0);}} style={{padding:10,background:"transparent",border:`1px solid ${C.red}55`,color:C.red,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Goals & Stars</button>
       <button onClick={async()=>{setQuizLog([]);await saveSchool(subjects,[]);}} style={{padding:10,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Test Log</button>
       <button onClick={async()=>{setSleepEntries([]);await saveSleep([]);}} style={{padding:10,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Sleep Log</button>
+      <button onClick={async()=>{await saveStyle([],[],[]);}} style={{padding:10,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Style Logs</button>
+      <button onClick={async()=>{await saveRoutine({},routineItems);}} style={{padding:10,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Routine Checkmarks</button>
       <button onClick={async()=>{setSkills(clone(DEF_SKILLS));await saveBball(games,clone(DEF_SKILLS));}} style={{padding:10,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Skills to Default</button>
     </div></div>;
     return<div>
       <div style={{display:"flex",gap:5,overflowX:"auto",marginBottom:12,paddingBottom:2}}>
-        {[["profile","Profile"],["habits","Habits"],["training","Training"],["data","Data"]].map(([id,lbl])=><button key={id} onClick={()=>{setSec(id);stopEdit();}} style={{padding:"9px 12px",borderRadius:8,border:`1px solid ${sec===id?C.purple:C.border}`,background:sec===id?`${C.purple}18`:C.card,color:sec===id?C.purple:C.text,cursor:"pointer",whiteSpace:"nowrap",fontWeight:700,fontSize:13,fontFamily:"system-ui"}}>{lbl}</button>)}
+        {[["profile","Profile"],["habits","Habits"],["routine","Routine"],["training","Training"],["data","Data"]].map(([id,lbl])=><button key={id} onClick={()=>{setSec(id);stopEdit();}} style={{padding:"9px 12px",borderRadius:8,border:`1px solid ${sec===id?C.purple:C.border}`,background:sec===id?`${C.purple}18`:C.card,color:sec===id?C.purple:C.text,cursor:"pointer",whiteSpace:"nowrap",fontWeight:700,fontSize:13,fontFamily:"system-ui"}}>{lbl}</button>)}
       </div>
-      {sec==="profile"&&<ProfileEd/>}{sec==="habits"&&<HabitEd/>}{sec==="training"&&<TrainingEd/>}{sec==="data"&&<DataEd/>}
+      {sec==="profile"&&<ProfileEd/>}{sec==="habits"&&<HabitEd/>}{sec==="routine"&&<RoutineEd/>}{sec==="training"&&<TrainingEd/>}{sec==="data"&&<DataEd/>}
     </div>;
   };
 
