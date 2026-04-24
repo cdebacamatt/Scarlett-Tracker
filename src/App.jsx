@@ -65,15 +65,15 @@ const STYLE={scorer:{col:C.coral,label:"Scorer"},playmaker:{col:C.purple,label:"
 function computeReadiness(vitals,sleepEntries){
   let score=70;const reasons=[];let used=0;
   const rs=sleepEntries.slice(0,3);
-  if(rs.length>=1){used+=1;const avgH=avgArr(rs.map(e=>e.hours)),avgQ=avgArr(rs.map(e=>e.quality||5));if(avgH>=9.5){score+=12;reasons.push({txt:`${avgH.toFixed(1)}h sleep — elite recovery!`,col:C.green,icon:"🌙"});}else if(avgH>=8){score+=6;reasons.push({txt:`${avgH.toFixed(1)}h — solid. Aim for 9–10h.`,col:C.teal,icon:"🌙"});}else if(avgH<7){score-=15;reasons.push({txt:`Only ${avgH.toFixed(1)}h — athletes need 9–10h. Rest tonight.`,col:C.red,icon:"🌙"});}if(avgQ<=4){score-=8;reasons.push({txt:"Poor sleep quality — consistent bedtime helps.",col:C.orange,icon:"😴"});}}
-  if(vitals.energy>0){used+=0.75;if(vitals.energy>=8){score+=12;reasons.push({txt:"High energy — perfect day to push hard!",col:C.green,icon:"⚡"});}else if(vitals.energy>=6)score+=4;else if(vitals.energy<=3){score-=12;reasons.push({txt:"Low energy — lighter practice today.",col:C.orange,icon:"⚡"});}}
-  if(vitals.mood>0){used+=0.25;if(vitals.mood>=8)score+=5;else if(vitals.mood<=3){score-=6;reasons.push({txt:"Tough mood — even 15 min of drills can help.",col:C.purple,icon:"💜"});}}
+  if(rs.length>=1){used+=1;const avgH=avgArr(rs.map(e=>e.hours)),avgQ=avgArr(rs.map(e=>e.quality||5));if(avgH>=9.5){score+=12;reasons.push({txt:`${avgH.toFixed(1)}h sleep — amazing recovery!`,col:C.green,icon:"🌙"});}else if(avgH>=8){score+=6;reasons.push({txt:`${avgH.toFixed(1)}h — nice job. Keep aiming for 9–10h.`,col:C.teal,icon:"🌙"});}else if(avgH<7){score-=15;reasons.push({txt:`Only ${avgH.toFixed(1)}h — your body needs extra rest tonight.`,col:C.red,icon:"🌙"});}if(avgQ<=4){score-=8;reasons.push({txt:"Sleep felt rough — a calm bedtime routine can help.",col:C.orange,icon:"😴"});}}
+  if(vitals.energy>0){used+=0.75;if(vitals.energy>=4){score+=12;reasons.push({txt:"High energy — this could be a big day!",col:C.green,icon:"⚡"});}else if(vitals.energy>=3)score+=4;else if(vitals.energy<=2){score-=12;reasons.push({txt:"Low energy — keep today lighter and focus on form.",col:C.orange,icon:"⚡"});}}
+  if(vitals.mood>0){used+=0.25;if(vitals.mood>=4)score+=5;else if(vitals.mood<=2){score-=6;reasons.push({txt:"A tough mood is okay — a few good reps can still be a win.",col:C.purple,icon:"💜"});}}
   score=Math.max(0,Math.min(100,score));const conf=Math.min(1,used/2);
-  if(conf<0.3)return{score:70,confidence:conf,level:{label:"LOG DATA",col:C.muted},reasons:[{txt:"Log energy and last night's sleep to unlock your real readiness score!",col:C.muted,icon:"📊"}]};
-  const level=score>=80?{label:"PEAK",col:C.green}:score>=65?{label:"READY",col:C.teal}:score>=50?{label:"MODERATE",col:C.gold}:{label:"REST DAY",col:C.orange};
-  return{score,level,reasons,confidence:conf};
+  if(conf<0.3)return{score:null,displayValue:"✨",confidence:conf,starter:true,level:{label:"START HERE",col:C.gold},reasons:[{txt:"Start with the quick check-in below to unlock your daily vibe!",col:C.gold,icon:"✨"}]};
+  const level=score>=80?{label:"LOCKED IN",col:C.green}:score>=65?{label:"READY",col:C.teal}:score>=50?{label:"EASY MODE",col:C.gold}:{label:"RECHARGE",col:C.orange};
+  return{score,displayValue:String(score),level,reasons,confidence:conf,starter:false};
 }
-function intensityMod(r){if(r.score>=80)return{label:"Full intensity",note:"You're at your best. Make every rep count today."};if(r.score>=65)return{label:"Normal intensity",note:"Train as planned. Push on the quality sets."};if(r.score>=50)return{label:"75% intensity",note:"Good session, lighter load. Technique focus today."};return{label:"Light session",note:"Rest is training too. Short drills or full rest — both are wins."};}
+function intensityMod(r){if(r.starter)return{label:"Start here",note:"Do your quick check-in below so your dashboard can cheer you on."};if(r.score>=80)return{label:"Locked in",note:"You’re feeling good — go have a strong, confident day."};if(r.score>=65)return{label:"Ready",note:"You’re ready to roll. Train as planned and have fun."};if(r.score>=50)return{label:"Easy mode",note:"Good day for quality reps, clean form, and steady effort."};return{label:"Recharge",note:"A lighter day is okay. Rest, water, and sleep still count as winning."};}
 
 function generateInsights(profile,games,practices,skills,subjects,sleepEntries,vitals,goals){
   const ins=[];
@@ -180,7 +180,7 @@ export default function ScarlettTracker(){
     const mod=intensityMod(readiness);
     const insights=generateInsights(profile,games,practices,skills,subjects,sleepEntries,vitals,goals);
     const topIn=insights.find(i=>i.col===C.red)||insights[0];
-    const r=readiness.score,circ=2*Math.PI*30,dash=circ-(r/100)*circ;
+    const r=readiness.score??0,displayVal=readiness.displayValue??String(r),circ=2*Math.PI*30,dash=circ-((readiness.score??0)/100)*circ;
     const weakestSkill=Object.entries(skills).sort((a,b)=>a[1]-b[1])[0]||["Dribbling",30];
     const gradeEntries=Object.entries(subjects).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
     const worstSubj=gradeEntries.find(([,g])=>(GRADE_MAP[g]||0)<3);
@@ -194,8 +194,8 @@ export default function ScarlettTracker(){
           <svg width={72} height={72} style={{flexShrink:0}}>
             <circle cx={36} cy={36} r={30} fill="none" stroke={C.border} strokeWidth={6}/>
             <circle cx={36} cy={36} r={30} fill="none" stroke={readiness.level.col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={dash} transform="rotate(-90 36 36)" style={{transition:"all .5s ease"}}/>
-            <text x={36} y={33} textAnchor="middle" fill={C.text} fontSize={17} fontWeight={800} fontFamily="system-ui">{r}</text>
-            <text x={36} y={48} textAnchor="middle" fill={readiness.level.col} fontSize={8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text>
+            <text x={36} y={33} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?14:17} fontWeight={800} fontFamily="system-ui">{displayVal}</text>
+            <text x={36} y={48} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?7:8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text>
           </svg>
           <div style={{flex:1}}>
             <div style={{fontWeight:900,fontSize:16,color:C.text,marginBottom:2}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, {profile.name}!</div>
