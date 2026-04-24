@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const C={bg:"#090015",nav:"#170824",navy:"#13051F",navy2:"#22113A",card:"#22113A",card2:"#32144F",border:"rgba(255,255,255,.12)",coral:"#FF6B9A",teal:"#24F2D2",purple:"#B76CFF",gold:"#FFD86B",green:"#60F098",blue:"#66C7FF",pink:"#FF5FD2",orange:"#FF9A4D",red:"#FF5F73",white:"#FFFFFF",text:"#FFF7FF",muted:"#BDA8D8",light:"#F0D7FF"};
+const C={bg:"#080612",nav:"#111021",navy:"#11101F",navy2:"#19162C",card:"#1D1830",card2:"#251D3F",border:"rgba(255,255,255,.13)",coral:"#FF6F9F",teal:"#2CE6D1",purple:"#9F7AEA",gold:"#FFD166",green:"#72EF9A",blue:"#78BDFB",pink:"#F85FC8",orange:"#FF9E57",red:"#FF647A",white:"#FFFFFF",text:"#FFF8FF",muted:"#B9AFCB",light:"#EFE7FF"};
 const TABS=[{id:"today",e:"🏠",label:"Today"},{id:"games",e:"🏀",label:"Games"},{id:"practice",e:"💪",label:"Practice"},{id:"style",e:"👟",label:"Style"},{id:"routine",e:"✨",label:"Routine"},{id:"sleep",e:"🌙",label:"Sleep"},{id:"skills",e:"📊",label:"Skills"},{id:"school",e:"📚",label:"School"},{id:"coach",e:"🤖",label:"Coach"},{id:"goals",e:"🎯",label:"Goals"},{id:"progress",e:"📈",label:"Glow Up"},{id:"settings",e:"⚙️",label:"Setup"}];
 const DEF_VITALS={energy:0,mood:0};
 const DEF_HABITS=[{id:"h1",time:"Morning",label:"Drink water first thing",group:"MORNING"},{id:"h2",time:"Morning",label:"Make my bed",group:"MORNING"},{id:"h3",time:"After School",label:"Homework before screens",group:"SCHOOL"},{id:"h4",time:"Evening",label:"Basketball practice or drills",group:"BASKETBALL"},{id:"h5",time:"Night",label:"Read for 20 minutes",group:"WIND DOWN"},{id:"h6",time:"Night",label:"In bed by 9:00 PM",group:"WIND DOWN"}];
@@ -136,34 +136,38 @@ function Sparkles(){return<>
   <div style={{position:"absolute",top:36,right:68,color:C.pink,fontSize:10,opacity:.75}}>✧</div>
   <div style={{position:"absolute",bottom:18,left:18,color:C.teal,fontSize:10,opacity:.7}}>✦</div>
 </>;}
-function ScarlettAvatar(){return<div aria-label="Scarlett avatar" style={{position:"relative",width:138,height:142,flexShrink:0}}>
-  <div style={{position:"absolute",inset:10,borderRadius:28,background:"radial-gradient(circle at 30% 20%,rgba(255,95,210,.45),transparent 34%),radial-gradient(circle at 78% 18%,rgba(102,199,255,.35),transparent 28%),linear-gradient(160deg,#2B0E45,#12041F)",border:"1px solid rgba(255,255,255,.16)",boxShadow:"0 20px 50px rgba(0,0,0,.38),0 0 32px rgba(255,95,210,.18)",overflow:"hidden"}}/>
-  <div style={{position:"absolute",top:0,left:84,width:46,height:20,borderRadius:999,background:"linear-gradient(135deg,rgba(255,95,210,.95),rgba(183,108,255,.95))",border:"1px solid rgba(255,255,255,.2)",boxShadow:"0 8px 18px rgba(255,95,210,.28)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:950,color:C.white,letterSpacing:".5px"}}>FIT CHECK</div>
-  <div style={{position:"absolute",top:94,left:0,width:54,height:20,borderRadius:999,background:"linear-gradient(135deg,rgba(36,242,210,.95),rgba(102,199,255,.95))",border:"1px solid rgba(255,255,255,.18)",boxShadow:"0 8px 18px rgba(36,242,210,.25)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:950,color:"#16071F",letterSpacing:".5px"}}>SNEAKER GIRL</div>
-  <div style={{position:"absolute",top:18,left:19,width:100,height:110,borderRadius:24,background:"linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02))",overflow:"hidden"}}>
-    <div style={{position:"absolute",top:10,left:22,width:55,height:40,borderRadius:"36px 42px 18px 20px",background:"linear-gradient(180deg,#AE7A4E,#7B4B2B)",transform:"rotate(-3deg)",boxShadow:"0 8px 20px rgba(0,0,0,.32)"}}/>
-    <div style={{position:"absolute",top:22,left:29,width:42,height:46,borderRadius:"42% 42% 50% 50%",background:"linear-gradient(180deg,#F6DFC9,#EFC4A7)",boxShadow:"0 4px 10px rgba(0,0,0,.12)"}}/>
-    <div style={{position:"absolute",top:20,left:24,width:52,height:14,borderRadius:"18px 18px 8px 8px",background:"linear-gradient(180deg,#B07A48,#85502B)"}}/>
-    <div style={{position:"absolute",top:42,left:38,width:5,height:5,borderRadius:"50%",background:"#5D402C"}}/>
-    <div style={{position:"absolute",top:42,left:57,width:5,height:5,borderRadius:"50%",background:"#5D402C"}}/>
-    <div style={{position:"absolute",top:38,left:35,width:10,height:2,borderRadius:8,background:"rgba(93,64,44,.55)",transform:"rotate(-8deg)"}}/>
-    <div style={{position:"absolute",top:38,left:55,width:10,height:2,borderRadius:8,background:"rgba(93,64,44,.55)",transform:"rotate(8deg)"}}/>
-    <div style={{position:"absolute",top:51,left:47,width:6,height:8,borderRadius:"50%",borderLeft:"2px solid rgba(186,128,95,.55)"}}/>
-    <div style={{position:"absolute",top:56,left:43,width:13,height:6,borderBottom:"2px solid #CA7292",borderRadius:"0 0 12px 12px"}}/>
-    <div style={{position:"absolute",top:28,left:27,width:46,height:6,borderRadius:99,background:`linear-gradient(90deg,${C.pink},${C.purple})`,boxShadow:`0 0 12px ${C.pink}77`}}/>
-    <div style={{position:"absolute",top:67,left:31,width:38,height:18,borderRadius:99,background:"linear-gradient(180deg,#E8B896,#E1A781)"}}/>
-    <div style={{position:"absolute",top:76,left:20,width:60,height:36,borderRadius:"18px 18px 14px 14px",background:"linear-gradient(135deg,#6D28D9,#FF5FD2 70%,#24F2D2)",border:"1px solid rgba(255,255,255,.16)"}}>
-      <div style={{position:"absolute",left:9,top:9,width:22,height:4,borderRadius:99,background:"rgba(255,255,255,.34)"}}/>
-      <div style={{position:"absolute",right:10,top:8,fontSize:15,color:C.gold,fontWeight:950}}>23</div>
+function ScarlettAvatar(){return<div aria-label="Scarlett profile card" style={{position:"relative",width:132,height:146,flexShrink:0}}>
+  <div style={{position:"absolute",inset:0,borderRadius:26,background:"linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.035))",border:"1px solid rgba(255,255,255,.16)",boxShadow:"0 18px 46px rgba(0,0,0,.34),0 0 28px rgba(248,95,200,.18)",overflow:"hidden"}}/>
+  <div style={{position:"absolute",left:8,right:8,top:8,height:86,borderRadius:22,background:"radial-gradient(circle at 50% 28%,rgba(255,209,102,.30),transparent 28%),linear-gradient(145deg,#3B245E,#160D29)",overflow:"hidden"}}>
+    <div style={{position:"absolute",left:35,top:8,width:55,height:62,borderRadius:"34px 34px 28px 28px",background:"linear-gradient(180deg,#A8794E,#7A4C2E)",boxShadow:"0 12px 18px rgba(0,0,0,.35)"}}/>
+    <div style={{position:"absolute",left:42,top:24,width:42,height:45,borderRadius:"44% 44% 50% 50%",background:"linear-gradient(180deg,#F4DDC9,#E8BEA3)",border:"1px solid rgba(255,255,255,.35)"}}/>
+    <div style={{position:"absolute",left:38,top:20,width:50,height:18,borderRadius:"20px 20px 9px 9px",background:"linear-gradient(180deg,#B8895B,#875936)"}}/>
+    <div style={{position:"absolute",left:40,top:27,width:47,height:6,borderRadius:99,background:`linear-gradient(90deg,${C.pink},${C.purple})`,boxShadow:`0 0 12px ${C.pink}77`}}/>
+    <div style={{position:"absolute",left:50,top:42,width:5,height:5,borderRadius:"50%",background:"#513829"}}/>
+    <div style={{position:"absolute",left:71,top:42,width:5,height:5,borderRadius:"50%",background:"#513829"}}/>
+    <div style={{position:"absolute",left:58,top:56,width:13,height:6,borderBottom:"2px solid #C9708E",borderRadius:"0 0 12px 12px"}}/>
+    <div style={{position:"absolute",left:31,top:67,width:67,height:36,borderRadius:"20px 20px 12px 12px",background:"linear-gradient(135deg,#2E2149,#F85FC8 75%)",border:"1px solid rgba(255,255,255,.18)"}}>
+      <div style={{position:"absolute",left:12,top:10,fontSize:12,fontWeight:950,color:C.white}}>SC</div>
+      <div style={{position:"absolute",right:10,top:9,fontSize:13,fontWeight:950,color:C.gold}}>23</div>
     </div>
-    <div style={{position:"absolute",top:80,left:13,width:18,height:24,borderRadius:12,background:"linear-gradient(180deg,#FFD9BF,#F6B68D)",transform:"rotate(14deg)"}}/>
-    <div style={{position:"absolute",top:82,left:70,width:18,height:24,borderRadius:12,background:"linear-gradient(180deg,#FFD9BF,#F6B68D)",transform:"rotate(-12deg)"}}/>
-    <div style={{position:"absolute",top:86,left:10,width:16,height:7,borderRadius:8,background:"linear-gradient(90deg,#C9FFFA,#24F2D2)"}}/>
-    <div style={{position:"absolute",top:88,left:73,width:16,height:7,borderRadius:8,background:"linear-gradient(90deg,#FFD86B,#FF9A4D)"}}/>
+    <div style={{position:"absolute",right:9,bottom:8,width:36,height:36,borderRadius:"50%",background:"radial-gradient(circle at 30% 25%,#FFB06A,#B45A22 68%)",boxShadow:"0 0 18px rgba(255,158,87,.45)"}}>
+      <div style={{position:"absolute",inset:6,borderLeft:"1.5px solid rgba(74,28,8,.55)",borderRight:"1.5px solid rgba(74,28,8,.55)",borderRadius:"50%"}}/>
+      <div style={{position:"absolute",left:3,right:3,top:17,borderTop:"1.5px solid rgba(74,28,8,.55)"}}/>
+    </div>
   </div>
-  <div style={{position:"absolute",right:13,bottom:16,width:28,height:28,borderRadius:"50%",background:"linear-gradient(135deg,rgba(255,216,107,.95),rgba(255,154,77,.95))",boxShadow:"0 0 18px rgba(255,216,107,.45)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>✨</div>
+  <div style={{position:"absolute",left:13,right:13,bottom:10}}>
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,marginBottom:6}}>
+      <div style={{fontSize:9,fontWeight:950,letterSpacing:"1px",color:C.gold}}>ATHLETE MODE</div>
+      <div style={{fontSize:13}}>✨</div>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
+      <div style={{background:"rgba(255,255,255,.08)",border:"1px solid rgba(255,255,255,.12)",borderRadius:10,padding:"5px 4px",fontSize:8,fontWeight:900,color:C.light,textAlign:"center"}}>HOOPS</div>
+      <div style={{background:"rgba(255,255,255,.08)",border:"1px solid rgba(255,255,255,.12)",borderRadius:10,padding:"5px 4px",fontSize:8,fontWeight:900,color:C.light,textAlign:"center"}}>STYLE</div>
+    </div>
+  </div>
 </div>;}
-function GlamHero({children,style={}}){return<div style={{...cs,padding:18,background:"radial-gradient(circle at 78% 12%,rgba(255,95,210,.32),transparent 36%),radial-gradient(circle at 18% 0%,rgba(36,242,210,.18),transparent 32%),linear-gradient(145deg,rgba(61,20,94,.96),rgba(13,3,30,.98))",border:"1px solid rgba(255,255,255,.16)",boxShadow:"0 18px 50px rgba(255,95,210,.12),0 18px 50px rgba(0,0,0,.45)",...style}}><Sparkles/>{children}</div>;}
+
+function GlamHero({children,style={}}){return<div style={{...cs,padding:18,background:"radial-gradient(circle at 80% 10%,rgba(248,95,200,.20),transparent 36%),radial-gradient(circle at 10% 0%,rgba(44,230,209,.10),transparent 30%),linear-gradient(145deg,rgba(38,30,64,.96),rgba(14,10,28,.98))",border:"1px solid rgba(255,255,255,.15)",boxShadow:"0 16px 42px rgba(0,0,0,.42),0 0 36px rgba(248,95,200,.08)",...style}}><Sparkles/>{children}</div>;}
 function GlamButton({e,l,c,onClick}){return<button onClick={onClick} style={{background:`linear-gradient(135deg,${c}EE,${C.purple}DD)`,border:"1px solid rgba(255,255,255,.22)",borderRadius:18,padding:"13px 6px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,fontFamily:"system-ui",boxShadow:`0 12px 28px ${c}30`,color:C.white,position:"relative",overflow:"hidden"}}><span style={{position:"absolute",inset:"0 0 auto 0",height:"45%",background:"linear-gradient(180deg,rgba(255,255,255,.22),transparent)"}}/><div style={{fontSize:23,position:"relative"}}>{e}</div><div style={{fontSize:9,fontWeight:950,textAlign:"center",position:"relative"}}>{l}</div></button>;}
 function MiniChart({color=C.pink}){return<div style={{height:22,display:"flex",alignItems:"end",gap:3}}>{[35,48,44,62,76].map((h,i)=><div key={i} style={{width:7,height:h/2,background:i===4?color:`${color}66`,borderRadius:4,boxShadow:i===4?`0 0 12px ${color}77`:"none"}}/> )}</div>;}
 
@@ -293,9 +297,9 @@ export default function ScarlettTracker(){
       <GlamHero>
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:14}}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:4}}>Plan · Practice · Glow · Repeat</div>
+            <div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:4}}>Train · Style · Glow · Repeat</div>
             <div style={{fontWeight:950,fontSize:24,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span> ✨</div>
-            <div style={{fontSize:11,color:C.light,lineHeight:1.5,marginTop:7}}>You’ve got goals, style, and game. Let’s make today count.</div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.5,marginTop:7}}>Your goals, your style, your game — all in one place.</div>
           </div>
           <ScarlettAvatar/>
         </div>
@@ -315,7 +319,7 @@ export default function ScarlettTracker(){
                 <div style={{fontSize:10,color:C.light,lineHeight:1.4,marginTop:2}}>{mod.note}</div>
               </div>
             </div>
-            <div style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:6,background:"rgba(0,0,0,.22)",border:"1px solid rgba(255,255,255,.12)",borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.gold}}>Keep the energy ⚡</div>
+            <div style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:6,background:"rgba(0,0,0,.22)",border:"1px solid rgba(255,255,255,.12)",borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.gold}}>Stay locked in ⚡</div>
           </div>
           <div style={{...glass,borderRadius:18,padding:14,background:"linear-gradient(145deg,rgba(255,216,107,.18),rgba(255,95,210,.10))"}}>
             <div style={{fontSize:9,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase"}}>STARS EARNED</div>
@@ -337,12 +341,12 @@ export default function ScarlettTracker(){
             <div style={{fontSize:10,color:C.light,lineHeight:1.5,marginTop:6}}>{worstSubj?"15 min review tonight":"Keep homework-before-screens going"}</div>
           </div>
           <button onClick={()=>setTab("style")} style={{...glass,textAlign:"left",borderRadius:16,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,95,210,.22),rgba(255,154,77,.12))",fontFamily:"system-ui"}}>
-            <div style={{fontSize:9,color:C.pink,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>STYLE PICK 👟</div>
+            <div style={{fontSize:9,color:C.pink,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>FIT CHECK 👟</div>
             <div style={{fontSize:14,fontWeight:950,color:C.text,marginTop:4}}>Game-Day Fit</div>
             <div style={{display:"flex",gap:5,marginTop:8}}>{["10","👟","🎒"].map((x,i)=><div key={i} style={{width:32,height:32,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.14)",fontSize:13,fontWeight:950,color:C.white}}>{x}</div>)}</div>
           </button>
           <button onClick={()=>setTab("routine")} style={{...glass,textAlign:"left",borderRadius:16,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,216,107,.18),rgba(255,95,210,.12))",fontFamily:"system-ui"}}>
-            <div style={{fontSize:9,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>ROUTINE STREAK 🔥</div>
+            <div style={{fontSize:9,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>GLOW STREAK 🔥</div>
             <div style={{fontSize:26,fontWeight:950,color:C.white,lineHeight:1,marginTop:4}}>{Object.keys(routineHist).length}</div>
             <div style={{fontSize:10,color:C.light,marginTop:4}}>days tracked</div>
           </button>
@@ -1056,7 +1060,7 @@ export default function ScarlettTracker(){
 
   const CONTENT={today:<Today/>,games:<Games/>,practice:<Practice/>,style:<Style/>,routine:<Routine/>,sleep:<Sleep/>,skills:<Skills/>,school:<School/>,coach:<Coach/>,goals:<Goals2/>,progress:<Progress/>,settings:<Settings/>};
   if(!loaded)return<div style={{background:"radial-gradient(circle at 20% 0%,#5E1D8A,transparent 35%),radial-gradient(circle at 80% 20%,#FF5FD255,transparent 35%),#090015",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:46,filter:`drop-shadow(0 0 18px ${C.gold})`}}>⭐</div><div style={{fontWeight:900}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
-  return<div style={{background:"radial-gradient(circle at 10% -5%,rgba(255,95,210,.23),transparent 30%),radial-gradient(circle at 95% 8%,rgba(36,242,210,.16),transparent 28%),linear-gradient(180deg,#10001D,#090015 55%,#05000C)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
+  return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
     <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 80px rgba(255,95,210,.10)"}}>
       <div style={{position:"sticky",top:0,zIndex:50,padding:"12px 14px 8px",background:"linear-gradient(180deg,rgba(15,0,28,.95),rgba(15,0,28,.78))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
