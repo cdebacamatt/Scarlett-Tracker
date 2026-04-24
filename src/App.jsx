@@ -837,46 +837,135 @@ export default function ScarlettTracker(){
     const dayEntry=routineHist[selDay]||{c:{},note:""};
     const checked=dayEntry.c||{};
     const done=routineItems.filter(i=>checked[i.id]).length;
-    const rpct=routineItems.length?Math.round(done/routineItems.length*100):0;
+    const total=routineItems.length||1;
+    const rpct=Math.round(done/total*100);
     const groups=routineItems.reduce((acc,i)=>{if(!acc[i.group])acc[i.group]=[];acc[i.group].push(i);return acc;},{});
     const updateRoutine=async(next)=>{
       const entries={...routineHist,[selDay]:{...dayEntry,...next}};
       await saveRoutine(entries);
     };
     const toggle=id=>updateRoutine({c:{...checked,[id]:!checked[id]}});
-    return<div>
-      <GlamHero style={{textAlign:"center"}}>
-        <div style={{fontSize:44,filter:`drop-shadow(0 0 18px ${C.gold})`}}>✨</div>
-        <div style={{fontWeight:900,fontSize:26,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>Glow Routine</div>
-        <div style={{fontSize:11,color:C.light,marginTop:6}}>Face care · outfit prep · school prep · wind down</div>
-        <div style={{height:14,background:"rgba(0,0,0,.28)",borderRadius:100,overflow:"hidden",marginTop:16,border:"1px solid rgba(255,255,255,.10)"}}>
-          <div style={{height:"100%",width:`${rpct}%`,background:rpct>=100?`linear-gradient(90deg,${C.green},${C.teal})`:rpct>=60?`linear-gradient(90deg,${C.pink},${C.gold})`:glamGrad,borderRadius:100,transition:"width .4s",boxShadow:`0 0 18px ${rpct>=100?C.green:C.pink}`}}/>
+    const groupInfo={
+      "FACE CARE":{e:"🫧",title:"Face Glow",col:C.teal,sub:"wash, moisturize, feel fresh"},
+      "NIGHT ROUTINE":{e:"🌙",title:"Night Reset",col:C.purple,sub:"teeth, hair, calm body"},
+      "STYLE PREP":{e:"👚",title:"Fit Ready",col:C.pink,sub:"tomorrow's outfit picked"},
+      "SCHOOL PREP":{e:"🎒",title:"School Ready",col:C.gold,sub:"backpack and bottle set"},
+      "WIND DOWN":{e:"📖",title:"Calm Down",col:C.blue,sub:"read, relax, sleep mode"},
+      "MORNING":{e:"☀️",title:"Morning Start",col:C.orange,sub:"start strong"},
+      "GAME DAY":{e:"🏀",title:"Game Day Prep",col:C.coral,sub:"ready to compete"},
+      "CUSTOM":{e:"✨",title:"Custom Glow",col:C.pink,sub:"personal routine"}
+    };
+    const groupPct=(items)=>items.length?Math.round(items.filter(i=>checked[i.id]).length/items.length*100):0;
+    const groupDone=(items)=>items.filter(i=>checked[i.id]).length;
+    const orderedGroups=Object.entries(groups).sort((a,b)=>{
+      const order=["FACE CARE","NIGHT ROUTINE","STYLE PREP","SCHOOL PREP","WIND DOWN","MORNING","GAME DAY","CUSTOM"];
+      return (order.indexOf(a[0])<0?99:order.indexOf(a[0]))-(order.indexOf(b[0])<0?99:order.indexOf(b[0]));
+    });
+    const nextItem=routineItems.find(i=>!checked[i.id]);
+    const completedToday=rpct>=100;
+    const quickCompleteGroup=g=>{
+      const items=groups[g]||[];
+      const next={...checked};
+      const allDone=items.every(i=>next[i.id]);
+      items.forEach(i=>{next[i.id]=!allDone;});
+      updateRoutine({c:next});
+    };
+    const glowMessage=completedToday?"You're ready for tomorrow 👑":rpct>=70?"Almost there — finish the glow quest ✨":rpct>=35?"Glow streak is building 🔥":"Tap the first step to start tonight's quest ✨";
+    return <div>
+      <GlamHero style={{padding:16}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:12,alignItems:"center",marginBottom:12}}>
+          <div>
+            <div style={{fontSize:30,fontWeight:950,lineHeight:1,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent",letterSpacing:"-.8px"}}>Glow Quest</div>
+            <div style={{fontSize:10,color:C.light,letterSpacing:"1.2px",fontWeight:900,marginTop:6}}>FACE CARE · FIT PREP · SCHOOL READY · WIND DOWN</div>
+          </div>
+          <div style={{width:62,height:62,borderRadius:22,background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,95,200,.16))",border:"1px solid rgba(255,255,255,.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,boxShadow:`0 0 26px ${C.gold}33`}}>{completedToday?"👑":"✨"}</div>
         </div>
-        <div style={{display:"inline-flex",gap:8,alignItems:"center",background:"rgba(255,255,255,.09)",border:"1px solid rgba(255,255,255,.14)",borderRadius:999,padding:"7px 12px",marginTop:12}}>
-          <span style={{fontSize:13,fontWeight:900,color:rpct>=100?C.green:C.pink}}>{done}/{routineItems.length} done</span>
-          <span style={{fontSize:11,color:C.muted}}>·</span>
-          <span style={{fontSize:13,fontWeight:900,color:C.gold}}>{rpct}% glow</span>
+
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+          <div style={{...glass,borderRadius:18,padding:13,background:"linear-gradient(145deg,rgba(248,95,200,.18),rgba(255,255,255,.04))"}}>
+            <div style={{fontSize:8,color:C.pink,fontWeight:950,letterSpacing:"1.7px",textTransform:"uppercase",marginBottom:7}}>Today</div>
+            <div style={{fontSize:30,fontWeight:950,color:completedToday?C.green:C.white,lineHeight:1}}>{done}/{total}</div>
+            <div style={{fontSize:10,color:C.muted,marginTop:6}}>steps complete</div>
+          </div>
+          <div style={{...glass,borderRadius:18,padding:13,background:"linear-gradient(145deg,rgba(255,215,0,.17),rgba(139,92,246,.10))"}}>
+            <div style={{fontSize:8,color:C.gold,fontWeight:950,letterSpacing:"1.7px",textTransform:"uppercase",marginBottom:7}}>Glow Meter</div>
+            <div style={{fontSize:30,fontWeight:950,color:C.gold,lineHeight:1}}>{rpct}%</div>
+            <div style={{fontSize:10,color:C.muted,marginTop:6}}>{completedToday?"quest complete":"keep going"}</div>
+          </div>
+        </div>
+
+        <div style={{height:14,background:"rgba(0,0,0,.30)",borderRadius:100,overflow:"hidden",border:"1px solid rgba(255,255,255,.12)",boxShadow:"inset 0 1px 0 rgba(255,255,255,.06)"}}>
+          <div style={{height:"100%",width:`${rpct}%`,background:completedToday?`linear-gradient(90deg,${C.green},${C.teal})`:rpct>=60?`linear-gradient(90deg,${C.pink},${C.gold})`:glamGrad,borderRadius:100,transition:"width .35s ease",boxShadow:`0 0 20px ${completedToday?C.green:C.pink}`}}/>
+        </div>
+
+        <div style={{marginTop:12,padding:12,borderRadius:18,background:completedToday?`${C.green}16`:"rgba(255,255,255,.07)",border:`1px solid ${completedToday?C.green+"44":C.border}`}}>
+          <div style={{fontSize:12,fontWeight:950,color:completedToday?C.green:C.text,lineHeight:1.4}}>{glowMessage}</div>
+          {nextItem&&!completedToday&&<button onClick={()=>toggle(nextItem.id)} style={{marginTop:9,width:"100%",padding:"10px 12px",borderRadius:14,border:"1px solid rgba(255,255,255,.16)",background:`linear-gradient(135deg,${C.pink}55,${C.purple}66)`,color:C.white,fontFamily:"system-ui",fontWeight:950,cursor:"pointer",textAlign:"left"}}>
+            Next step: {nextItem.e} {nextItem.label}
+          </button>}
         </div>
       </GlamHero>
-      {Object.entries(groups).map(([g,items])=><div key={g} style={cs}>
-        <div style={{fontSize:9,fontWeight:900,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{g}</div>
-        {items.map(item=>{const ok=checked[item.id];return<div key={item.id} onClick={()=>toggle(item.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 6px",borderRadius:8,cursor:"pointer",background:ok?`${C.green}12`:"transparent",marginBottom:2}}>
-          <div style={{width:26,height:26,borderRadius:8,border:ok?"none":`2px solid ${C.border}`,background:ok?C.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>{ok?"✓":item.e}</div>
-          <div style={{flex:1,fontSize:13,fontWeight:700,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{item.label}</div>
-        </div>;})}
-      </div>)}
-      <div style={cs}>
-        <CH e="📝" title="Routine Notes" sub="Favorite products, outfit ideas, or what felt good"/>
-        <textarea value={dayEntry.note||""} onChange={e=>updateRoutine({note:e.target.value})} placeholder="Example: liked my hairstyle, skin felt good, packed my bag early..." style={TXT}/>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:12}}>
+        {orderedGroups.map(([g,items])=>{
+          const info=groupInfo[g]||{e:"✨",title:g,col:C.pink,sub:"routine steps"};
+          const pct2=groupPct(items), d2=groupDone(items);
+          return <button key={g} onClick={()=>quickCompleteGroup(g)} style={{background:`linear-gradient(145deg,${info.col}22,rgba(255,255,255,.045))`,border:`1px solid ${info.col}44`,borderRadius:18,padding:12,textAlign:"left",fontFamily:"system-ui",color:C.text,cursor:"pointer",boxShadow:`0 12px 26px rgba(0,0,0,.18)`}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:8}}>
+              <div style={{fontSize:23}}>{info.e}</div>
+              <div style={{fontSize:10,fontWeight:950,color:pct2>=100?C.green:info.col,background:"rgba(0,0,0,.24)",borderRadius:999,padding:"5px 8px"}}>{d2}/{items.length}</div>
+            </div>
+            <div style={{fontSize:13,fontWeight:950,color:C.white,marginBottom:3}}>{info.title}</div>
+            <div style={{fontSize:9,color:C.muted,lineHeight:1.35,minHeight:24}}>{info.sub}</div>
+            <div style={{height:6,background:"rgba(0,0,0,.34)",borderRadius:99,overflow:"hidden",marginTop:9}}>
+              <div style={{height:"100%",width:`${pct2}%`,background:pct2>=100?C.green:info.col,borderRadius:99,transition:"width .3s"}}/>
+            </div>
+          </button>;
+        })}
       </div>
-      {rpct>=100&&<div style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:12,padding:14,marginBottom:12,textAlign:"center"}}>
-        <div style={{fontSize:24}}>🌟</div>
-        <div style={{fontSize:14,fontWeight:900,color:C.green}}>Routine Queen!</div>
-        <div style={{fontSize:11,color:C.muted,marginTop:3}}>Everything is done for today. That is real discipline.</div>
+
+      {orderedGroups.map(([g,items])=>{
+        const info=groupInfo[g]||{e:"✨",title:g,col:C.pink,sub:"routine steps"};
+        const pct2=groupPct(items), d2=groupDone(items);
+        return <div key={g} style={{...cs,padding:14,background:`linear-gradient(145deg,${info.col}10,rgba(18,7,35,.96))`}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,paddingBottom:10,marginBottom:10,borderBottom:`1px solid ${C.border}`}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <div style={{width:38,height:38,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,background:`${info.col}18`,border:`1px solid ${info.col}44`,boxShadow:`0 0 18px ${info.col}20`}}>{info.e}</div>
+              <div>
+                <div style={{fontSize:11,fontWeight:950,letterSpacing:"1.4px",color:info.col,textTransform:"uppercase"}}>{info.title}</div>
+                <div style={{fontSize:10,color:C.muted,marginTop:2}}>{d2}/{items.length} complete · {pct2}%</div>
+              </div>
+            </div>
+            <button onClick={()=>quickCompleteGroup(g)} style={{background:pct2>=100?`${C.green}20`:`${info.col}20`,border:`1px solid ${pct2>=100?C.green:info.col}44`,borderRadius:999,color:pct2>=100?C.green:info.col,padding:"7px 10px",fontSize:10,fontWeight:950,fontFamily:"system-ui",cursor:"pointer"}}>{pct2>=100?"Reset":"Finish"}</button>
+          </div>
+          <div style={{display:"grid",gap:8}}>
+            {items.map(item=>{
+              const ok=!!checked[item.id];
+              return <button key={item.id} onClick={()=>toggle(item.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`linear-gradient(135deg,${C.green}22,${info.col}12)`:"rgba(255,255,255,.045)",border:`1px solid ${ok?C.green+"55":C.border}`,fontFamily:"system-ui",color:C.text,textAlign:"left",boxShadow:ok?`0 0 18px ${C.green}18`:"none"}}>
+                <div style={{width:34,height:34,borderRadius:12,border:ok?"none":`2px solid ${info.col}44`,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:`${info.col}12`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0,color:C.white}}>{ok?"✓":item.e}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:900,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{item.label}</div>
+                  <div style={{fontSize:9,color:ok?C.green:C.muted,marginTop:2}}>{ok?"Glow step complete ✨":"Tap when done"}</div>
+                </div>
+              </button>;
+            })}
+          </div>
+        </div>;
+      })}
+
+      <div style={{...cs,background:"linear-gradient(145deg,rgba(255,95,200,.11),rgba(18,7,35,.96))"}}>
+        <CH e="📝" title="Glow Notes" sub="Optional — products, outfit ideas, or what felt good"/>
+        <textarea value={dayEntry.note||""} onChange={e=>updateRoutine({note:e.target.value})} placeholder="Example: liked my hairstyle, skin felt good, packed my bag early..." style={{...TXT,minHeight:70}}/>
+      </div>
+
+      {completedToday&&<div style={{background:`linear-gradient(135deg,${C.green}22,${C.teal}18)`,border:`1px solid ${C.green}55`,borderRadius:18,padding:16,marginBottom:12,textAlign:"center",boxShadow:`0 0 30px ${C.green}22`}}>
+        <div style={{fontSize:34}}>👑</div>
+        <div style={{fontSize:18,fontWeight:950,color:C.green}}>Glow Quest Complete!</div>
+        <div style={{fontSize:12,color:C.light,marginTop:4,lineHeight:1.5}}>Face care done. Bag ready. Fit ready. Wind down complete. You're ready for tomorrow.</div>
       </div>}
+      <SubmitSpacer/>
     </div>;
   };
-
 
   // ── SLEEP ──────────────────────────────────────────────────────────────
   const Sleep=()=>{
