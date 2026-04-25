@@ -70,21 +70,17 @@ const TXT={...INP,minHeight:70,resize:"vertical"};
 const glass={background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.12)",boxShadow:"inset 0 1px 0 rgba(255,255,255,.11)"};
 
 function CH({e,title,sub}){return<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{fontSize:18,filter:"drop-shadow(0 0 14px rgba(255,26,140,.55))"}}>{e}</div><div><div style={{fontWeight:900,fontSize:10,letterSpacing:"2px",color:"rgba(255,255,255,.65)",textTransform:"uppercase",marginBottom:2}}>{title}</div>{sub&&<div style={{fontSize:11,color:C.muted}}>{sub}</div>}</div></div>;}
-
 function SBox({value,label,color}){return<div style={{...glass,borderRadius:18,padding:12,textAlign:"center",borderTop:`2px solid ${color}`}}><div style={{fontWeight:900,fontSize:22,color,lineHeight:1,textShadow:`0 0 24px ${color}88`}}>{value}</div><div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,.65)",marginTop:5}}>{label}</div></div>;}
-
 function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return<div style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}><span style={{fontSize:13,fontWeight:700,color:C.text}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}25`,color:col,fontSize:9,fontWeight:800,padding:"2px 8px",borderRadius:6}}>{level}</span><span style={{fontSize:14,fontWeight:900,color:col}}>{val}%</span></div></div><div style={{height:10,background:"rgba(0,0,0,.4)",borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:`linear-gradient(90deg,${col}cc,${col})`,borderRadius:100,width:`${val}%`,transition:"width .4s ease",boxShadow:`0 0 18px ${col}66`}}/></div></div>;}
-
 function RD({val,max=5,col,onSet}){return<div style={{display:"flex",gap:7}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:34,height:34,borderRadius:10,background:i<val?`linear-gradient(145deg,${col},${C.pink})`:"rgba(255,255,255,.05)",border:`1.5px solid ${i<val?col:"rgba(255,255,255,.12)"}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 20px ${col}55`:"none",transition:"all .15s"}}><span style={{fontSize:10,fontWeight:900,color:i<val?C.white:"rgba(255,255,255,.3)"}}>{i+1}</span></div>)}</div>;}
-
-// Big emoji mood/effort picker (easier to tap than stars)
 function EmojiPick({val,emojis,onSet,col}){return<div style={{display:"flex",gap:8}}>{emojis.map((e,i)=><button key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{flex:1,height:52,borderRadius:16,fontSize:24,border:`2px solid ${val===i+1?col:C.border}`,background:val===i+1?`${col}22`:"rgba(255,255,255,.05)",cursor:"pointer",boxShadow:val===i+1?`0 0 18px ${col}44`:"none",transition:"all .15s"}}>{e}</button>)}</div>;}
-
 function Chip({label,active,col,onClick}){return<button onClick={onClick} style={{flexShrink:0,padding:"9px 14px",borderRadius:999,border:`1px solid ${active?col:C.border}`,background:active?`${col}22`:"rgba(255,255,255,.05)",color:active?C.light:C.muted,fontWeight:900,cursor:"pointer",fontSize:12,whiteSpace:"nowrap",fontFamily:"system-ui"}}>{label}</button>;}
-
 function RingChart({val,col,label,size=54}){const r=size/2-6,circ=2*Math.PI*r,d=circ-(val/100)*circ,cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}88)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(0,0,0,.3)" stroke="rgba(255,255,255,.1)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
 
-// ── COACH ENGINE (same as original) ──────────────────────────────────────
+// ── FIX: StableRenderer so tabs with their own useState hooks work correctly ──
+function StableRenderer({render}){return render();}
+
+// ── COACH ENGINE ──────────────────────────────────────────────────────────
 function goalStyle(pg){const g=(pg||"").toLowerCase();const V={scorer:["score","points","shoot","scoring","scorer","offense","bucket"],playmaker:["assist","pass","playmaker","point guard","pg","vision","leadership"],defender:["defend","defense","defensive","steal","block","lockdown","stopper"],all_around:["all around","all-around","complete","well-rounded","everything","overall"]};const s={scorer:0,playmaker:0,defender:0,all_around:0};for(const[st,kws]of Object.entries(V))for(const kw of kws)if(g.includes(kw))s[st]+=kw.split(" ").length;const r=Object.entries(s).sort((a,b)=>b[1]-a[1]);return r[0][1]>0?r[0][0]:"all_around";}
 const STYLE_P={scorer:{col:C.coral,label:"Scorer"},playmaker:{col:C.purple,label:"Playmaker"},defender:{col:C.teal,label:"Defender"},all_around:{col:C.gold,label:"All-Around"}};
 function computeReadiness(vitals,sleepEntries){let score=70;const reasons=[];let used=0;const rs=sleepEntries.slice(0,3);if(rs.length>=1){used+=1;const avgH=avgArr(rs.map(e=>e.hours)),avgQ=avgArr(rs.map(e=>e.quality||5));if(avgH>=9.5){score+=12;reasons.push({txt:`${avgH.toFixed(1)}h sleep — amazing recovery!`,col:C.green,icon:"🌙"});}else if(avgH>=8){score+=6;reasons.push({txt:`${avgH.toFixed(1)}h — nice job. Keep aiming for 9–10h.`,col:C.teal,icon:"🌙"});}else if(avgH<7){score-=15;reasons.push({txt:`Only ${avgH.toFixed(1)}h — your body needs extra rest tonight.`,col:C.red,icon:"🌙"});}if(avgQ<=4){score-=8;reasons.push({txt:"Sleep felt rough — a calm bedtime routine can help.",col:C.orange,icon:"😴"});}}if(vitals.energy>0){used+=0.75;if(vitals.energy>=4){score+=12;reasons.push({txt:"High energy — this could be a big day!",col:C.green,icon:"⚡"});}else if(vitals.energy>=3)score+=4;else if(vitals.energy<=2){score-=12;reasons.push({txt:"Low energy — keep today lighter and focus on form.",col:C.orange,icon:"⚡"});}}if(vitals.mood>0){used+=0.25;if(vitals.mood>=4)score+=5;else if(vitals.mood<=2){score-=6;reasons.push({txt:"A tough mood is okay — a few good reps can still be a win.",col:C.purple,icon:"💜"});}}score=Math.max(0,Math.min(100,score));const conf=Math.min(1,used/2);if(conf<0.3)return{score:null,displayValue:"✨",confidence:conf,starter:true,level:{label:"START HERE",col:C.gold},reasons:[{txt:"Do your check-in so Coach can see your energy today!",col:C.gold,icon:"✨"}]};const level=score>=80?{label:"LOCKED IN",col:C.green}:score>=65?{label:"READY",col:C.teal}:score>=50?{label:"EASY MODE",col:C.gold}:{label:"RECHARGE",col:C.orange};return{score,displayValue:String(score),level,reasons,confidence:conf,starter:false};}
@@ -114,7 +110,6 @@ export default function ScarlettTracker(){
   const[showSettings,setShowSettings]=useState(false);
   const[editing,setEditing]=useState(false);
 
-  // ── STATE ──────────────────────────────────────────────────────────────
   const[profile,setProfile]=useState(clone(DEF_PROFILE));
   const[stars,setStars]=useState(0);
   const[dailyHist,setDailyHist]=useState({});
@@ -135,7 +130,6 @@ export default function ScarlettTracker(){
 
   const saveTmr=useRef(null),savedTm=useRef(null),editBlurT=useRef(null),supRef=useRef(false);
 
-  // ── COMPUTED ──────────────────────────────────────────────────────────
   const xpPerLevel=50;
   const xp=stars*5;
   const level=Math.max(1,Math.floor(xp/xpPerLevel)+1);
@@ -144,7 +138,6 @@ export default function ScarlettTracker(){
   const hasHabitOn=iso=>{const e=dailyHist[iso];if(!e)return false;return Object.values(e.c||{}).some(Boolean)||(e.w||0)>0;};
   const habitStreak=(()=>{let n=0;for(let i=0;i<30;i++){const d=shiftISO(todayISO(),-i);if(hasHabitOn(d))n++;else break;}return n;})();
 
-  // ── LOAD ───────────────────────────────────────────────────────────────
   useEffect(()=>{(async()=>{
     const daily=await sg("sc_daily")||{entries:{}};
     const bball=await sg("sc_bball")||{games:[],skills:clone(DEF_SKILLS)};
@@ -166,11 +159,9 @@ export default function ScarlettTracker(){
     supRef.current=true;setLoaded(true);
   })();},[]);
 
-  // ── DAILY AUTOSAVE ────────────────────────────────────────────────────
   useEffect(()=>{if(!loaded)return;if(supRef.current){supRef.current=false;return;}clearTimeout(saveTmr.current);saveTmr.current=setTimeout(()=>{const entry={c:checks,w:water,vitals};setDailyHist(prev=>{const next={...prev,[todayISO()]:entry};ss("sc_daily",{entries:next});return next;});},450);},[checks,water,vitals,loaded]);
   useEffect(()=>{if(loaded)ss("sc_profile",profile);},[profile,loaded]);
 
-  // ── SAVE HELPERS ──────────────────────────────────────────────────────
   const addStars=async n=>{const ns=stars+n;setStars(ns);await ss("sc_goals",{entries:goals,stars:ns});};
   const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
   const savePrax=async p=>{setPractices(p);await ss("sc_practices",{entries:p});};
@@ -181,56 +172,40 @@ export default function ScarlettTracker(){
   const saveSleep=async e=>{setSleepEntries(e);await ss("sc_sleep",{entries:e});};
   const saveSchool=async sub=>{setSubjects(sub);await ss("sc_school",{subjects:sub});};
 
-  // ── SYNC ──────────────────────────────────────────────────────────────
   const activateCode=async code=>{
     const c=(code||"").trim().toUpperCase();if(c.length<4)return;
     setFCGlobal(c);setFamilyCode(c);
     const [daily,bball,prax,styleD,routineD,slp,school,gd,rd,pd]=await Promise.all([sg("sc_daily"),sg("sc_bball"),sg("sc_practices"),sg("sc_style"),sg("sc_routine"),sg("sc_sleep"),sg("sc_school"),sg("sc_goals"),sg("sc_rewards"),sg("sc_profile")]);
     if(daily?.entries)setDailyHist(daily.entries);
-    if(bball?.games)setGames(bball.games);
-    if(bball?.skills)setSkills(bball.skills);
+    if(bball?.games)setGames(bball.games);if(bball?.skills)setSkills(bball.skills);
     if(prax?.entries)setPractices(prax.entries);
-    if(styleD?.fits)setStyleLog(styleD.fits);
-    if(styleD?.shoes)setShoeWish(styleD.shoes);
+    if(styleD?.fits)setStyleLog(styleD.fits);if(styleD?.shoes)setShoeWish(styleD.shoes);
     if(routineD?.entries)setRoutineHist(routineD.entries);
     if(slp?.entries)setSleepEntries(slp.entries);
     if(school?.subjects)setSubjects(school.subjects);
-    if(gd?.entries)setGoals(gd.entries);
-    if(gd?.stars)setStars(gd.stars);
+    if(gd?.entries)setGoals(gd.entries);if(gd?.stars)setStars(gd.stars);
     if(rd?.claims)setRewardClaims(rd.claims);
     if(pd)setProfile(pd);
   };
 
-  // ── EDIT KEYBOARD HANDLING ────────────────────────────────────────────
   const onEditFocus=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);setEditing(true);}};
   const onEditBlur=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);editBlurT.current=setTimeout(()=>setEditing(false),160);}};
 
   if(!loaded)return<div style={{background:C.bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:14,fontFamily:"system-ui"}}><div style={{fontSize:52,filter:`drop-shadow(0 0 22px ${C.gold})`}}>⭐</div><div style={{fontWeight:900,fontSize:18,color:C.white}}>Loading {profile.name}'s Glow Up...</div></div>;
 
   const badgeData={games,practices,sleepEntries,subjects,goals,skills,dailyHist,shoeWish,styleLog,stars};
-  const rewardCost=item=>{
-    if(item?.cost)return item.cost;
-    const p=String(item?.priority||"").toLowerCase();
-    if(p.includes("dream"))return 3;
-    if(p.includes("next"))return 2;
-    return 1;
-  };
+  const rewardCost=item=>{if(item?.cost)return item.cost;const p=String(item?.priority||"").toLowerCase();if(p.includes("dream"))return 3;if(p.includes("next"))return 2;return 1;};
   const approvedGoalCount=goals.filter(g=>g.parentApproved).length;
   const spentRewardTokens=rewardClaims.filter(r=>["requested","approved"].includes(r.status)).reduce((a,r)=>a+(r.cost||1),0);
   const rewardTokens=Math.max(0,approvedGoalCount-spentRewardTokens);
   const claimFor=item=>rewardClaims.find(r=>r.itemId===item.id&&r.status!=="rejected");
   const approveGoal=async id=>{
     let shouldReward=false;
-    const ng=goals.map(g=>{
-      if(g.id!==id)return g;
-      shouldReward=!g.parentApproved;
-      return {...g,done:true,submitted:true,parentApproved:true,approvedDate:toShort(todayISO())};
-    });
+    const ng=goals.map(g=>{if(g.id!==id)return g;shouldReward=!g.parentApproved;return {...g,done:true,submitted:true,parentApproved:true,approvedDate:toShort(todayISO())};});
     await saveGoals(ng,shouldReward?stars+5:stars);
   };
   const requestReward=async item=>{
-    const existing=claimFor(item);
-    if(existing||rewardTokens<rewardCost(item))return;
+    const existing=claimFor(item);if(existing||rewardTokens<rewardCost(item))return;
     const claim={id:uid(),itemId:item.id,itemName:item.name,cost:rewardCost(item),status:"requested",date:toShort(todayISO())};
     await saveRewards([claim,...rewardClaims]);
   };
@@ -239,19 +214,13 @@ export default function ScarlettTracker(){
     await saveRewards(nr);
   };
 
-  // ── TODAY TAB ──────────────────────────────────────────────────────────
+  // ── TODAY ──────────────────────────────────────────────────────────────
   const Today=()=>{
     const done=habits.filter(h=>checks[h.id]).length;
     const allDone=done===habits.length;
-    const todayEntry=dailyHist[todayISO()]||{};
     const routineDone=Object.values(routineHist[todayISO()]?.c||{}).filter(Boolean).length;
-    const toggleCheck=async id=>{
-      const next={...checks,[id]:!checks[id]};
-      setChecks(next);
-      if(!checks[id])await addStars(2);
-    };
+    const toggleCheck=async id=>{const next={...checks,[id]:!checks[id]};setChecks(next);if(!checks[id])await addStars(2);};
     return<div>
-      {/* Greeting hero */}
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.24),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",padding:18,marginBottom:14}}>
         <div style={{fontSize:11,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>{new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}</div>
         <div style={{fontSize:28,fontWeight:950,lineHeight:1.1,marginBottom:6}}>Hey <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span> 👑</div>
@@ -259,30 +228,26 @@ export default function ScarlettTracker(){
           <div style={{background:`${C.purple}25`,border:`1px solid ${C.purple}55`,borderRadius:999,padding:"5px 10px",fontSize:11,fontWeight:900,color:C.purple}}>⭐ {stars} stars</div>
           <div style={{background:`${C.gold}18`,border:`1px solid ${C.gold}44`,borderRadius:999,padding:"5px 10px",fontSize:11,fontWeight:900,color:C.gold}}>LV {level} {levelTitle}</div>
           {habitStreak>0&&<div style={{background:`${C.orange}18`,border:`1px solid ${C.orange}44`,borderRadius:999,padding:"5px 10px",fontSize:11,fontWeight:900,color:C.orange}}>🔥 {habitStreak} day streak</div>}
+          {rewardTokens>0&&<div style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:999,padding:"5px 10px",fontSize:11,fontWeight:900,color:C.green}}>🎟️ {rewardTokens} reward token{rewardTokens===1?"":"s"}</div>}
         </div>
-        {/* XP bar */}
         <div style={{marginTop:12}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:9,color:C.muted}}>LV {level}</span><span style={{fontSize:9,color:C.purple,fontWeight:800}}>{xpInLevel}/{xpPerLevel} XP to LV {level+1}</span></div>
           <div style={{height:8,background:"rgba(0,0,0,.4)",borderRadius:99,overflow:"hidden"}}><div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:glamGrad,borderRadius:99,transition:"width .4s"}}/></div>
         </div>
       </div>
-
-      {/* Mood + Energy in one card */}
       <div style={cs}>
         <CH e="⚡" title="How are you feeling?" sub="Tap to check in"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
           <div><div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:7}}>ENERGY ⚡</div><EmojiPick val={vitals.energy} emojis={["😴","🙂","😊","💪","⚡"]} onSet={v=>setVitals(p=>({...p,energy:v}))} col={C.gold}/></div>
           <div><div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:7}}>MOOD 😊</div><EmojiPick val={vitals.mood} emojis={["😞","😐","🙂","😄","🤩"]} onSet={v=>setVitals(p=>({...p,mood:v}))} col={C.pink}/></div>
         </div>
-        <div style={{fontSize:11,color:C.teal,fontWeight:900,letterSpacing:"1px",marginBottom:8}}>HYDRATION 💧  {water>=8?"✅ Goal hit!":""}</div>
+        <div style={{fontSize:11,color:C.teal,fontWeight:900,letterSpacing:"1px",marginBottom:8}}>HYDRATION 💧{water>=8?"  ✅ Goal hit!":""}</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:4}}>
           {Array.from({length:8},(_,i)=><button key={i} onClick={()=>setWater(i<water?i:i+1)} style={{height:38,borderRadius:"6px 6px 12px 12px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,background:i<water?"#00100D":C.card2,cursor:"pointer",padding:0,position:"relative",overflow:"hidden",boxShadow:i<water?`0 0 12px ${C.teal}44`:"none"}}>
             {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"72%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
           </button>)}
         </div>
       </div>
-
-      {/* Daily Quests */}
       <div style={cs}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
           <CH e="✅" title={`Daily Quests (${done}/${habits.length})`}/>
@@ -291,109 +256,113 @@ export default function ScarlettTracker(){
         <div style={{height:8,background:"rgba(0,0,0,.4)",borderRadius:99,overflow:"hidden",marginBottom:12}}>
           <div style={{height:"100%",width:`${(done/habits.length)*100}%`,background:allDone?C.green:`linear-gradient(90deg,${C.gold},${C.orange})`,borderRadius:99,transition:"width .3s"}}/>
         </div>
-        {habits.map(h=>{
-          const ok=!!checks[h.id];
-          return<button key={h.id} onClick={()=>toggleCheck(h.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`${C.green}14`:"rgba(255,255,255,.04)",border:`1px solid ${ok?C.green+"44":C.border}`,marginBottom:7,fontFamily:"system-ui",textAlign:"left"}}>
-            <div style={{width:38,height:38,borderRadius:13,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:`rgba(255,255,255,.07)`,border:ok?"none":`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:ok?14:20,color:C.white,boxShadow:ok?`0 0 16px ${C.green}44`:"none",flexShrink:0}}>{ok?"✓":h.e}</div>
-            <div style={{flex:1,fontSize:13,fontWeight:800,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
-            {ok&&<div style={{fontSize:11,color:C.green,fontWeight:900}}>+2⭐</div>}
-          </button>;
-        })}
+        {habits.map(h=>{const ok=!!checks[h.id];return<button key={h.id} onClick={()=>toggleCheck(h.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`${C.green}14`:"rgba(255,255,255,.04)",border:`1px solid ${ok?C.green+"44":C.border}`,marginBottom:7,fontFamily:"system-ui",textAlign:"left"}}>
+          <div style={{width:38,height:38,borderRadius:13,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.07)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:ok?14:20,color:C.white,boxShadow:ok?`0 0 16px ${C.green}44`:"none",flexShrink:0}}>{ok?"✓":h.e}</div>
+          <div style={{flex:1,fontSize:13,fontWeight:800,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
+          {ok&&<div style={{fontSize:11,color:C.green,fontWeight:900}}>+2⭐</div>}
+        </button>;})}
         {allDone&&<div style={{padding:14,borderRadius:16,background:`linear-gradient(135deg,${C.green}22,${C.teal}14)`,border:`1px solid ${C.green}55`,textAlign:"center",marginTop:6}}><div style={{fontSize:26}}>👑</div><div style={{fontSize:14,fontWeight:950,color:C.green}}>All quests done! You're unstoppable.</div></div>}
       </div>
-
-      {/* Routine quick check */}
       <button onClick={()=>setTab("glow")} style={{width:"100%",...cs,cursor:"pointer",textAlign:"left",display:"flex",alignItems:"center",gap:12}}>
         <div style={{fontSize:26}}>✨</div>
-        <div style={{flex:1}}>
-          <div style={{fontWeight:900,fontSize:13,color:C.pink}}>Glow Routine</div>
-          <div style={{fontSize:11,color:C.muted,marginTop:2}}>{routineDone>0?`${routineDone} steps done today`:"Tap to start tonight's routine"}</div>
-        </div>
+        <div style={{flex:1}}><div style={{fontWeight:900,fontSize:13,color:C.pink}}>Glow Routine</div><div style={{fontSize:11,color:C.muted,marginTop:2}}>{routineDone>0?`${routineDone} steps done today`:"Tap to start tonight's routine"}</div></div>
         <div style={{color:C.muted,fontSize:18}}>›</div>
       </button>
     </div>;
   };
 
-  // ── HOOPS TAB ──────────────────────────────────────────────────────────
+  // ── HOOPS ──────────────────────────────────────────────────────────────
   const Hoops=()=>{
-    const[section,setSection]=useState("game"); // game | practice | skills
-    // Simplified game form — only the essentials
-    const[gf,setGf]=useState({pts:"",ast:"",reb:"",result:"Win",opp:"",effort:0});
-    // Simplified practice form
-    const[pf,setPf]=useState({type:"Team Practice",duration:"",effort:0});
+    const[section,setSection]=useState("game");
+    const[gf,setGf]=useState({pts:"",ast:"",reb:"",stl:"",blk:"",tov:"",fgm:"",fga:"",ftm:"",fta:"",result:"Win",opp:"",effort:0,confidence:0});
+    const[pf,setPf]=useState({type:"Team Practice",duration:"",effort:0,note:""});
+
+    const ni=k=>parseInt(gf[k])||0;
+    const ftPctNow=ni("fta")?Math.round(ni("ftm")/ni("fta")*100):null;
+    const fgPctNow=ni("fga")?Math.round(ni("fgm")/ni("fga")*100):null;
 
     const logGame=async()=>{
-      const pts=parseInt(gf.pts)||0;
-      if(!gf.result)return;
-      const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),pts,ast:parseInt(gf.ast)||0,reb:parseInt(gf.reb)||0,result:gf.result,opponent:gf.opp,effort:gf.effort};
-      const ng=[entry,...games].slice(0,100);
-      await saveBball(ng,skills);
-      const earn=(gf.result==="Win"?5:2)+(pts>=15?4:pts>=10?2:pts>=5?1:0)+(gf.effort>=4?1:0);
+      const pts=ni("pts");if(!gf.result)return;
+      const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),pts,ast:ni("ast"),reb:ni("reb"),stl:ni("stl"),blk:ni("blk"),tov:ni("tov"),fgm:ni("fgm"),fga:ni("fga"),ftm:ni("ftm"),fta:ni("fta"),result:gf.result,opponent:gf.opp,effort:gf.effort,confidence:gf.confidence};
+      const ng=[entry,...games].slice(0,100);await saveBball(ng,skills);
+      const earn=(gf.result==="Win"?5:2)+(pts>=15?4:pts>=10?2:pts>=5?1:0)+(gf.effort>=4?1:0)+(ni("stl")>=3?1:0);
       await addStars(earn);
-      setGf({pts:"",ast:"",reb:"",result:"Win",opp:"",effort:0});
+      setGf({pts:"",ast:"",reb:"",stl:"",blk:"",tov:"",fgm:"",fga:"",ftm:"",fta:"",result:"Win",opp:"",effort:0,confidence:0});
     };
     const logPractice=async()=>{
-      const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),type:pf.type,duration:pf.duration,effort:pf.effort};
-      const np=[entry,...practices].slice(0,100);
-      await savePrax(np);
+      const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),type:pf.type,duration:pf.duration,effort:pf.effort,note:pf.note};
+      const np=[entry,...practices].slice(0,100);await savePrax(np);
       await addStars(pf.effort>=4?4:3);
-      setPf({type:"Team Practice",duration:"",effort:0});
+      setPf({type:"Team Practice",duration:"",effort:0,note:""});
     };
-    const adjSkill=async(skill,delta)=>{
-      const nv=Math.min(100,Math.max(0,(skills[skill]||0)+delta));
-      const nsk={...skills,[skill]:nv};
-      await saveBball(games,nsk);
-      if(delta>0)await addStars(1);
-    };
+    const adjSkill=async(skill,delta)=>{const nv=Math.min(100,Math.max(0,(skills[skill]||0)+delta));const nsk={...skills,[skill]:nv};await saveBball(games,nsk);if(delta>0)await addStars(1);};
     const wins=games.filter(g=>g.result==="Win").length;
-    const avgPts=games.length?(games.reduce((a,g)=>a+(g.pts||0),0)/games.length).toFixed(1):"—";
-    const SKILL_GROUPS={
-      "Handles & Scoring":{col:C.coral,items:["Ball Handling","Shooting Form","Layups","Free Throws"]},
-      "Passing & Vision":{col:C.purple,items:["Passing","Court Vision"]},
-      "Defense & Hustle":{col:C.teal,items:["Defense","Rebounding","Footwork","Speed & Agility","Conditioning"]},
-      "Mindset":{col:C.gold,items:["Basketball IQ","Confidence","Leadership"]},
-    };
+    const s=k=>games.reduce((a,g)=>a+(g[k]||0),0);
+    const a=k=>games.length?(s(k)/games.length).toFixed(1):"—";
+    const ftA=s("fta"),ftM=s("ftm"),fgA=s("fga"),fgM=s("fgm");
+    const SKILL_GROUPS={"Handles & Scoring":{col:C.coral,items:["Ball Handling","Shooting Form","Layups","Free Throws"]},"Passing & Vision":{col:C.purple,items:["Passing","Court Vision"]},"Defense & Hustle":{col:C.teal,items:["Defense","Rebounding","Footwork","Speed & Agility","Conditioning"]},"Mindset":{col:C.gold,items:["Basketball IQ","Confidence","Leadership"]}};
 
     return<div>
-      {/* Section switcher */}
       <div style={{display:"flex",gap:6,marginBottom:14,background:"rgba(255,255,255,.06)",borderRadius:16,padding:5}}>
         {[["game","🏀 Game"],["practice","💪 Practice"],["skills","📊 Skills"]].map(([id,label])=>(
-          <button key={id} onClick={()=>setSection(id)} style={{flex:1,padding:"10px 0",borderRadius:12,border:"none",background:section===id?`linear-gradient(135deg,${C.coral},${C.pink})`:"transparent",color:C.white,fontWeight:900,cursor:"pointer",fontSize:13,boxShadow:section===id?`0 8px 20px ${C.coral}33`:"none",fontFamily:"system-ui"}}>{label}</button>
+          <button key={id} onClick={()=>setSection(id)} style={{flex:1,padding:"10px 0",borderRadius:12,border:"none",background:section===id?`linear-gradient(135deg,${C.coral},${C.pink})`:"transparent",color:C.white,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>{label}</button>
         ))}
       </div>
 
       {section==="game"&&<>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
-          <SBox value={games.length} label="Games" color={C.coral}/>
-          <SBox value={wins} label="Wins 🏆" color={C.green}/>
-          <SBox value={avgPts} label="Avg Pts" color={C.gold}/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:7}}>
+          {[{v:games.length,l:"Games",col:C.coral},{v:wins,l:"Wins 🏆",col:C.green},{v:a("pts"),l:"Avg Pts",col:C.gold},{v:games.length?Math.round(wins/games.length*100)+"%":"—",l:"Win %",col:C.teal}].map(({v,l,col})=><SBox key={l} value={v} label={l} color={col}/>)}
         </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:7}}>
+          {[{v:a("ast"),l:"Avg Ast",col:C.purple},{v:a("reb"),l:"Avg Reb",col:C.teal},{v:a("stl"),l:"Avg Stl",col:C.blue},{v:a("blk"),l:"Avg Blk",col:C.orange}].map(({v,l,col})=><SBox key={l} value={v} label={l} color={col}/>)}
+        </div>
+        {(ftA>0||fgA>0)&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7,marginBottom:12}}>
+          {ftA>0&&<SBox value={Math.round(ftM/ftA*100)+"%"} label={`FT% (${ftM}/${ftA})`} color={ftM/ftA>=.7?C.green:C.gold}/>}
+          {fgA>0&&<SBox value={Math.round(fgM/fgA*100)+"%"} label={`FG% (${fgM}/${fgA})`} color={fgM/fgA>=.45?C.green:C.teal}/>}
+        </div>}
         <div style={cs}>
           <CH e="➕" title="Log a Game"/>
-          {/* Result — big buttons */}
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>RESULT</div>
           <div style={{display:"flex",gap:8,marginBottom:14}}>
             {["Win","Loss"].map(r=><button key={r} onClick={()=>setGf(p=>({...p,result:r}))} style={{flex:1,padding:14,borderRadius:16,border:`2px solid ${gf.result===r?(r==="Win"?C.green:C.red):C.border}`,background:gf.result===r?(r==="Win"?`${C.green}20`:`${C.red}18`):"rgba(255,255,255,.04)",color:gf.result===r?(r==="Win"?C.green:C.red):C.muted,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui"}}>{r==="Win"?"🏆 Win":"💪 Loss"}</button>)}
           </div>
-          {/* Stats — 3 fields only */}
-          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>STATS</div>
+          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>MAIN STATS</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
-            {[["Points","pts"],["Assists","ast"],["Rebounds","reb"]].map(([l,k])=><div key={k}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:5,textAlign:"center"}}>{l.toUpperCase()}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[k]} onChange={e=>setGf(p=>({...p,[k]:e.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:20,padding:"10px 6px"}}/></div>)}
+            {[["🔥 Points","pts"],["🤝 Assists","ast"],["💪 Rebounds","reb"]].map(([l,k])=><div key={k}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:5,textAlign:"center"}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[k]} onChange={ev=>setGf(p=>({...p,[k]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:22,padding:"10px 4px"}}/></div>)}
           </div>
-          {/* Opponent — optional */}
-          <input value={gf.opp} onChange={e=>setGf(p=>({...p,opp:e.target.value}))} placeholder="Opponent team (optional)" style={{...INP,marginBottom:14}}/>
-          {/* Effort */}
-          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>YOUR EFFORT ⚡</div>
-          <EmojiPick val={gf.effort} emojis={["😴","🙂","😊","💪","⚡"]} onSet={v=>setGf(p=>({...p,effort:v}))} col={C.orange}/>
-          <button onClick={logGame} style={{width:"100%",marginTop:14,padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.coral},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.coral}33`}}>Save Game ⭐</button>
+          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>DEFENSE</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
+            {[["🛡️ Steals","stl"],["✋ Blocks","blk"],["⚠️ Turnovers","tov"]].map(([l,k])=><div key={k}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:5,textAlign:"center"}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[k]} onChange={ev=>setGf(p=>({...p,[k]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:22,padding:"10px 4px"}}/></div>)}
+          </div>
+          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>SHOOTING 🎯</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:7,marginBottom:6}}>
+            {[["FG Made","fgm"],["FG Tried","fga"],["FT Made","ftm"],["FT Tried","fta"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:5,textAlign:"center"}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[k]} onChange={ev=>setGf(p=>({...p,[k]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:18,padding:"9px 4px"}}/></div>)}
+          </div>
+          {(ftPctNow!==null||fgPctNow!==null)&&<div style={{display:"flex",gap:8,marginBottom:12}}>
+            {fgPctNow!==null&&<div style={{flex:1,padding:"8px 10px",borderRadius:12,background:`${fgPctNow>=45?C.green:C.gold}14`,border:`1px solid ${fgPctNow>=45?C.green:C.gold}44`,textAlign:"center"}}><div style={{fontSize:16,fontWeight:950,color:fgPctNow>=45?C.green:C.gold}}>{fgPctNow}%</div><div style={{fontSize:9,color:C.muted}}>FG%</div></div>}
+            {ftPctNow!==null&&<div style={{flex:1,padding:"8px 10px",borderRadius:12,background:`${ftPctNow>=70?C.green:C.orange}14`,border:`1px solid ${ftPctNow>=70?C.green:C.orange}44`,textAlign:"center"}}><div style={{fontSize:16,fontWeight:950,color:ftPctNow>=70?C.green:C.orange}}>{ftPctNow}%</div><div style={{fontSize:9,color:C.muted}}>FT%</div></div>}
+          </div>}
+          <input value={gf.opp} onChange={e=>setGf(p=>({...p,opp:e.target.value}))} placeholder="Opponent (optional)" style={{...INP,marginBottom:12}}/>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+            <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:8}}>EFFORT ⚡</div><RD val={gf.effort} max={5} col={C.orange} onSet={v=>setGf(p=>({...p,effort:v}))}/></div>
+            <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:8}}>CONFIDENCE 💜</div><RD val={gf.confidence} max={5} col={C.purple} onSet={v=>setGf(p=>({...p,confidence:v}))}/></div>
+          </div>
+          <button onClick={logGame} style={{width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.coral},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.coral}33`}}>Save Game ⭐</button>
         </div>
         {games.length>0&&<div style={cs}>
           <CH e="📋" title="Game History"/>
-          {games.slice(0,8).map(g=><div key={g.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
+          {games.slice(0,8).map(g=><div key={g.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
             <div style={{width:38,height:38,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,background:g.result==="Win"?`${C.green}20`:`${C.red}14`,border:`1px solid ${g.result==="Win"?C.green+"44":C.red+"33"}`,flexShrink:0}}>{g.result==="Win"?"🏆":"💪"}</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:900,color:C.text}}>{g.pts} pts · {g.ast} ast · {g.reb} reb</div>
-              <div style={{fontSize:10,color:C.muted,marginTop:2}}>{g.date}{g.opponent?` · vs ${g.opponent}`:""}</div>
+              <div style={{fontSize:13,fontWeight:900,color:C.text,marginBottom:3}}>{g.pts} pts · {g.ast} ast · {g.reb} reb</div>
+              <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:3}}>
+                {g.stl>0&&<span style={{fontSize:10,color:C.blue,background:`${C.blue}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{g.stl} stl</span>}
+                {g.blk>0&&<span style={{fontSize:10,color:C.orange,background:`${C.orange}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{g.blk} blk</span>}
+                {g.tov>0&&<span style={{fontSize:10,color:C.red,background:`${C.red}14`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{g.tov} tov</span>}
+                {g.fta>0&&<span style={{fontSize:10,color:C.teal,background:`${C.teal}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{Math.round(g.ftm/g.fta*100)}% FT</span>}
+                {g.fga>0&&<span style={{fontSize:10,color:C.gold,background:`${C.gold}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{Math.round(g.fgm/g.fga*100)}% FG</span>}
+              </div>
+              <div style={{fontSize:10,color:C.muted}}>{g.date}{g.opponent?` · vs ${g.opponent}`:""}</div>
             </div>
             <button onClick={()=>saveBball(games.filter(x=>x.id!==g.id),skills)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
           </div>)}
@@ -411,13 +380,19 @@ export default function ScarlettTracker(){
           <input type="number" inputMode="numeric" placeholder="e.g. 60" value={pf.duration} onChange={e=>setPf(p=>({...p,duration:e.target.value}))} style={{...INP,textAlign:"center",fontSize:22,fontWeight:900,marginBottom:14}}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>EFFORT 🔥</div>
           <EmojiPick val={pf.effort} emojis={["😴","🙂","😊","💪","🔥"]} onSet={v=>setPf(p=>({...p,effort:v}))} col={C.purple}/>
-          <button onClick={logPractice} style={{width:"100%",marginTop:14,padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.purple},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.purple}33`}}>Save Practice ⭐</button>
+          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6,marginTop:14}}>WHAT DID YOU WORK ON? (optional)</div>
+          <textarea value={pf.note} onChange={e=>setPf(p=>({...p,note:e.target.value}))} placeholder="Free throws, left-hand layups, defensive slides..." style={{...TXT,minHeight:60,marginBottom:12}}/>
+          <button onClick={logPractice} style={{width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.purple},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.purple}33`}}>Save Practice ⭐</button>
         </div>
         {practices.length>0&&<div style={cs}>
           <CH e="📋" title="Practice History" sub={`${practices.length} sessions`}/>
-          {practices.slice(0,8).map(p=><div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:`1px solid ${C.border}`}}>
+          {practices.slice(0,8).map(p=><div key={p.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"9px 0",borderBottom:`1px solid ${C.border}`}}>
             <div style={{width:38,height:38,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,background:`${C.purple}18`,border:`1px solid ${C.purple}33`,flexShrink:0}}>💪</div>
-            <div style={{flex:1}}><div style={{fontSize:13,fontWeight:900,color:C.text}}>{p.type}</div><div style={{fontSize:10,color:C.muted,marginTop:2}}>{p.date}{p.duration?` · ${p.duration} min`:""}{"⭐".repeat(p.effort||0)}</div></div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13,fontWeight:900,color:C.text}}>{p.type}</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:2}}>{p.date}{p.duration?` · ${p.duration} min`:""}{"⭐".repeat(p.effort||0)}</div>
+              {p.note&&<div style={{fontSize:10,color:C.light,marginTop:2,lineHeight:1.4}}>{p.note}</div>}
+            </div>
             <button onClick={()=>savePrax(practices.filter(x=>x.id!==p.id))} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
           </div>)}
         </div>}
@@ -446,23 +421,20 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  // ── MY GLOW TAB ──────────────────────────────────────────────────────
+  // ── MY GLOW ────────────────────────────────────────────────────────────
   const MyGlow=()=>{
-    const[section,setSection]=useState("routine"); // routine | sleep | style | shoes
+    const[section,setSection]=useState("routine");
     const todayRoutine=routineHist[todayISO()]||{c:{}};
     const checked=todayRoutine.c||{};
     const rDone=ROUTINE_ITEMS.filter(i=>checked[i.id]).length;
     const rPct=Math.round(rDone/ROUTINE_ITEMS.length*100);
     const toggleR=async id=>{const nc={...checked,[id]:!checked[id]};const ne={...routineHist,[todayISO()]:{c:nc}};await saveRoutine(ne);if(!checked[id])await addStars(1);};
-    // Sleep form — simple
     const[sf,setSf]=useState({bed:"21:00",wake:"06:30",quality:0});
     const calcH=(b,w)=>{try{const[bh,bm]=b.split(":").map(Number),[wh,wm]=w.split(":").map(Number);let m=(wh*60+wm)-(bh*60+bm);if(m<0)m+=1440;return Math.round(m/60*10)/10;}catch{return 0;}};
     const hoursNow=calcH(sf.bed,sf.wake);
     const addSleep=async()=>{if(!sf.quality)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),bedtime:sf.bed,waketime:sf.wake,hours:hoursNow,quality:sf.quality};await saveSleep([entry,...sleepEntries].slice(0,90));await addStars(hoursNow>=9?3:2);setSf({bed:"21:00",wake:"06:30",quality:0});};
-    // Style form — simple
     const[stf,setStf]=useState({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});
     const logFit=async()=>{if(!stf.outfit&&!stf.hair)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...stf};await saveStyle([entry,...styleLog].slice(0,30),shoeWish);await addStars(3);setStf({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});};
-    // Shoe form
     const[shf,setShf]=useState({name:"",why:"",priority:"Dream 🌟"});
     const addShoe=async()=>{if(!shf.name)return;const entry={id:uid(),...shf,cost:shf.priority.includes("Dream")?3:shf.priority.includes("Next")?2:1};await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));await addStars(2);setShf({name:"",why:"",priority:"Dream 🌟"});};
     const avgSleep=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours)).toFixed(1):"—";
@@ -474,21 +446,19 @@ export default function ScarlettTracker(){
         ))}
       </div>
 
-      {section==="routine"&&<>
-        <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.18),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.97),rgba(10,5,22,.99))"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-            <CH e="✨" title={`Glow Quest (${rDone}/${ROUTINE_ITEMS.length})`}/>
-            <div style={{fontSize:14,fontWeight:950,color:rPct>=100?C.green:C.gold}}>{rPct}%</div>
-          </div>
-          <div style={{height:10,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden",marginBottom:14}}><div style={{height:"100%",width:`${rPct}%`,background:rPct>=100?C.green:glamGrad,borderRadius:99,transition:"width .3s",boxShadow:`0 0 16px ${rPct>=100?C.green:C.pink}55`}}/></div>
-          {ROUTINE_ITEMS.map(item=>{const ok=!!checked[item.id];return<button key={item.id} onClick={()=>toggleR(item.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`${C.green}14`:"rgba(255,255,255,.04)",border:`1px solid ${ok?C.green+"44":C.border}`,marginBottom:7,fontFamily:"system-ui",textAlign:"left"}}>
-            <div style={{width:38,height:38,borderRadius:13,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.07)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:ok?14:20,color:C.white,boxShadow:ok?`0 0 14px ${C.green}44`:"none",flexShrink:0}}>{ok?"✓":item.e}</div>
-            <div style={{flex:1,fontSize:13,fontWeight:800,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{item.label}</div>
-            {ok&&<div style={{fontSize:11,color:C.green,fontWeight:900}}>+1⭐</div>}
-          </button>;})}
-          {rPct>=100&&<div style={{padding:14,borderRadius:16,background:`${C.green}18`,border:`1px solid ${C.green}44`,textAlign:"center",marginTop:6}}><div style={{fontSize:24}}>👑</div><div style={{fontSize:14,fontWeight:950,color:C.green}}>Glow Quest complete!</div></div>}
+      {section==="routine"&&<div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.18),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.97),rgba(10,5,22,.99))"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <CH e="✨" title={`Glow Quest (${rDone}/${ROUTINE_ITEMS.length})`}/>
+          <div style={{fontSize:14,fontWeight:950,color:rPct>=100?C.green:C.gold}}>{rPct}%</div>
         </div>
-      </>}
+        <div style={{height:10,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden",marginBottom:14}}><div style={{height:"100%",width:`${rPct}%`,background:rPct>=100?C.green:glamGrad,borderRadius:99,transition:"width .3s",boxShadow:`0 0 16px ${rPct>=100?C.green:C.pink}55`}}/></div>
+        {ROUTINE_ITEMS.map(item=>{const ok=!!checked[item.id];return<button key={item.id} onClick={()=>toggleR(item.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`${C.green}14`:"rgba(255,255,255,.04)",border:`1px solid ${ok?C.green+"44":C.border}`,marginBottom:7,fontFamily:"system-ui",textAlign:"left"}}>
+          <div style={{width:38,height:38,borderRadius:13,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.07)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:ok?14:20,color:C.white,boxShadow:ok?`0 0 14px ${C.green}44`:"none",flexShrink:0}}>{ok?"✓":item.e}</div>
+          <div style={{flex:1,fontSize:13,fontWeight:800,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{item.label}</div>
+          {ok&&<div style={{fontSize:11,color:C.green,fontWeight:900}}>+1⭐</div>}
+        </button>;})}
+        {rPct>=100&&<div style={{padding:14,borderRadius:16,background:`${C.green}18`,border:`1px solid ${C.green}44`,textAlign:"center",marginTop:6}}><div style={{fontSize:24}}>👑</div><div style={{fontSize:14,fontWeight:950,color:C.green}}>Glow Quest complete!</div></div>}
+      </div>}
 
       {section==="sleep"&&<>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
@@ -574,7 +544,7 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  // ── GOALS TAB ──────────────────────────────────────────────────────────
+  // ── GOALS ──────────────────────────────────────────────────────────────
   const Goals=()=>{
     const[gf,setGf]=useState({text:"",category:"basketball",targetDate:addDays(7)});
     const[burst,setBurst]=useState(null);
@@ -591,8 +561,6 @@ export default function ScarlettTracker(){
       {text:"Use positive self-talk at every practice",category:"character"},
     ];
     if(weakestSkill)templates.unshift({text:`Improve ${weakestSkill[0]} with 15 focused minutes a day this week`,category:"basketball"});
-
-    // Coach section — simplified but still smart
     const insights=generateInsights(profile,games,practices,skills,subjects,sleepEntries,vitals,goals);
     const readiness=computeReadiness(vitals,sleepEntries);
     const r=readiness.score!=null?readiness.score:0;
@@ -608,12 +576,9 @@ export default function ScarlettTracker(){
           <SBox value={goals.filter(g=>g.done&&!g.parentApproved).length} label="Needs OK" color={C.gold}/>
           <SBox value={rewardTokens} label="Reward Tokens" color={C.green}/>
         </div>
-        <div style={{fontSize:12,color:C.muted,lineHeight:1.55}}>
-          A completed goal does not unlock a reward until a parent verifies the follow-through. Each approved goal gives <span style={{color:C.gold,fontWeight:900}}>1 Reward Token</span> toward shoes, clothes, skincare, or other wishlist items.
-        </div>
+        <div style={{fontSize:12,color:C.muted,lineHeight:1.55}}>A completed goal doesn't unlock a reward until a parent verifies the follow-through. Each approved goal gives <span style={{color:C.gold,fontWeight:900}}>1 Reward Token</span> toward shoes, clothes, or wishlist items.</div>
       </div>
 
-      {/* Coach card */}
       <div style={{...cs,background:"linear-gradient(135deg,rgba(54,24,102,.98),rgba(16,7,35,.98))"}}>
         <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:12}}>
           <svg width={72} height={72} style={{filter:`drop-shadow(0 0 14px ${readiness.level.col}55)`,flexShrink:0}}>
@@ -624,9 +589,7 @@ export default function ScarlettTracker(){
           <div>
             <div style={{fontSize:10,color:C.light,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>AI Coach 🤖</div>
             <div style={{fontSize:16,fontWeight:950,color:readiness.level.col,marginBottom:4}}>{readiness.level.label}</div>
-            <div style={{fontSize:12,color:C.muted,lineHeight:1.5}}>
-              {readiness.starter?"Do your Today check-in so Coach can see your energy!":readiness.score>=80?"You're feeling great — go have a strong day.":readiness.score>=65?"You're ready to roll. Train as planned.":readiness.score>=50?"Good day for quality reps and clean form.":"A lighter day is okay. Rest still counts."}
-            </div>
+            <div style={{fontSize:12,color:C.muted,lineHeight:1.5}}>{readiness.starter?"Do your Today check-in so Coach can see your energy!":readiness.score>=80?"You're feeling great — go have a strong day.":readiness.score>=65?"You're ready to roll. Train as planned.":readiness.score>=50?"Good day for quality reps and clean form.":"A lighter day is okay. Rest still counts."}</div>
           </div>
         </div>
         {insights.slice(0,3).map((ins,i)=><div key={i} style={{display:"flex",gap:9,padding:"8px 0",borderTop:`1px solid ${C.border}`,alignItems:"flex-start"}}>
@@ -637,21 +600,19 @@ export default function ScarlettTracker(){
         {insights.length===0&&<div style={{fontSize:11,color:C.muted,lineHeight:1.6,marginTop:4}}>Log games, practices, and sleep — Coach gets smarter with every entry.</div>}
       </div>
 
-      {/* Goals stats */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
         <SBox value={active.length} label="Active" color={C.purple}/>
         <SBox value={done} label="Done ✅" color={C.green}/>
         <SBox value={stars} label="⭐ Stars" color={C.gold}/>
       </div>
 
-      {/* Quick templates */}
       <div style={{...cs,marginBottom:12}}>
         <CH e="✨" title="Add a Goal"/>
         <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4,marginBottom:12}}>
           {templates.map((t,i)=><button key={i} onClick={()=>setGf(p=>({...p,text:t.text,category:t.category}))} style={{flexShrink:0,padding:"8px 12px",borderRadius:12,border:`1px solid ${CAT[t.category].col}44`,background:`${CAT[t.category].col}14`,color:C.text,cursor:"pointer",fontSize:11,fontWeight:800,fontFamily:"system-ui",maxWidth:180,textAlign:"left"}}>{CAT[t.category].icon} {t.text.slice(0,30)}…</button>)}
         </div>
         <textarea value={gf.text} onChange={e=>setGf(p=>({...p,text:e.target.value}))} placeholder="What do you want to achieve? Be specific!" style={{...TXT,marginBottom:10}}/>
-        <div style={{display:"flex",gap:8,marginBottom:10}}>
+        <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
           {Object.entries(CAT).map(([k,v])=><Chip key={k} label={`${v.icon} ${k}`} active={gf.category===k} col={v.col} onClick={()=>setGf(p=>({...p,category:k}))}/>)}
         </div>
         <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>TARGET DATE</div>
@@ -659,7 +620,6 @@ export default function ScarlettTracker(){
         <button onClick={addGoal} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:15}}>Add Goal 🎯</button>
       </div>
 
-      {/* Active goals */}
       {active.length>0&&<div style={cs}>
         <CH e="🎯" title="Active Goals"/>
         {active.map(g=>{const cat=CAT[g.category]||CAT.basketball;return<div key={g.id} style={{padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
@@ -671,7 +631,6 @@ export default function ScarlettTracker(){
         </div>;})}
       </div>}
 
-      {/* Completed goals */}
       {done>0&&<div style={cs}>
         <CH e="✅" title={`Completed (${done})`} sub="Parent approval turns follow-through into reward tokens."/>
         {goals.filter(g=>g.done).slice(0,8).map(g=><div key={g.id} style={{padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
@@ -681,7 +640,7 @@ export default function ScarlettTracker(){
               <div style={{fontSize:12,color:g.parentApproved?C.green:C.gold,textDecoration:g.parentApproved?"line-through":"none",fontWeight:800,lineHeight:1.35}}>{g.text}</div>
               <div style={{fontSize:9,color:C.muted,marginTop:3}}>{g.parentApproved?`Approved ${g.approvedDate||""} · 1 Reward Token earned`:"Waiting for parent approval"}</div>
             </div>
-            {!g.parentApproved&&<button onClick={()=>approveGoal(g.id)} style={{padding:"8px 10px",borderRadius:10,border:`1px solid ${C.green}44`,background:`${C.green}16`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Parent OK</button>}
+            {!g.parentApproved&&<button onClick={()=>approveGoal(g.id)} style={{padding:"8px 10px",borderRadius:10,border:`1px solid ${C.green}44`,background:`${C.green}16`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Parent OK ✓</button>}
             <button onClick={()=>toggleGoal(g.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:11}}>undo</button>
           </div>
         </div>)}
@@ -689,7 +648,7 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  // ── PROGRESS TAB ──────────────────────────────────────────────────────
+  // ── PROGRESS / REWARDS ─────────────────────────────────────────────────
   const Progress=()=>{
     const avgSk=Math.round(avgArr(Object.values(skills)))||0;
     const gpa=parseFloat(gpaCalc(subjects))||0;
@@ -699,7 +658,6 @@ export default function ScarlettTracker(){
     const updateGrade=async(s,g)=>{const ns={...subjects,[s]:g};await saveSchool(ns);};
     const earnedBadges=BADGE_DEFS.filter(b=>b.check(badgeData));
     const lockedBadges=BADGE_DEFS.filter(b=>!b.check(badgeData));
-    const GRADE_MAP={"4":4,"3":3,"2":2,"1":1};
     const grades=["4","3","2","1"];
     const overallGlow=Math.round(avgArr([avgSk,Math.round(gpa/4*100),games.length?winPct:0].filter(v=>v>0)))||0;
 
@@ -709,27 +667,29 @@ export default function ScarlettTracker(){
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
           <SBox value={approvedGoalCount} label="Approved Goals" color={C.green}/>
           <SBox value={spentRewardTokens} label="Tokens Used" color={C.purple}/>
-          <SBox value={rewardTokens} label="Available" color={C.gold}/>
+          <SBox value={rewardTokens} label="🎟️ Available" color={C.gold}/>
         </div>
-        {shoeWish.length===0?<div style={{padding:14,borderRadius:16,background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`,fontSize:12,color:C.muted,lineHeight:1.5}}>Add shoes, clothes, skincare, or trend items in My Glow → Shoes. Then she can request them when she has enough approved-goal tokens.</div>:shoeWish.slice(0,8).map(item=>{
-          const claim=claimFor(item);
-          const cost=rewardCost(item);
-          const enough=rewardTokens>=cost;
-          return <div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 0",borderBottom:`1px solid ${C.border}`}}>
-            <div style={{fontSize:26}}>🎁</div>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:950,color:C.white}}>{item.name}</div>
-              <div style={{fontSize:10,color:C.muted,marginTop:2}}>{item.priority||"Wishlist"} · Costs {cost} token{cost===1?"":"s"}</div>
-              {item.why&&<div style={{fontSize:10,color:C.gold,marginTop:2}}>{item.why}</div>}
-              {claim&&<div style={{fontSize:10,color:claim.status==="approved"?C.green:C.gold,marginTop:3,fontWeight:900}}>Status: {claim.status==="approved"?"Parent approved / obtained":"Requested — waiting for parent"}</div>}
-            </div>
-            {!claim&&<button disabled={!enough} onClick={()=>requestReward(item)} style={{padding:"9px 10px",borderRadius:11,border:`1px solid ${enough?C.gold:C.border}`,background:enough?`${C.gold}18`:"rgba(255,255,255,.04)",color:enough?C.gold:C.muted,fontWeight:900,cursor:enough?"pointer":"not-allowed",fontSize:11,fontFamily:"system-ui"}}>{enough?"Request":"Need tokens"}</button>}
-            {claim?.status==="requested"&&<button onClick={()=>updateRewardClaim(claim.id,"approved")} style={{padding:"9px 10px",borderRadius:11,border:`1px solid ${C.green}44`,background:`${C.green}16`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Parent OK</button>}
-          </div>;
-        })}
+        {shoeWish.length===0
+          ?<div style={{padding:14,borderRadius:16,background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`,fontSize:12,color:C.muted,lineHeight:1.6}}>Add shoes, clothes, or trend items in My Glow → Shoes. Then she can request them when she has enough approved-goal tokens.</div>
+          :shoeWish.slice(0,8).map(item=>{
+            const claim=claimFor(item);
+            const cost=rewardCost(item);
+            const enough=rewardTokens>=cost;
+            return<div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 0",borderBottom:`1px solid ${C.border}`}}>
+              <div style={{fontSize:26}}>🎁</div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:13,fontWeight:950,color:C.white}}>{item.name}</div>
+                <div style={{fontSize:10,color:C.muted,marginTop:2}}>{item.priority||"Wishlist"} · Costs {cost} token{cost===1?"":"s"}</div>
+                {item.why&&<div style={{fontSize:10,color:C.gold,marginTop:2}}>{item.why}</div>}
+                {claim&&<div style={{fontSize:10,color:claim.status==="approved"?C.green:C.gold,marginTop:3,fontWeight:900}}>Status: {claim.status==="approved"?"✅ Parent approved!":"⏳ Requested — waiting for parent"}</div>}
+              </div>
+              {!claim&&<button disabled={!enough} onClick={()=>requestReward(item)} style={{padding:"9px 10px",borderRadius:11,border:`1px solid ${enough?C.gold:C.border}`,background:enough?`${C.gold}18`:"rgba(255,255,255,.04)",color:enough?C.gold:C.muted,fontWeight:900,cursor:enough?"pointer":"not-allowed",fontSize:11,fontFamily:"system-ui",whiteSpace:"nowrap"}}>{enough?"Request 🎟️":"Need tokens"}</button>}
+              {claim?.status==="requested"&&<button onClick={()=>updateRewardClaim(claim.id,"approved")} style={{padding:"9px 10px",borderRadius:11,border:`1px solid ${C.green}44`,background:`${C.green}16`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:11,fontFamily:"system-ui",whiteSpace:"nowrap"}}>Parent OK ✓</button>}
+            </div>;
+          })
+        }
       </div>
 
-      {/* Level card */}
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.24),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",textAlign:"center",padding:20}}>
         <div style={{fontSize:44,marginBottom:6}}>⭐</div>
         <div style={{fontSize:28,fontWeight:950,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</div>
@@ -742,7 +702,6 @@ export default function ScarlettTracker(){
         <div style={{fontSize:13,color:C.muted,marginTop:4}}>Glow Score: <span style={{color:SKILL_COL(overallGlow),fontWeight:900}}>{overallGlow}%</span></div>
       </div>
 
-      {/* Stats grid */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>
         <SBox value={games.length} label="Games Logged 🏀" color={C.coral}/>
         <SBox value={`${winPct}%`} label="Win Rate 🏆" color={C.green}/>
@@ -752,7 +711,6 @@ export default function ScarlettTracker(){
         <SBox value={avgSleepH} label="Avg Sleep 🌙" color={parseFloat(avgSleepH)>=8?C.green:C.orange}/>
       </div>
 
-      {/* School grades */}
       <div style={cs}>
         <CH e="📚" title="School Grades" sub="Tap a number to update · 4 is best"/>
         {Object.entries(subjects).map(([s,grade])=><div key={s} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
@@ -767,7 +725,6 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
-      {/* Badges */}
       {earnedBadges.length>0&&<div style={cs}>
         <CH e="🏅" title={`Badges Earned (${earnedBadges.length}/${BADGE_DEFS.length})`}/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:4}}>
@@ -778,7 +735,6 @@ export default function ScarlettTracker(){
         </div>
       </div>}
 
-      {/* Locked badges */}
       {lockedBadges.length>0&&<div style={cs}>
         <CH e="🔒" title="Locked Badges"/>
         <div style={{display:"flex",flexDirection:"column",gap:7,marginTop:4}}>
@@ -795,10 +751,8 @@ export default function ScarlettTracker(){
 
   return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
     <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none}`}</style>
-
     <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(255,26,140,.12)"}}>
 
-      {/* ── HEADER ── */}
       <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 9px",background:"linear-gradient(180deg,rgba(15,0,28,.96),rgba(15,0,28,.80))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div>
@@ -817,7 +771,6 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
-      {/* ── SETTINGS OVERLAY ── */}
       {showSettings&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.88)",zIndex:100,display:"flex",alignItems:"flex-end"}} onClick={e=>{if(e.target===e.currentTarget)setShowSettings(false);}}>
         <div style={{width:"100%",maxWidth:430,margin:"0 auto",background:C.card,borderRadius:"24px 24px 0 0",padding:24,paddingBottom:48}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
@@ -830,7 +783,7 @@ export default function ScarlettTracker(){
           <input value={profile.grade} onChange={e=>setProfile(p=>({...p,grade:e.target.value}))} placeholder="e.g. 5th" style={{...INP,marginBottom:14}}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>TEAM NAME (optional)</div>
           <input value={profile.teamName} onChange={e=>setProfile(p=>({...p,teamName:e.target.value}))} placeholder="e.g. Lady Eagles" style={{...INP,marginBottom:18}}/>
-          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>☁ FAMILY SYNC CODE</div>
+          <div style={{fontSize:11,color:C.blue,fontWeight:800,marginBottom:6}}>☁ FAMILY SYNC CODE</div>
           <div style={{fontSize:11,color:C.muted,marginBottom:10,lineHeight:1.6}}>Create a code and enter it on every device — mom's phone, dad's tablet, any screen. Everyone sees the same data.</div>
           {familyCode?<>
             <div style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:16,padding:14,textAlign:"center",marginBottom:10}}>
@@ -849,10 +802,11 @@ export default function ScarlettTracker(){
         </div>
       </div>}
 
-      {/* ── CONTENT ── */}
-      <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"14px 14px calc(90px + env(safe-area-inset-bottom,0px))"}}>{(CONTENT[tab]||Today)()}</div>
+      {/* ── FIX: use StableRenderer with key={tab} so each tab's useState hooks work ── */}
+      <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"14px 14px calc(90px + env(safe-area-inset-bottom,0px))"}}>
+        <StableRenderer key={tab} render={CONTENT[tab]||Today}/>
+      </div>
 
-      {/* ── BOTTOM NAV ── */}
       <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(400px,calc(100% - 20px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:3,background:"rgba(12,0,25,.92)",backdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"7px 6px calc(7px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
         {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?`${C.pink}22`:"transparent",border:"none",borderRadius:16,color:tab===t.id?C.pink:C.muted,padding:"6px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:tab===t.id?20:18,lineHeight:1}}>{t.e}</div><div style={{fontSize:7,marginTop:2,letterSpacing:".3px"}}>{t.label}</div></button>)}
       </div>
