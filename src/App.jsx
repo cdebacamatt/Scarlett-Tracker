@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const C={bg:"#070611",nav:"#100B1C",navy:"#120E20",navy2:"#191228",card:"#1D1430",card2:"#231934",border:"rgba(255,255,255,.11)",coral:"#F04D82",teal:"#18D6C8",purple:"#8E6CF2",gold:"#F6D25A",green:"#3DDC84",blue:"#62A8F7",pink:"#F35CB7",orange:"#F59A45",red:"#F05268",white:"#FFFFFF",text:"#F8F2FF",muted:"#B6A9C9",light:"#E9DFFF"};
+const C={bg:"#0B0C14",nav:"#12121F",navy:"#171827",navy2:"#1F2033",card:"#242436",card2:"#2A2A3D",border:"rgba(255,255,255,.10)",coral:"#E86F8F",teal:"#6AD8CF",purple:"#A78BFA",gold:"#EBCB6A",green:"#7DDB9C",blue:"#7DAAF2",pink:"#D978B9",orange:"#E8A35D",red:"#E66B76",white:"#FFFFFF",text:"#F7F2FB",muted:"#B9B2C8",light:"#E7DEEF"};
 
 // 5 tabs instead of 12
 const TABS=[
@@ -56,7 +56,7 @@ const DAILY_HOROSCOPE=[
   {vibe:"Main character calm",message:"You do not have to rush to prove anything. Move with confidence, stay kind, and let your follow-through speak.",power:"Calm confidence",lucky:"Soft glam"},
   {vibe:"Trendsetter Virgo",message:"You do not have to copy every trend. Choose what fits your style, your confidence, and the person you are becoming.",power:"Be original",lucky:"Something shiny"},
   {vibe:"Reward mindset",message:"The wishlist is not just stuff. It is proof that discipline, goals, and follow-through turn into real rewards.",power:"Earn it first",lucky:"Dream item"},
-  {vibe:"Practice promise",message:"A little practice done today beats a perfect plan saved for later. Start small and let momentum build.",power:"Start for 5 minutes",lucky:"Pink water bottle"},
+  {vibe:"Practice promise",message:"A little practice done today beats a perfect plan saved for later. Start small and let momentum build.",power:"Start for 5 minutes",lucky:"Pink notebook"},
   {vibe:"Virgo reset",message:"If the day feels messy, reset one thing: your room, your backpack, your attitude, or your next choice.",power:"Reset and restart",lucky:"Fresh start"},
   {vibe:"Glow-up details",message:"Tiny habits make the glow-up real. Face care, outfit prep, and sleep are quiet wins that stack up.",power:"Do the routine",lucky:"Glowy skin"},
   {vibe:"Leader energy",message:"Lead by example today. Be the teammate who listens, hustles, and keeps the mood strong.",power:"Encourage someone",lucky:"Team colors"},
@@ -305,7 +305,7 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
-      <div style={{...cs,borderTop:`3px solid ${C.pink}`,background:"radial-gradient(ellipse at 18% 0%,rgba(255,26,140,.22),transparent 46%),radial-gradient(ellipse at 90% 10%,rgba(0,229,204,.16),transparent 42%),linear-gradient(145deg,rgba(35,13,68,.98),rgba(8,4,18,.99))"}}>
+      <div style={{...cs,borderTop:`3px solid ${C.pink}`,background:"radial-gradient(ellipse at 18% 0%,rgba(217,120,185,.18),transparent 46%),radial-gradient(ellipse at 90% 10%,rgba(106,216,207,.12),transparent 42%),linear-gradient(145deg,rgba(35,13,68,.98),rgba(8,4,18,.99))"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:12}}>
           <CH e="💫" title="Scarlett's Vibe Check" sub="Pick your mode for today"/>
           <div style={{padding:"6px 10px",borderRadius:999,background:`${C.gold}18`,border:`1px solid ${C.gold}44`,fontSize:10,fontWeight:950,color:C.gold,whiteSpace:"nowrap"}}>focus mode</div>
@@ -332,15 +332,6 @@ export default function ScarlettTracker(){
               <div style={{fontSize:10,color:C.muted,fontWeight:800}}>how are you feeling?</div>
             </div>
             <EmojiPick val={vitals.mood||vitals.confidence||0} emojis={["🙈","🙂","😎","💅","👑"]} onSet={v=>setVitals(p=>({...p,confidence:v,mood:v}))} col={C.pink}/>
-          </div>
-        </div>
-
-        <div style={{padding:12,borderRadius:16,background:"rgba(0,0,0,.24)",border:`1px solid ${C.border}`,marginBottom:12}}>
-          <div style={{fontSize:11,color:C.teal,fontWeight:950,letterSpacing:"1px",marginBottom:8}}>WATER POWER-UP 💧 {water>=8?"✅ maxed out":""}</div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:4}}>
-            {Array.from({length:8},(_,i)=><button key={i} onClick={()=>setWater(i<water?i:i+1)} style={{height:36,borderRadius:"8px 8px 14px 14px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,background:i<water?"#00100D":C.card2,cursor:"pointer",padding:0,position:"relative",overflow:"hidden",boxShadow:i<water?`0 0 12px ${C.teal}44`:"none"}}>
-              {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"72%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
-            </button>)}
           </div>
         </div>
 
@@ -867,7 +858,7 @@ export default function ScarlettTracker(){
 
   return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
     <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden}`}</style>
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(255,26,140,.12)"}}>
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(217,120,185,.10)"}}>
 
       <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 9px",background:"linear-gradient(180deg,rgba(15,0,28,.96),rgba(15,0,28,.80))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
