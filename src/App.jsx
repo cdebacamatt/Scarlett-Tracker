@@ -1,12 +1,3 @@
-TODAY TAB VIRGO + VIBE CHECK UPGRADE PATCH
-
-What this patch does
-1) Replaces the Virgo card with a true daily Virgo-inspired card that changes every day.
-2) Fixes the cut-off issue by redesigning the vibe check into stacked sections.
-3) Makes the section feel more premium, cleaner, and easier for a 10-year-old to use.
-
-Paste helper data/functions near your other helpers, above the Today component.
-
 const VIRGO_DAILY_GLOW = [
   {
     title:"Clean Slate Energy",
