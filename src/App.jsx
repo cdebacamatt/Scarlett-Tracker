@@ -12,16 +12,11 @@ const TABS=[
 ];
 
 const DEF_VITALS={energy:0,mood:0};
-const DEF_HABITS=[
-  {id:"h1",e:"💧",label:"Drink water first thing"},
-  {id:"h2",e:"🛏️",label:"Make my bed"},
-  {id:"h3",e:"📚",label:"Homework before screens"},
-  {id:"h4",e:"🏀",label:"Basketball practice or drills"},
-  {id:"h5",e:"✨",label:"Done my night routine"},
-];
+// No preset daily quests. Scarlett creates these herself.
+const DEF_HABITS=[];
 const DEF_SKILLS={"Ball Handling":35,"Shooting Form":30,"Layups":35,"Free Throws":30,"Passing":35,"Court Vision":30,"Defense":30,"Rebounding":30,"Footwork":30,"Speed & Agility":35,"Conditioning":35,"Basketball IQ":30,"Confidence":45,"Leadership":40};
 const DEF_SUBJECTS={Math:3,Reading:4,Science:3,"Social Studies":3,Writing:3};
-const DEF_PROFILE={name:"Scarlett",grade:"5th",teamName:"",emoji:"⭐",primaryGoal:"All-around player"};
+const DEF_PROFILE={name:"Scarlett",grade:"5th",teamName:"",emoji:"⭐",primaryGoal:"All-around player",birthDate:"2015-08-28",zodiac:"Virgo"};
 const ROUTINE_ITEMS=[
   {id:"face",e:"🫧",label:"Wash face"},
   {id:"moisturizer",e:"💧",label:"Moisturizer"},
@@ -53,6 +48,21 @@ const gpaCalc=subs=>{const v=Object.values(subs).map(g=>gradeValue(g)||0);return
 const addDays=(n=7)=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
 const daysAgo=d=>{try{return Math.round((Date.now()-new Date(d+"T12:00:00"))/86400000);}catch{return 999;}};
 const glamGrad=`linear-gradient(135deg,${C.pink} 0%,${C.purple} 55%,${C.teal} 100%)`;
+const DAILY_HOROSCOPE=[
+  {vibe:"Main character discipline",message:"Today is about doing one small thing before you feel ready. Pick a goal, make it tiny, then execute.",power:"Finish first, scroll later",lucky:"Gold + pink"},
+  {vibe:"Hooper focus",message:"Your best move today is repetition. A few clean reps count more than trying to do everything at once.",power:"15 focused minutes",lucky:"Sneakers"},
+  {vibe:"Glow-up energy",message:"A routine is not boring when it gets you closer to the girl you want to become.",power:"Keep a promise to yourself",lucky:"Clean outfit"},
+  {vibe:"School boss mode",message:"Do the hardest school task first. After that, everything feels lighter.",power:"Start before you overthink",lucky:"Purple"},
+  {vibe:"Trendsetter mode",message:"You do not have to copy every trend. Choose what fits your style, your goals, and your confidence.",power:"Be original",lucky:"Something shiny"},
+  {vibe:"Friendship check",message:"Be the friend who brings good energy and still stays focused on her goals.",power:"Kind but locked in",lucky:"Teal"},
+  {vibe:"Reward season",message:"The wishlist is not just stuff. It is proof that follow-through turns into real rewards.",power:"Earn it, then enjoy it",lucky:"A dream item"},
+];
+function getDailyHoroscope(profile){
+  const day=Math.floor(new Date(todayISO()+"T12:00:00").getTime()/86400000);
+  const h=DAILY_HOROSCOPE[day%DAILY_HOROSCOPE.length];
+  const sign=profile?.zodiac||"Virgo";
+  return {sign,...h};
+}
 
 // ── STORAGE ──────────────────────────────────────────────────────────────
 let _FC=null;
@@ -149,11 +159,12 @@ export default function ScarlettTracker(){
     const gd=await sg("sc_goals")||{entries:[],stars:0};
     const rd=await sg("sc_rewards")||{claims:[]};
     const pd=await sg("sc_profile")||clone(DEF_PROFILE);
+    const hd=await sg("sc_habits")||{entries:clone(DEF_HABITS)};
     setDailyHist(daily.entries||{});setGames(bball.games||[]);setSkills(bball.skills||clone(DEF_SKILLS));
     setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);
     setRoutineHist(routineD.entries||{});setSleepEntries(slp.entries||[]);
     setSubjects(school.subjects||clone(DEF_SUBJECTS));
-    setGoals(gd.entries||[]);setStars(gd.stars||0);setRewardClaims(rd.claims||[]);setProfile(pd);
+    setGoals(gd.entries||[]);setStars(gd.stars||0);setRewardClaims(rd.claims||[]);setProfile({...clone(DEF_PROFILE),...pd});setHabits(hd.entries||[]);
     const e=daily.entries?.[todayISO()]||{};
     setChecks(e.c||{});setWater(e.w||0);setVitals(e.vitals||clone(DEF_VITALS));
     supRef.current=true;setLoaded(true);
@@ -167,6 +178,7 @@ export default function ScarlettTracker(){
   const savePrax=async p=>{setPractices(p);await ss("sc_practices",{entries:p});};
   const saveGoals=async(g,s=stars)=>{setGoals(g);setStars(s);await ss("sc_goals",{entries:g,stars:s});};
   const saveRewards=async claims=>{setRewardClaims(claims);await ss("sc_rewards",{claims});};
+  const saveHabits=async entries=>{setHabits(entries);await ss("sc_habits",{entries});};
   const saveStyle=async(fits=styleLog,shoes=shoeWish)=>{setStyleLog(fits);setShoeWish(shoes);await ss("sc_style",{fits,shoes});};
   const saveRoutine=async entries=>{setRoutineHist(entries);await ss("sc_routine",{entries});};
   const saveSleep=async e=>{setSleepEntries(e);await ss("sc_sleep",{entries:e});};
@@ -175,7 +187,7 @@ export default function ScarlettTracker(){
   const activateCode=async code=>{
     const c=(code||"").trim().toUpperCase();if(c.length<4)return;
     setFCGlobal(c);setFamilyCode(c);
-    const [daily,bball,prax,styleD,routineD,slp,school,gd,rd,pd]=await Promise.all([sg("sc_daily"),sg("sc_bball"),sg("sc_practices"),sg("sc_style"),sg("sc_routine"),sg("sc_sleep"),sg("sc_school"),sg("sc_goals"),sg("sc_rewards"),sg("sc_profile")]);
+    const [daily,bball,prax,styleD,routineD,slp,school,gd,rd,pd,hd]=await Promise.all([sg("sc_daily"),sg("sc_bball"),sg("sc_practices"),sg("sc_style"),sg("sc_routine"),sg("sc_sleep"),sg("sc_school"),sg("sc_goals"),sg("sc_rewards"),sg("sc_profile"),sg("sc_habits")]);
     if(daily?.entries)setDailyHist(daily.entries);
     if(bball?.games)setGames(bball.games);if(bball?.skills)setSkills(bball.skills);
     if(prax?.entries)setPractices(prax.entries);
@@ -185,7 +197,8 @@ export default function ScarlettTracker(){
     if(school?.subjects)setSubjects(school.subjects);
     if(gd?.entries)setGoals(gd.entries);if(gd?.stars)setStars(gd.stars);
     if(rd?.claims)setRewardClaims(rd.claims);
-    if(pd)setProfile(pd);
+    if(hd?.entries)setHabits(hd.entries);
+    if(pd)setProfile({...clone(DEF_PROFILE),...pd});
   };
 
   const onEditFocus=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);setEditing(true);}};
@@ -202,7 +215,7 @@ export default function ScarlettTracker(){
   const approveGoal=async id=>{
     let shouldReward=false;
     const ng=goals.map(g=>{if(g.id!==id)return g;shouldReward=!g.parentApproved;return {...g,done:true,submitted:true,parentApproved:true,approvedDate:toShort(todayISO())};});
-    await saveGoals(ng,shouldReward?stars+5:stars);
+    await saveGoals(ng,stars);
   };
   const requestReward=async item=>{
     const existing=claimFor(item);if(existing||rewardTokens<rewardCost(item))return;
@@ -216,10 +229,25 @@ export default function ScarlettTracker(){
 
   // ── TODAY ──────────────────────────────────────────────────────────────
   const Today=()=>{
+    const [newQuest,setNewQuest]=useState("");
     const done=habits.filter(h=>checks[h.id]).length;
-    const allDone=done===habits.length;
+    const total=Math.max(habits.length,1);
+    const allDone=habits.length>0&&done===habits.length;
     const routineDone=Object.values(routineHist[todayISO()]?.c||{}).filter(Boolean).length;
-    const toggleCheck=async id=>{const next={...checks,[id]:!checks[id]};setChecks(next);if(!checks[id])await addStars(2);};
+    const horoscope=getDailyHoroscope(profile);
+    const addQuest=async()=>{
+      const label=newQuest.trim();
+      if(!label)return;
+      const entry={id:uid(),e:"⭐",label};
+      await saveHabits([...habits,entry]);
+      setNewQuest("");
+    };
+    const removeQuest=async id=>{
+      const next=habits.filter(h=>h.id!==id);
+      await saveHabits(next);
+      const nc={...checks};delete nc[id];setChecks(nc);
+    };
+    const toggleCheck=async id=>{const next={...checks,[id]:!checks[id]};setChecks(next);if(!checks[id])await addStars(1);};
     return<div>
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.24),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",padding:18,marginBottom:14}}>
         <div style={{fontSize:11,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>{new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}</div>
@@ -235,6 +263,17 @@ export default function ScarlettTracker(){
           <div style={{height:8,background:"rgba(0,0,0,.4)",borderRadius:99,overflow:"hidden"}}><div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:glamGrad,borderRadius:99,transition:"width .4s"}}/></div>
         </div>
       </div>
+
+      <div style={{...cs,borderTop:`3px solid ${C.gold}`,background:"radial-gradient(ellipse at 15% 0%,rgba(255,215,0,.18),transparent 46%),linear-gradient(145deg,rgba(32,14,62,.97),rgba(10,5,22,.99))"}}>
+        <CH e="♍" title={`${horoscope.sign} Daily Vibe`} sub="For fun: a focus prompt for today"/>
+        <div style={{fontSize:18,fontWeight:950,color:C.gold,marginBottom:7}}>{horoscope.vibe}</div>
+        <div style={{fontSize:13,lineHeight:1.55,color:C.light,marginBottom:10}}>{horoscope.message}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          <div style={{padding:10,borderRadius:14,background:`${C.purple}16`,border:`1px solid ${C.purple}33`}}><div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>POWER MOVE</div><div style={{fontSize:12,fontWeight:900,color:C.purple,marginTop:2}}>{horoscope.power}</div></div>
+          <div style={{padding:10,borderRadius:14,background:`${C.gold}14`,border:`1px solid ${C.gold}33`}}><div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>LUCKY VIBE</div><div style={{fontSize:12,fontWeight:900,color:C.gold,marginTop:2}}>{horoscope.lucky}</div></div>
+        </div>
+      </div>
+
       <div style={cs}>
         <CH e="⚡" title="How are you feeling?" sub="Tap to check in"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
@@ -250,16 +289,25 @@ export default function ScarlettTracker(){
       </div>
       <div style={cs}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-          <CH e="✅" title={`Daily Quests (${done}/${habits.length})`}/>
-          <div style={{fontSize:11,color:C.gold,fontWeight:900}}>+2⭐ each</div>
+          <CH e="✅" title={`My Daily Quests (${done}/${habits.length})`} sub="Scarlett chooses these herself"/>
+          <div style={{fontSize:11,color:C.gold,fontWeight:900}}>+1⭐ each</div>
         </div>
+        <div style={{display:"flex",gap:8,marginBottom:12}}>
+          <input value={newQuest} onChange={e=>setNewQuest(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")addQuest();}} placeholder="Type a quest I choose..." style={{...INP,flex:1}}/>
+          <button onClick={addQuest} style={{width:76,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Add</button>
+        </div>
+        {habits.length===0&&<div style={{padding:14,borderRadius:16,background:`${C.purple}14`,border:`1px dashed ${C.purple}66`,marginBottom:12}}>
+          <div style={{fontSize:14,fontWeight:950,color:C.light,marginBottom:4}}>No preset quests anymore.</div>
+          <div style={{fontSize:12,color:C.muted,lineHeight:1.45}}>She types the promises she wants to follow through on — basketball, school, style, friendship, skincare, chores, or anything that earns trust.</div>
+        </div>}
         <div style={{height:8,background:"rgba(0,0,0,.4)",borderRadius:99,overflow:"hidden",marginBottom:12}}>
-          <div style={{height:"100%",width:`${(done/habits.length)*100}%`,background:allDone?C.green:`linear-gradient(90deg,${C.gold},${C.orange})`,borderRadius:99,transition:"width .3s"}}/>
+          <div style={{height:"100%",width:`${(done/total)*100}%`,background:allDone?C.green:`linear-gradient(90deg,${C.gold},${C.orange})`,borderRadius:99,transition:"width .3s"}}/>
         </div>
-        {habits.map(h=>{const ok=!!checks[h.id];return<button key={h.id} onClick={()=>toggleCheck(h.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`${C.green}14`:"rgba(255,255,255,.04)",border:`1px solid ${ok?C.green+"44":C.border}`,marginBottom:7,fontFamily:"system-ui",textAlign:"left"}}>
+                {habits.map(h=>{const ok=!!checks[h.id];return<button key={h.id} onClick={()=>toggleCheck(h.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`${C.green}14`:"rgba(255,255,255,.04)",border:`1px solid ${ok?C.green+"44":C.border}`,marginBottom:7,fontFamily:"system-ui",textAlign:"left"}}>
           <div style={{width:38,height:38,borderRadius:13,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.07)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:ok?14:20,color:C.white,boxShadow:ok?`0 0 16px ${C.green}44`:"none",flexShrink:0}}>{ok?"✓":h.e}</div>
           <div style={{flex:1,fontSize:13,fontWeight:800,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
-          {ok&&<div style={{fontSize:11,color:C.green,fontWeight:900}}>+2⭐</div>}
+          {ok&&<div style={{fontSize:11,color:C.green,fontWeight:900}}>+1⭐</div>}
+          <span onClick={e=>{e.stopPropagation();removeQuest(h.id);}} style={{fontSize:18,color:C.muted,padding:"4px 6px",lineHeight:1}}>×</span>
         </button>;})}
         {allDone&&<div style={{padding:14,borderRadius:16,background:`linear-gradient(135deg,${C.green}22,${C.teal}14)`,border:`1px solid ${C.green}55`,textAlign:"center",marginTop:6}}><div style={{fontSize:26}}>👑</div><div style={{fontSize:14,fontWeight:950,color:C.green}}>All quests done! You're unstoppable.</div></div>}
       </div>
@@ -436,7 +484,7 @@ export default function ScarlettTracker(){
     const[stf,setStf]=useState({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});
     const logFit=async()=>{if(!stf.outfit&&!stf.hair)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...stf};await saveStyle([entry,...styleLog].slice(0,30),shoeWish);await addStars(3);setStf({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});};
     const[shf,setShf]=useState({name:"",why:"",priority:"Dream 🌟"});
-    const addShoe=async()=>{if(!shf.name)return;const entry={id:uid(),...shf,cost:shf.priority.includes("Dream")?3:shf.priority.includes("Next")?2:1};await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));await addStars(2);setShf({name:"",why:"",priority:"Dream 🌟"});};
+    const addShoe=async()=>{if(!shf.name)return;const entry={id:uid(),...shf,cost:shf.priority.includes("Dream")?3:shf.priority.includes("Next")?2:1};await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));setShf({name:"",why:"",priority:"Dream 🌟"});};
     const avgSleep=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours)).toFixed(1):"—";
 
     return<div>
@@ -781,6 +829,9 @@ export default function ScarlettTracker(){
           <input value={profile.name} onChange={e=>setProfile(p=>({...p,name:e.target.value}))} style={{...INP,marginBottom:14}}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>GRADE</div>
           <input value={profile.grade} onChange={e=>setProfile(p=>({...p,grade:e.target.value}))} placeholder="e.g. 5th" style={{...INP,marginBottom:14}}/>
+          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>BIRTHDAY</div>
+          <input type="date" value={profile.birthDate||"2015-08-28"} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value,zodiac:"Virgo"}))} style={{...INP,marginBottom:6}}/>
+          <div style={{fontSize:10,color:C.gold,fontWeight:800,marginBottom:14}}>♍ Virgo daily vibe enabled</div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>TEAM NAME (optional)</div>
           <input value={profile.teamName} onChange={e=>setProfile(p=>({...p,teamName:e.target.value}))} placeholder="e.g. Lady Eagles" style={{...INP,marginBottom:18}}/>
           <div style={{fontSize:11,color:C.blue,fontWeight:800,marginBottom:6}}>☁ FAMILY SYNC CODE</div>
