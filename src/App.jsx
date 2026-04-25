@@ -138,7 +138,7 @@ const BADGE_DEFS=[
 
 export default function ScarlettTracker(){
   const[loaded,setLoaded]=useState(false);
-  const[tab,setTab]=useState("today");
+  const[tab,setTab]=useState(()=>{try{return localStorage.getItem("sc_last_tab")||"today";}catch{return "today";}});
   const[familyCode,setFamilyCode]=useState(()=>{try{return localStorage.getItem("sc_fc")||"";}catch{return "";}});
   const[codeInput,setCodeInput]=useState("");
   const[showSettings,setShowSettings]=useState(false);
@@ -148,6 +148,7 @@ export default function ScarlettTracker(){
   const[stars,setStars]=useState(0);
   const[dailyHist,setDailyHist]=useState({});
   const[checks,setChecks]=useState({});
+  const[starAwards,setStarAwards]=useState({});
   const[water,setWater]=useState(0);
   const[vitals,setVitals]=useState(clone(DEF_VITALS));
   const[games,setGames]=useState([]);
@@ -188,14 +189,20 @@ export default function ScarlettTracker(){
     setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);
     setRoutineHist(routineD.entries||{});setSleepEntries(slp.entries||[]);
     setSubjects(school.subjects||clone(DEF_SUBJECTS));
-    setGoals(gd.entries||[]);setStars(gd.stars||0);setRewardClaims(rd.claims||[]);setProfile({...clone(DEF_PROFILE),...pd});setHabits(hd.entries||[]);
-    const e=daily.entries?.[todayISO()]||{};
-    setChecks(e.c||{});setWater(e.w||0);setVitals(e.vitals||clone(DEF_VITALS));
+    const dailyEntries=daily.entries||{};
+    const goalEntries=gd.entries||[];
+    const realActivity=(bball.games||[]).length>0||(prax.entries||[]).length>0||(styleD.fits||[]).length>0||(styleD.shoes||[]).length>0||(routineD.entries&&Object.values(routineD.entries).some(x=>Object.values(x?.c||{}).some(Boolean)))||(slp.entries||[]).length>0||goalEntries.length>0||Object.values(dailyEntries).some(x=>Object.values(x?.c||{}).some(Boolean)||(x?.w||0)>0||Object.keys(x?.r||{}).length>0);
+    const startStars=realActivity?(Number(gd.stars)||0):0;
+    setGoals(goalEntries);setStars(startStars);setRewardClaims(rd.claims||[]);setProfile({...clone(DEF_PROFILE),...pd});setHabits(hd.entries||[]);
+    if(!realActivity&&(Number(gd.stars)||0)>0)await ss("sc_goals",{entries:goalEntries,stars:0});
+    const e=dailyEntries?.[todayISO()]||{};
+    setChecks(e.c||{});setStarAwards(e.r||{});setWater(e.w||0);setVitals(e.vitals||clone(DEF_VITALS));
     supRef.current=true;setLoaded(true);
   })();},[]);
 
-  useEffect(()=>{if(!loaded)return;if(supRef.current){supRef.current=false;return;}clearTimeout(saveTmr.current);saveTmr.current=setTimeout(()=>{const entry={c:checks,w:water,vitals};setDailyHist(prev=>{const next={...prev,[todayISO()]:entry};ss("sc_daily",{entries:next});return next;});},450);},[checks,water,vitals,loaded]);
+  useEffect(()=>{if(!loaded)return;if(supRef.current){supRef.current=false;return;}clearTimeout(saveTmr.current);saveTmr.current=setTimeout(()=>{const entry={c:checks,r:starAwards,w:water,vitals};setDailyHist(prev=>{const next={...prev,[todayISO()]:entry};ss("sc_daily",{entries:next});return next;});},450);},[checks,starAwards,water,vitals,loaded]);
   useEffect(()=>{if(loaded)ss("sc_profile",profile);},[profile,loaded]);
+  useEffect(()=>{try{localStorage.setItem("sc_last_tab",tab);}catch{}},[tab]);
 
   const addStars=async n=>{const ns=stars+n;setStars(ns);await ss("sc_goals",{entries:goals,stars:ns});};
   const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
@@ -271,7 +278,7 @@ export default function ScarlettTracker(){
       await saveHabits(next);
       const nc={...checks};delete nc[id];setChecks(nc);
     };
-    const toggleCheck=async id=>{const next={...checks,[id]:!checks[id]};setChecks(next);if(!checks[id])await addStars(1);};
+    const toggleCheck=async id=>{const next={...checks,[id]:!checks[id]};setChecks(next);if(!checks[id]&&!starAwards[id]){setStarAwards(p=>({...p,[id]:true}));await addStars(1);}};
     return<div>
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.24),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",padding:18,marginBottom:14}}>
         <div style={{fontSize:11,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>{new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}</div>
@@ -301,7 +308,7 @@ export default function ScarlettTracker(){
       <div style={{...cs,borderTop:`3px solid ${C.pink}`,background:"radial-gradient(ellipse at 18% 0%,rgba(255,26,140,.22),transparent 46%),radial-gradient(ellipse at 90% 10%,rgba(0,229,204,.16),transparent 42%),linear-gradient(145deg,rgba(35,13,68,.98),rgba(8,4,18,.99))"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:12}}>
           <CH e="💫" title="Scarlett's Vibe Check" sub="Pick your mode for today"/>
-          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.gold}18`,border:`1px solid ${C.gold}44`,fontSize:10,fontWeight:950,color:C.gold,whiteSpace:"nowrap"}}>not a worksheet</div>
+          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.gold}18`,border:`1px solid ${C.gold}44`,fontSize:10,fontWeight:950,color:C.gold,whiteSpace:"nowrap"}}>focus mode</div>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
@@ -342,7 +349,7 @@ export default function ScarlettTracker(){
       <div style={cs}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
           <CH e="✅" title={`My Daily Quests (${done}/${habits.length})`} sub="Scarlett chooses these herself"/>
-          <div style={{fontSize:11,color:C.gold,fontWeight:900}}>+1⭐ each</div>
+          <div style={{fontSize:11,color:C.gold,fontWeight:900}}>+1⭐ once/day</div>
         </div>
         <div style={{display:"flex",gap:8,marginBottom:12}}>
           <input value={newQuest} onChange={e=>setNewQuest(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")addQuest();}} placeholder="Type a quest I choose..." style={{...INP,flex:1}}/>
