@@ -280,7 +280,7 @@ class TabErrorBoundary extends React.Component{
   constructor(props){super(props);this.state={hasError:false,msg:""};}
   static getDerivedStateFromError(error){return{hasError:true,msg:error?.message||"Tab failed to load"};}
   componentDidCatch(error){console.error("Tab error:",error);}
-  render(){if(this.state.hasError)return <div style={{padding:18,borderRadius:18,background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.14)",color:"#F7F2FB"}}><div style={{fontSize:22,marginBottom:8}}>🛠️</div><div style={{fontWeight:900,marginBottom:6}}>This tab hit old saved data.</div><div style={{fontSize:12,opacity:.75,lineHeight:1.5}}>I built a safer version, but this message means one old entry still needs to be cleaned. Try deleting old saved site data for this app or use the latest file.</div></div>;return this.props.children;}
+  render(){if(this.state.hasError)return <div style={{padding:18,borderRadius:18,background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.14)",color:"#F7F2FB"}}><div style={{fontSize:22,marginBottom:8}}>🛠️</div><div style={{fontWeight:900,marginBottom:6}}>This tab hit old saved data.</div><div style={{fontSize:12,opacity:.75,lineHeight:1.5}}>Error: {this.state.msg}</div></div>;return this.props.children;}
 }
 
 // ── COACH ENGINE ──────────────────────────────────────────────────────────
@@ -898,112 +898,187 @@ export default function ScarlettTracker(){
 
   // ── WISHLIST ────────────────────────────────────────────────────────────
   const Wishlist=()=>{
-    const safeWish=safeObjects(shoeWish).map(normalizeWishItem);
-    const safeGoals=safeObjects(goals);
-    const safeClaims=safeObjects(rewardClaims);
-    const [wf,setWf]=useState({name:"",category:"auto",why:"",priority:"Dream 🌟",search:"",goalId:""});
+    const [wf,setWf]=useState({name:"",category:"auto",why:"",priority:"Dream 🌟",goalId:""});
     const [filter,setFilter]=useState("all");
-    const addWish=async()=>{
-      if(!wf.name.trim())return;
-      const item=buildWishlistItem(wf);
-      await saveStyle(styleLog,[item,...safeWish].slice(0,40));
-      setWf({name:"",category:"auto",why:"",priority:"Dream 🌟",search:"",goalId:""});
+
+    const cleanGoals=safeObjects(goals);
+    const cleanClaims=safeObjects(rewardClaims);
+    const cleanWish=safeObjects(shoeWish).map((raw,i)=>{
+      const name=String(raw.name||raw.title||raw.search||"Wishlist item");
+      const category=(typeof raw.category==="string"&&raw.category)?raw.category:detectWishCategory(name);
+      return {
+        id:raw.id||`wish_${i}_${name.replace(/\s+/g,"_")}`,
+        name,
+        category,
+        why:String(raw.why||""),
+        priority:String(raw.priority||"Dream 🌟"),
+        search:String(raw.search||name),
+        goalId:String(raw.goalId||""),
+        img:String(raw.img||""),
+        cost:raw.cost||undefined,
+        storeList:Array.isArray(raw.storeList)?raw.storeList:undefined,
+        ...raw,
+        name,
+        category
+      };
+    });
+
+    const cleanCat=id=>{
+      const cats=safeObjects(WISH_CATEGORIES);
+      return cats.find(c=>c.id===id)||cats.find(c=>c.id==="other")||{id:"other",label:"Other",icon:"🌟",col:"gold"};
     };
-    const addStarter=async starter=>{
-      const item=buildWishlistItem({...starter,priority:"Dream 🌟",category:starter.category||"auto"});
-      await saveStyle(styleLog,[item,...safeWish].slice(0,40));
+    const storesFor=item=>{
+      const cat=typeof item?.category==="string"?item.category:"other";
+      const stores=Array.isArray(item?.storeList)&&item.storeList.length?item.storeList:WISH_STORES[cat]||WISH_STORES.other||["google","amazon","target"];
+      return stores.filter(Boolean).slice(0,4);
+    };
+    const itemCost=item=>{
+      if(item?.cost)return item.cost;
+      const p=String(item?.priority||"").toLowerCase();
+      return p.includes("dream")?3:p.includes("next")?2:1;
+    };
+    const linkedGoal=item=>cleanGoals.find(g=>g.id===item.goalId);
+    const isUnlocked=item=>{
+      const g=linkedGoal(item);
+      if(item.goalId)return !!(g&&g.parentApproved);
+      return rewardTokens>=itemCost(item);
+    };
+    const currentCategory=wf.category==="auto"?detectWishCategory(wf.name):wf.category;
+    const shown=filter==="all"?cleanWish:cleanWish.filter(x=>x.category===filter);
+
+    const addWish=async()=>{
+      const name=wf.name.trim();
+      if(!name)return;
+      const category=wf.category==="auto"?detectWishCategory(name):wf.category;
+      const stores=WISH_STORES[category]||WISH_STORES.other||["google","amazon","target"];
+      const item={
+        id:uid(),
+        name,
+        category,
+        why:wf.why.trim(),
+        priority:wf.priority,
+        search:name,
+        goalId:wf.goalId||"",
+        cost:wf.priority.includes("Dream")?3:wf.priority.includes("Next")?2:1,
+        storeList:stores
+      };
+      stores.forEach(shop=>{item[`${shop}Url`]=shopUrl(shop,name);});
+      await saveStyle(styleLog,[item,...cleanWish].slice(0,60));
+      await addStars(1);
+      setWf({name:"",category:"auto",why:"",priority:"Dream 🌟",goalId:""});
+    };
+
+    const addStarter=async item=>{
+      const category=item.category||detectWishCategory(item.name);
+      const stores=WISH_STORES[category]||WISH_STORES.other||["google","amazon","target"];
+      const next={id:uid(),priority:"Dream 🌟",goalId:"",cost:3,storeList:stores,...item,category,search:item.search||item.name};
+      stores.forEach(shop=>{next[`${shop}Url`]=next[`${shop}Url`]||shopUrl(shop,next.search||next.name);});
+      await saveStyle(styleLog,[next,...cleanWish].slice(0,60));
       await addStars(1);
     };
-    const shown=filter==="all"?safeWish:safeWish.filter(x=>(x.category||detectWishCategory(x.name))===filter);
-    const repairedCount=safeArray(shoeWish).length-safeWish.length;
+
+    const requestItem=async item=>{
+      const existing=cleanClaims.find(r=>r.itemId===item.id&&r.status!=="rejected");
+      if(existing||!isUnlocked(item))return;
+      const g=linkedGoal(item);
+      const claim={id:uid(),itemId:item.id,itemName:item.name,goalId:item.goalId||"",goalCode:g?goalCodeFor(cleanGoals,g):"",cost:item.goalId?0:itemCost(item),status:"requested",date:toShort(todayISO())};
+      await saveRewards([claim,...cleanClaims]);
+    };
+
+    const removeItem=async item=>{
+      await saveStyle(styleLog,cleanWish.filter(x=>x.id!==item.id));
+    };
+
+    const relinkItem=async(item,goalId)=>{
+      const updated=cleanWish.map(x=>x.id===item.id?{...x,goalId}:x);
+      await saveStyle(styleLog,updated);
+    };
+
     return <div>
-      {repairedCount>0&&<div style={{background:`${C.orange}12`,border:`1px solid ${C.orange}44`,borderRadius:14,padding:12,marginBottom:12,fontSize:11,color:C.orange,lineHeight:1.5}}>Some old wishlist entries were not readable, so the app skipped them instead of crashing.</div>}
       <GlamHero style={{marginBottom:12}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
           <div>
             <div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:6}}>Reward Wishlist</div>
-            <div style={{fontSize:28,fontWeight:950,lineHeight:1.06,color:C.text}}>Goals should lead to something she can see.</div>
-            <div style={{fontSize:11,color:C.light,lineHeight:1.6,marginTop:6}}>Sneakers, outfits, face care, toys, school style, and future rewards — all connected to follow-through and parent approval.</div>
+            <div style={{fontSize:28,fontWeight:950,lineHeight:1.06,color:C.text}}>Pick the reward. Earn it with a goal.</div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.6,marginTop:6}}>Sneakers, clothes, beauty, toys, school items, and future rewards — connected to parent-approved follow-through.</div>
           </div>
           <div style={{minWidth:88,textAlign:"center",padding:"10px 12px",borderRadius:20,background:`${C.gold}18`,border:`1px solid ${C.gold}44`}}>
-            <div style={{fontSize:30,fontWeight:950,color:C.gold,lineHeight:1}}>{safeWish.length}</div>
+            <div style={{fontSize:30,fontWeight:950,color:C.gold,lineHeight:1}}>{cleanWish.length}</div>
             <div style={{fontSize:9,fontWeight:900,color:C.light,letterSpacing:"1px"}}>SAVED</div>
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
           <SBox value={rewardTokens} label="Tokens" color={C.gold} sub="approved goals"/>
-          <SBox value={safeWish.filter(x=>(x.category||"")==="sneakers").length} label="Sneakers" color={C.teal}/>
-          <SBox value={safeClaims.filter(x=>x.status==="requested").length} label="Requests" color={C.pink}/>
+          <SBox value={cleanWish.filter(x=>x.category==="sneakers").length} label="Sneakers" color={C.teal}/>
+          <SBox value={cleanClaims.filter(x=>x.status==="requested").length} label="Requests" color={C.pink}/>
         </div>
       </GlamHero>
 
       <div style={cs}>
-        <CH e="✨" title="Add Anything to the Wishlist" sub="She types the name. The app creates store links automatically."/>
-        <input value={wf.name} onChange={e=>setWf(p=>({...p,name:e.target.value,search:e.target.value}))} placeholder="Example: Sabrina 3 pink shoes, Nike hoodie, lip balm set..." style={{...INP,marginBottom:10}}/>
+        <CH e="🛍️" title="Add a Reward" sub="Type what she wants. The app creates shopping links."/>
+        <input value={wf.name} onChange={e=>setWf(p=>({...p,name:e.target.value}))} placeholder="Example: Sabrina 3 pink shoes, Nike hoodie, lip balm set..." style={{...INP,marginBottom:10}}/>
         <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,marginBottom:10}}>
           {safeObjects(WISH_CATEGORIES).map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={wf.category===c.id} col={C[c.col]||C.pink} onClick={()=>setWf(p=>({...p,category:c.id}))}/>)}
         </div>
-        <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:6}}>Choose the exact goal this reward belongs to. When that goal is completed and parent-approved, the reward can be requested.</div>
         <select value={wf.goalId} onChange={e=>setWf(p=>({...p,goalId:e.target.value}))} style={{...INP,marginBottom:10,appearance:"none"}}>
-          <option value="">No exact goal selected yet</option>
-          {safeGoals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(safeGoals,g)} — {(g.text||"").slice(0,60)}</option>)}
+          <option value="">Link to a goal later</option>
+          {cleanGoals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(cleanGoals,g)} — {String(g.text||"").slice(0,58)}</option>)}
         </select>
-        <input value={wf.why} onChange={e=>setWf(p=>({...p,why:e.target.value}))} placeholder="Why do you want it? What goal will it motivate?" style={{...INP,marginBottom:10}}/>
-        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+        <input value={wf.why} onChange={e=>setWf(p=>({...p,why:e.target.value}))} placeholder="Why does this reward motivate the goal?" style={{...INP,marginBottom:10}}/>
+        <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,marginBottom:12}}>
           {safeArray(SHOE_PRIORITY).map(p=><Chip key={p} label={p} active={wf.priority===p} col={C.gold} onClick={()=>setWf(x=>({...x,priority:p}))}/>)}
         </div>
         {wf.name&&<div style={{background:`${C.teal}10`,border:`1px solid ${C.teal}33`,borderRadius:14,padding:10,marginBottom:12}}>
-          <div style={{fontSize:11,color:C.teal,fontWeight:900,marginBottom:4}}>Auto category: {wishCategoryMeta(detectWishCategory(wf.name,wf.category)).icon} {wishCategoryMeta(detectWishCategory(wf.name,wf.category)).label}</div>
-          <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:8}}>Links will be created for: {rewardStores({category:detectWishCategory(wf.name,wf.category)}).map(s=>s.toUpperCase()).join(" · ")}</div>
-          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-            {rewardStores({category:detectWishCategory(wf.name,wf.category)}).map(shop=><button key={shop} onClick={()=>openShop(shop,wf.search||wf.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Preview {shop.toUpperCase()}</button>)}
-          </div>
+          <div style={{fontSize:11,color:C.teal,fontWeight:900,marginBottom:4}}>Auto category: {cleanCat(currentCategory).icon} {cleanCat(currentCategory).label}</div>
+          <div style={{fontSize:10,color:C.muted,lineHeight:1.5}}>Store links: {(WISH_STORES[currentCategory]||WISH_STORES.other||[]).map(s=>s.toUpperCase()).join(" · ")}</div>
         </div>}
-        <button onClick={addWish} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Add to Wishlist 🛍️</button>
+        <button onClick={addWish} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Add to Wishlist ⭐</button>
       </div>
 
       <div style={cs}>
-        <CH e="🔥" title="Trending Reward Ideas" sub="Tap to add. Parents can check current prices and sizes."/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
-          {safeObjects(WISH_STARTERS).map(item=>{const cat=wishCategoryMeta(item.category);return <div key={`${item.category}_${item.name}`} style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:10,padding:11,borderRadius:18,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
-            <SneakerPhoto src={item.img} name={item.name} size={72}/>
-            <div style={{minWidth:0}}>
-              <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:3}}><span>{cat.icon}</span><span style={{fontSize:10,color:C.gold,fontWeight:900}}>{cat.label}</span></div>
-              <div style={{fontSize:14,fontWeight:950,color:C.white,lineHeight:1.2}}>{item.name}</div>
-              <div style={{fontSize:10,color:C.muted,lineHeight:1.4,marginTop:4}}>{item.why}</div>
-              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
-                <button onClick={()=>addStarter(item)} style={{padding:"8px 10px",borderRadius:10,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Add reward</button>
-                {(WISH_STORES[item.category]||WISH_STORES.other).slice(0,3).map(shop=><button key={shop} onClick={()=>openShop(shop,item.search||item.name)} style={{padding:"8px 10px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>{shop.toUpperCase()}</button>)}
+        <CH e="🔥" title="Quick Add Reward Ideas" sub="Tap one to add it instantly."/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9}}>
+          {safeObjects(WISH_STARTERS).slice(0,8).map(item=>{const cat=cleanCat(item.category);return <div key={`${item.category}_${item.name}`} style={{display:"grid",gridTemplateColumns:"54px 1fr",gap:10,padding:11,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
+            <div style={{width:54,height:54,borderRadius:15,background:`${C[cat.col]||C.pink}18`,border:`1px solid ${(C[cat.col]||C.pink)}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24}}>{cat.icon}</div>
+            <div>
+              <div style={{fontSize:10,color:C.gold,fontWeight:900,marginBottom:2}}>{cat.label}</div>
+              <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.2}}>{item.name}</div>
+              <div style={{fontSize:10,color:C.muted,lineHeight:1.35,marginTop:3}}>{item.why}</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:7}}>
+                <button onClick={()=>addStarter(item)} style={{padding:"8px 10px",borderRadius:10,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Add</button>
+                {(WISH_STORES[item.category]||WISH_STORES.other||[]).slice(0,2).map(shop=><button key={shop} onClick={()=>openShop(shop,item.search||item.name)} style={{padding:"8px 10px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>{shop.toUpperCase()}</button>)}
               </div>
             </div>
-          </div>})}
+          </div>;})}
         </div>
       </div>
 
       <div style={cs}>
-        <CH e="🌟" title="Saved Wishlist" sub="Every item has automatic shopping links."/>
+        <CH e="🌟" title="Saved Wishlist" sub="Link rewards to exact goals and open shopping links."/>
         <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:6,marginBottom:10}}>
           {[{id:"all",label:"All",icon:"🛍️"},...safeObjects(WISH_CATEGORIES).filter(c=>c.id!=="auto")].map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={filter===c.id} col={C.pink} onClick={()=>setFilter(c.id)}/>)}
         </div>
-        {shown.length>0?shown.map((s,i)=>{s=normalizeWishItem(s,i);const cat=wishCategoryMeta(s.category||detectWishCategory(s.name));const linked=goalById(safeGoals,s.goalId);const linkedOK=linked&&linked.parentApproved;return <div key={s.id||i} style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:10,padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
-          <SneakerPhoto src={s.img} name={s.name} size={64}/>
-          <div style={{minWidth:0}}>
-            <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"flex-start"}}>
-              <div>
-                <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.25}}>{s.name||"Wishlist item"}</div>
-                <div style={{fontSize:10,color:C.gold,marginTop:2}}>{cat.icon} {cat.label} · {s.priority||"Dream 🌟"} · {s.goalId?`Linked to ${linked?goalCodeFor(safeGoals,linked):"missing goal"}`:`${rewardCost(s)} token${rewardCost(s)===1?"":"s"}`}</div>
+        {shown.length?shown.map(item=>{const cat=cleanCat(item.category);const g=linkedGoal(item);const claim=cleanClaims.find(r=>r.itemId===item.id&&r.status!=="rejected");const unlocked=isUnlocked(item);return <div key={item.id} style={{padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{display:"grid",gridTemplateColumns:"48px 1fr",gap:10}}>
+            <div style={{width:48,height:48,borderRadius:14,background:`${C[cat.col]||C.pink}18`,border:`1px solid ${(C[cat.col]||C.pink)}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:23}}>{cat.icon}</div>
+            <div style={{minWidth:0}}>
+              <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"flex-start"}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.25}}>{item.name}</div>
+                  <div style={{fontSize:10,color:C.gold,marginTop:2}}>{cat.label} · {item.priority} · {item.goalId?(g?`Linked to ${goalCodeFor(cleanGoals,g)}`:"Missing goal"):`${itemCost(item)} token${itemCost(item)===1?"":"s"}`}</div>
+                </div>
+                <button onClick={()=>removeItem(item)} aria-label={`Remove ${item.name}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
               </div>
-              <button onClick={()=>saveStyle(styleLog,safeWish.filter(x=>(x.id||x.name)!==(s.id||s.name)))} aria-label={`Remove ${s.name||"wishlist item"}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
-            </div>
-            {s.why&&<div style={{fontSize:10,color:C.muted,marginTop:4,lineHeight:1.4}}>{s.why}</div>}
-            {s.goalId&&<div style={{fontSize:10,color:linkedOK?C.green:C.orange,marginTop:4,lineHeight:1.4}}>{linkedOK?"Goal approved — reward can be requested ✅":linked?`Waiting for ${goalCodeFor(safeGoals,linked)} to be completed and parent-approved.`:"Linked goal was not found."}</div>}
-            <select value={s.goalId||""} onChange={async e=>{const updated=safeWish.map(x=>x.id===s.id?{...x,goalId:e.target.value}:x);await saveStyle(styleLog,updated);}} style={{...INP,marginTop:8,marginBottom:2,appearance:"none",fontSize:"12px!important"}}>
-              <option value="">Link this reward to a goal</option>
-              {safeGoals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(safeGoals,g)} — {(g.text||"").slice(0,60)}</option>)}
-            </select>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
-              {rewardStores(s).map(shop=><button key={shop} onClick={()=>openRewardShop(shop,s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>{shop.toUpperCase()}</button>)}
-              <button disabled={!!claimFor(s)||(s.goalId?!linkedOK:rewardTokens<rewardCost(s))} onClick={()=>requestReward(s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.gold}44`,background:claimFor(s)?`${C.green}12`:(s.goalId?linkedOK:rewardTokens>=rewardCost(s))?`${C.gold}18`:"rgba(255,255,255,.04)",color:claimFor(s)?C.green:(s.goalId?linkedOK:rewardTokens>=rewardCost(s))?C.gold:C.muted,fontWeight:900,cursor:claimFor(s)||(s.goalId?!linkedOK:rewardTokens<rewardCost(s))?"not-allowed":"pointer",fontSize:10,fontFamily:"system-ui"}}>{claimFor(s)?"Requested":s.goalId?linkedOK?"Request Reward":"Goal Locked":"Request Reward"}</button>
+              {item.why&&<div style={{fontSize:10,color:C.muted,marginTop:4,lineHeight:1.4}}>{item.why}</div>}
+              {item.goalId&&<div style={{fontSize:10,color:unlocked?C.green:C.orange,marginTop:4,lineHeight:1.4}}>{unlocked?"Goal approved — reward can be requested ✅":g?`Waiting for ${goalCodeFor(cleanGoals,g)} to be completed and parent-approved.`:"Linked goal was not found."}</div>}
+              <select value={item.goalId||""} onChange={e=>relinkItem(item,e.target.value)} style={{...INP,marginTop:8,appearance:"none"}}>
+                <option value="">Link this reward to a goal</option>
+                {cleanGoals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(cleanGoals,g)} — {String(g.text||"").slice(0,58)}</option>)}
+              </select>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
+                {storesFor(item).map(shop=><button key={shop} onClick={()=>openRewardShop(shop,item)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>{shop.toUpperCase()}</button>)}
+                <button disabled={!!claim||!unlocked} onClick={()=>requestItem(item)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.gold}44`,background:claim?`${C.green}12`:unlocked?`${C.gold}18`:"rgba(255,255,255,.04)",color:claim?C.green:unlocked?C.gold:C.muted,fontWeight:900,cursor:claim||!unlocked?"not-allowed":"pointer",fontSize:10,fontFamily:"system-ui"}}>{claim?"Requested":unlocked?"Request Reward":"Locked"}</button>
+              </div>
             </div>
           </div>
         </div>}):<div style={{textAlign:"center",padding:"28px 18px",color:C.muted}}><div style={{fontSize:42,marginBottom:8}}>🛍️</div><div style={{fontSize:13}}>No wishlist items in this category yet.</div></div>}
