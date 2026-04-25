@@ -1,4 +1,4 @@
-aimport { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 const C={bg:"#0B0C14",nav:"#12121F",navy:"#171827",navy2:"#1F2033",card:"#242436",card2:"#2A2A3D",border:"rgba(255,255,255,.10)",coral:"#E86F8F",teal:"#6AD8CF",purple:"#A78BFA",gold:"#EBCB6A",green:"#7DDB9C",blue:"#7DAAF2",pink:"#D978B9",orange:"#E8A35D",red:"#E66B76",white:"#FFFFFF",text:"#F7F2FB",muted:"#B9B2C8",light:"#E7DEEF"};
 
@@ -170,9 +170,9 @@ const buildWishlistItem=(form)=>{
   return item;
 };
 const wishCategoryMeta=id=>WISH_CATEGORIES.find(c=>c.id===id)||WISH_CATEGORIES[0];
-const rewardStores=item=>item?.storeList||WISH_STORES[item?.category]||["google","amazon","target"];
+const rewardStores=item=>Array.isArray(item?.storeList)&&item.storeList.length?item.storeList:(WISH_STORES[item?.category]||WISH_STORES.other||["google","amazon","target"]);
 const nextGoalNumber=goals=>Math.max(0,...(goals||[]).map(g=>parseInt(g.goalNo||0)||0))+1;
-const goalNumberFor=(goals,goal)=>goal?.goalNo||((goals||[]).findIndex(g=>g.id===goal?.id)+1)||1;
+const goalNumberFor=(goals,goal)=>goal?.goalNo||((safeObjects(goals).findIndex(g=>g.id===goal?.id)+1)||1);
 const goalCodeFor=(goals,goal)=>`G-${String(goalNumberFor(goals,goal)).padStart(3,"0")}`;
 const goalById=(goals,id)=>(goals||[]).find(g=>g.id===id);
 
@@ -191,6 +191,19 @@ const toShort=iso=>new Date(`${iso||todayISO()}T12:00:00`).toLocaleDateString("e
 const shiftISO=(iso,d)=>{const dt=new Date(`${iso}T12:00:00`);dt.setDate(dt.getDate()+d);return dt.toISOString().slice(0,10);};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const safeArray=v=>Array.isArray(v)?v:[];
+const safeObjects=v=>safeArray(v).filter(x=>x&&typeof x==="object");
+const normalizeWishItem=(item,i=0)=>({
+  id:item.id||`wish_${i}_${Date.now()}`,
+  name:String(item.name||item.title||"Wishlist item"),
+  category:item.category||detectWishCategory(item.name||item.title||item.search||""),
+  why:String(item.why||""),
+  priority:item.priority||"Dream 🌟",
+  search:item.search||item.name||item.title||"Wishlist item",
+  img:item.img||"",
+  goalId:item.goalId||"",
+  storeList:Array.isArray(item.storeList)?item.storeList:undefined,
+  ...item
+});
 const avgArr=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
 const normGrade=g=>String(g||3);
 const gradeValue=g=>({4:4,3:3,2:2,1:1}[normGrade(g)]||0);
@@ -263,6 +276,12 @@ function RingChart({val,col,label,size=54}){const r=size/2-6,circ=2*Math.PI*r,d=
 
 // ── FIX: StableRenderer so tabs with their own useState hooks work correctly ──
 function StableRenderer({render}){return render();}
+class TabErrorBoundary extends React.Component{
+  constructor(props){super(props);this.state={hasError:false,msg:""};}
+  static getDerivedStateFromError(error){return{hasError:true,msg:error?.message||"Tab failed to load"};}
+  componentDidCatch(error){console.error("Tab error:",error);}
+  render(){if(this.state.hasError)return <div style={{padding:18,borderRadius:18,background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.14)",color:"#F7F2FB"}}><div style={{fontSize:22,marginBottom:8}}>🛠️</div><div style={{fontWeight:900,marginBottom:6}}>This tab hit old saved data.</div><div style={{fontSize:12,opacity:.75,lineHeight:1.5}}>I built a safer version, but this message means one old entry still needs to be cleaned. Try deleting old saved site data for this app or use the latest file.</div></div>;return this.props.children;}
+}
 
 // ── COACH ENGINE ──────────────────────────────────────────────────────────
 function goalStyle(pg){const g=(pg||"").toLowerCase();const V={scorer:["score","points","shoot","scoring","scorer","offense","bucket"],playmaker:["assist","pass","playmaker","point guard","pg","vision","leadership"],defender:["defend","defense","defensive","steal","block","lockdown","stopper"],all_around:["all around","all-around","complete","well-rounded","everything","overall"]};const s={scorer:0,playmaker:0,defender:0,all_around:0};for(const[st,kws]of Object.entries(V))for(const kw of kws)if(g.includes(kw))s[st]+=kw.split(" ").length;const r=Object.entries(s).sort((a,b)=>b[1]-a[1]);return r[0][1]>0?r[0][0]:"all_around";}
@@ -879,9 +898,9 @@ export default function ScarlettTracker(){
 
   // ── WISHLIST ────────────────────────────────────────────────────────────
   const Wishlist=()=>{
-    const safeWish=safeArray(shoeWish);
-    const safeGoals=safeArray(goals);
-    const safeClaims=safeArray(rewardClaims);
+    const safeWish=safeObjects(shoeWish).map(normalizeWishItem);
+    const safeGoals=safeObjects(goals);
+    const safeClaims=safeObjects(rewardClaims);
     const [wf,setWf]=useState({name:"",category:"auto",why:"",priority:"Dream 🌟",search:"",goalId:""});
     const [filter,setFilter]=useState("all");
     const addWish=async()=>{
@@ -896,7 +915,9 @@ export default function ScarlettTracker(){
       await addStars(1);
     };
     const shown=filter==="all"?safeWish:safeWish.filter(x=>(x.category||detectWishCategory(x.name))===filter);
+    const repairedCount=safeArray(shoeWish).length-safeWish.length;
     return <div>
+      {repairedCount>0&&<div style={{background:`${C.orange}12`,border:`1px solid ${C.orange}44`,borderRadius:14,padding:12,marginBottom:12,fontSize:11,color:C.orange,lineHeight:1.5}}>Some old wishlist entries were not readable, so the app skipped them instead of crashing.</div>}
       <GlamHero style={{marginBottom:12}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
           <div>
@@ -920,7 +941,7 @@ export default function ScarlettTracker(){
         <CH e="✨" title="Add Anything to the Wishlist" sub="She types the name. The app creates store links automatically."/>
         <input value={wf.name} onChange={e=>setWf(p=>({...p,name:e.target.value,search:e.target.value}))} placeholder="Example: Sabrina 3 pink shoes, Nike hoodie, lip balm set..." style={{...INP,marginBottom:10}}/>
         <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,marginBottom:10}}>
-          {WISH_CATEGORIES.map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={wf.category===c.id} col={C[c.col]||C.pink} onClick={()=>setWf(p=>({...p,category:c.id}))}/>)}
+          {safeObjects(WISH_CATEGORIES).map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={wf.category===c.id} col={C[c.col]||C.pink} onClick={()=>setWf(p=>({...p,category:c.id}))}/>)}
         </div>
         <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:6}}>Choose the exact goal this reward belongs to. When that goal is completed and parent-approved, the reward can be requested.</div>
         <select value={wf.goalId} onChange={e=>setWf(p=>({...p,goalId:e.target.value}))} style={{...INP,marginBottom:10,appearance:"none"}}>
@@ -929,7 +950,7 @@ export default function ScarlettTracker(){
         </select>
         <input value={wf.why} onChange={e=>setWf(p=>({...p,why:e.target.value}))} placeholder="Why do you want it? What goal will it motivate?" style={{...INP,marginBottom:10}}/>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
-          {SHOE_PRIORITY.map(p=><Chip key={p} label={p} active={wf.priority===p} col={C.gold} onClick={()=>setWf(x=>({...x,priority:p}))}/>)}
+          {safeArray(SHOE_PRIORITY).map(p=><Chip key={p} label={p} active={wf.priority===p} col={C.gold} onClick={()=>setWf(x=>({...x,priority:p}))}/>)}
         </div>
         {wf.name&&<div style={{background:`${C.teal}10`,border:`1px solid ${C.teal}33`,borderRadius:14,padding:10,marginBottom:12}}>
           <div style={{fontSize:11,color:C.teal,fontWeight:900,marginBottom:4}}>Auto category: {wishCategoryMeta(detectWishCategory(wf.name,wf.category)).icon} {wishCategoryMeta(detectWishCategory(wf.name,wf.category)).label}</div>
@@ -944,7 +965,7 @@ export default function ScarlettTracker(){
       <div style={cs}>
         <CH e="🔥" title="Trending Reward Ideas" sub="Tap to add. Parents can check current prices and sizes."/>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
-          {WISH_STARTERS.map(item=>{const cat=wishCategoryMeta(item.category);return <div key={`${item.category}_${item.name}`} style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:10,padding:11,borderRadius:18,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
+          {safeObjects(WISH_STARTERS).map(item=>{const cat=wishCategoryMeta(item.category);return <div key={`${item.category}_${item.name}`} style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:10,padding:11,borderRadius:18,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
             <SneakerPhoto src={item.img} name={item.name} size={72}/>
             <div style={{minWidth:0}}>
               <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:3}}><span>{cat.icon}</span><span style={{fontSize:10,color:C.gold,fontWeight:900}}>{cat.label}</span></div>
@@ -962,17 +983,17 @@ export default function ScarlettTracker(){
       <div style={cs}>
         <CH e="🌟" title="Saved Wishlist" sub="Every item has automatic shopping links."/>
         <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:6,marginBottom:10}}>
-          {[{id:"all",label:"All",icon:"🛍️"},...WISH_CATEGORIES.filter(c=>c.id!=="auto")].map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={filter===c.id} col={C.pink} onClick={()=>setFilter(c.id)}/>)}
+          {[{id:"all",label:"All",icon:"🛍️"},...safeObjects(WISH_CATEGORIES).filter(c=>c.id!=="auto")].map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={filter===c.id} col={C.pink} onClick={()=>setFilter(c.id)}/>)}
         </div>
-        {shown.length>0?shown.map(s=>{const cat=wishCategoryMeta(s.category||detectWishCategory(s.name));const linked=goalById(safeGoals,s.goalId);const linkedOK=linked&&linked.parentApproved;return <div key={s.id} style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:10,padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
+        {shown.length>0?shown.map((s,i)=>{s=normalizeWishItem(s,i);const cat=wishCategoryMeta(s.category||detectWishCategory(s.name));const linked=goalById(safeGoals,s.goalId);const linkedOK=linked&&linked.parentApproved;return <div key={s.id||i} style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:10,padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
           <SneakerPhoto src={s.img} name={s.name} size={64}/>
           <div style={{minWidth:0}}>
             <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"flex-start"}}>
               <div>
-                <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.25}}>{s.name}</div>
+                <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.25}}>{s.name||"Wishlist item"}</div>
                 <div style={{fontSize:10,color:C.gold,marginTop:2}}>{cat.icon} {cat.label} · {s.priority||"Dream 🌟"} · {s.goalId?`Linked to ${linked?goalCodeFor(safeGoals,linked):"missing goal"}`:`${rewardCost(s)} token${rewardCost(s)===1?"":"s"}`}</div>
               </div>
-              <button onClick={()=>saveStyle(styleLog,safeWish.filter(x=>x.id!==s.id))} aria-label={`Remove ${s.name}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
+              <button onClick={()=>saveStyle(styleLog,safeWish.filter(x=>(x.id||x.name)!==(s.id||s.name)))} aria-label={`Remove ${s.name||"wishlist item"}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
             </div>
             {s.why&&<div style={{fontSize:10,color:C.muted,marginTop:4,lineHeight:1.4}}>{s.why}</div>}
             {s.goalId&&<div style={{fontSize:10,color:linkedOK?C.green:C.orange,marginTop:4,lineHeight:1.4}}>{linkedOK?"Goal approved — reward can be requested ✅":linked?`Waiting for ${goalCodeFor(safeGoals,linked)} to be completed and parent-approved.`:"Linked goal was not found."}</div>}
@@ -1256,7 +1277,7 @@ export default function ScarlettTracker(){
 
       {/* ── FIX: use StableRenderer with key={tab} so each tab's useState hooks work ── */}
       <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"14px 14px calc(90px + env(safe-area-inset-bottom,0px))"}}>
-        <StableRenderer key={tab} render={CONTENT[tab]||Today}/>
+        <TabErrorBoundary key={`err_${tab}`}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></TabErrorBoundary>
       </div>
 
       <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(400px,calc(100% - 20px))",display:"grid",gridTemplateColumns:`repeat(${TABS.length},1fr)`,gap:3,background:"rgba(12,0,25,.92)",backdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"7px 6px calc(7px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
