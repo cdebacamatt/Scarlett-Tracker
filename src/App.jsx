@@ -252,72 +252,53 @@ function getDailyHoroscope(profile){
 }
 
 // Real daily coaching quotes from WNBA players, paired with public player photos.
-// Each entry includes a real quote plus a short kid-friendly takeaway.
+// The card intentionally has NO article/source button and NO navigation button.
+// It is meant to be simple: player photo + real quote + tiny daily takeaway.
 const WNBA_DAILY_COACH=[
   {
     player:"A'ja Wilson",
+    initials:"AW",
     tag:"MVP mindset",
     team:"Las Vegas Aces",
-    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/A%27ja_Wilson_%2853756794398%29_%28cropped%29.jpg/330px-A%27ja_Wilson_%2853756794398%29_%28cropped%29.jpg",
+    photo:"https://commons.wikimedia.org/wiki/Special:FilePath/A%27ja%20Wilson%20%2853756794398%29%20%28cropped%29.jpg",
     quote:"That's the beauty of losses, you learn from them.",
-    quoteSource:"WNBA — Sky-Aces Postgame Notes & Quotes",
-    quoteUrl:"https://www.wnba.com/news/sky-aces-postgame-notes-quotes",
-    takeaway:"If today doesn't go perfectly, learn one thing and come back stronger tomorrow.",
-    move:"Write 1 lesson from today",
-    tab:"goals",
-    button:"Track My Goal"
+    takeaway:"Lesson: one hard moment can still help you grow."
   },
   {
     player:"Breanna Stewart",
+    initials:"BS",
     tag:"stay present",
     team:"New York Liberty",
-    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Breanna_Stewart_WNBA_Finals_2024_%28cropped%29.jpg/330px-Breanna_Stewart_WNBA_Finals_2024_%28cropped%29.jpg",
+    photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Breanna%20Stewart%20WNBA%20Finals%202024%20%28cropped%29.jpg",
     quote:"I've been trying to make sure I stay in the moment.",
-    quoteSource:"WNBA — Welcome To The WNBA: Draft-Day Interview Transcripts",
-    quoteUrl:"https://www.wnba.com/news/welcome-wnba-draft-day-interview-transcripts/amp",
-    takeaway:"Don't get overwhelmed by everything at once. Focus on the next right thing.",
-    move:"Do the next right thing",
-    tab:"today",
-    button:"Start Today"
+    takeaway:"Lesson: focus on the next right thing."
   },
   {
     player:"Jewell Loyd",
+    initials:"JL",
     tag:"prepared and ready",
     team:"Las Vegas Aces",
-    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Jewell_Loyd_2024_%28cropped%29.jpg/330px-Jewell_Loyd_2024_%28cropped%29.jpg",
+    photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Jewell%20Loyd%202024%20%28cropped%29.jpg",
     quote:"I've prepared for all different kinds of coverages and I'm just trying to see where the space is and go to that.",
-    quoteSource:"WNBA — Jewell Loyd Takes Center Stage",
-    quoteUrl:"https://www.wnba.com/news/jewell-loyd-takes-center-stage",
-    takeaway:"Practice helps you stay calm. Look for the opening and make the smart move.",
-    move:"Find the opening",
-    tab:"hoops",
-    button:"Train Hoops"
+    takeaway:"Lesson: preparation helps you stay calm."
   },
   {
     player:"Caitlin Clark",
+    initials:"CC",
     tag:"dream big",
     team:"Indiana Fever",
-    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Caitlin_Clark_Fever_2_%28cropped%29.jpg/330px-Caitlin_Clark_Fever_2_%28cropped%29.jpg",
+    photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Caitlin%20Clark%20Fever%202%20%28cropped%29.jpg",
     quote:"Never stop dreaming, because you can achieve more than you ever thought.",
-    quoteSource:"Interview quote highlighted by Indiana Fever / The GIST",
-    quoteUrl:"https://www.thegistsports.com/newsletter/college/3cbdc8ef-9832-4f8a-96b0-4d9eefc80a0c/",
-    takeaway:"Your goals can be big. Keep believing in yourself and keep working for them.",
-    move:"Write your biggest dream",
-    tab:"wishlist",
-    button:"Open Wishlist"
+    takeaway:"Lesson: big goals are allowed."
   },
   {
     player:"Kelsey Plum",
-    tag:"patient killer",
+    initials:"KP",
+    tag:"patient confidence",
     team:"Los Angeles Sparks",
-    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Kelsey_Plum_2023_%28cropped%29.jpg/330px-Kelsey_Plum_2023_%28cropped%29.jpg",
-    quote:"I was just trying to be patient and trust that it's going to come, and then just try to be like an assassin and strike.",
-    quoteSource:"Los Angeles Sparks — Game Recap July 13 vs. Connecticut Sun",
-    quoteUrl:"https://sparks.wnba.com/news/game-recap-july-13-vs-connecticut-sun",
-    takeaway:"Be patient, trust your work, and attack when your moment comes.",
-    move:"Be patient, then strike",
-    tab:"hoops",
-    button:"Practice Now"
+    photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Kelsey%20Plum%202023%20%28cropped%29.jpg",
+    quote:"I was just trying to be patient and trust that it's going to come.",
+    takeaway:"Lesson: trust your work and stay ready."
   }
 ];
 function getDailyWnbaCoach(){
@@ -571,41 +552,45 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
-      <div style={{...cs,borderTop:`3px solid ${C.teal}`,background:"radial-gradient(ellipse at 12% 0%,rgba(106,216,207,.14),transparent 42%),radial-gradient(ellipse at 90% 0%,rgba(217,120,185,.12),transparent 42%),linear-gradient(145deg,rgba(25,18,54,.98),rgba(8,5,20,.99))"}}>
+      <div style={{...cs,borderTop:`3px solid ${C.teal}`,background:"radial-gradient(ellipse at 12% 0%,rgba(106,216,207,.10),transparent 42%),radial-gradient(ellipse at 90% 0%,rgba(217,120,185,.10),transparent 42%),linear-gradient(145deg,rgba(25,18,54,.98),rgba(8,5,20,.99))"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
-          <CH e="🏀" title="WNBA Daily Coach" sub="Real player photo + real quote"/>
-          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.teal}16`,border:`1px solid ${C.teal}44`,color:C.teal,fontSize:10,fontWeight:950,whiteSpace:"nowrap"}}>real quote</div>
+          <CH e="🏀" title="WNBA Daily Coach" sub="A real player. A real quote. One calm focus for today."/>
+          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.teal}14`,border:`1px solid ${C.teal}35`,color:C.teal,fontSize:10,fontWeight:950,whiteSpace:"nowrap"}}>new daily</div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:12,alignItems:"center",marginBottom:12}}>
-          <div style={{position:"relative",width:72,height:72}}>
+
+        <div style={{display:"grid",gridTemplateColumns:"86px 1fr",gap:14,alignItems:"center"}}>
+          <div style={{width:86,height:104,borderRadius:22,overflow:"hidden",position:"relative",border:`1px solid ${C.teal}44`,background:`linear-gradient(135deg,${C.purple}24,${C.teal}16)`,boxShadow:`0 0 24px ${C.teal}18`}}>
             <img
               src={wnbaCoach.photo}
               alt={wnbaCoach.player}
               loading="lazy"
               referrerPolicy="no-referrer"
-              onError={(e)=>{e.currentTarget.style.display="none";}}
-              style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:22,border:`2px solid ${C.teal}55`,boxShadow:`0 0 24px ${C.teal}22`,background:"rgba(255,255,255,.06)"}}
+              onError={(e)=>{
+                e.currentTarget.style.display="none";
+                const fallback=e.currentTarget.parentElement?.querySelector("[data-player-fallback]");
+                if(fallback) fallback.style.display="flex";
+              }}
+              style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top",display:"block"}}
             />
+            <div data-player-fallback style={{display:"none",position:"absolute",inset:0,alignItems:"center",justifyContent:"center",fontSize:24,fontWeight:950,color:C.white,background:`linear-gradient(135deg,${C.purple}44,${C.teal}30)`}}>
+              {wnbaCoach.initials}
+            </div>
           </div>
+
           <div>
             <div style={{fontSize:18,fontWeight:950,color:C.white,lineHeight:1.1}}>{wnbaCoach.player}</div>
-            <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase",marginTop:3}}>{wnbaCoach.tag}</div>
-            <div style={{fontSize:12,color:C.muted,marginTop:4}}>{wnbaCoach.team}</div>
+            <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase",marginTop:4}}>{wnbaCoach.tag}</div>
+            <div style={{fontSize:12,color:C.muted,marginTop:3}}>{wnbaCoach.team}</div>
           </div>
         </div>
-        <div style={{padding:12,borderRadius:16,background:`${C.white}08`,border:`1px solid rgba(255,255,255,.10)`,marginBottom:12}}>
-          <div style={{fontSize:26,lineHeight:1,color:C.gold,marginBottom:6}}>“</div>
-          <div style={{fontSize:14,lineHeight:1.6,color:C.white,fontWeight:700,marginBottom:8}}>{wnbaCoach.quote}</div>
-          <div style={{fontSize:11,lineHeight:1.4,color:C.muted}}>Source: {wnbaCoach.quoteSource}</div>
+
+        <div style={{marginTop:14,padding:"14px 14px 13px",borderRadius:18,background:`${C.white}07`,border:`1px solid rgba(255,255,255,.10)`}}>
+          <div style={{fontSize:30,lineHeight:1,color:C.gold,marginBottom:4}}>“</div>
+          <div style={{fontSize:15,lineHeight:1.55,color:C.white,fontWeight:800}}>{wnbaCoach.quote}</div>
         </div>
-        <div style={{fontSize:13,lineHeight:1.55,color:C.light,marginBottom:12}}>{wnbaCoach.takeaway}</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:10,alignItems:"center"}}>
-          <div style={{padding:10,borderRadius:14,background:`${C.teal}10`,border:`1px solid ${C.teal}30`}}>
-            <div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>TODAY'S COACH MOVE</div>
-            <div style={{fontSize:12,fontWeight:950,color:C.teal,marginTop:2}}>{wnbaCoach.move}</div>
-          </div>
-          <button onClick={()=>{try{window.open(wnbaCoach.quoteUrl,"_blank","noopener,noreferrer");}catch{}}} style={{padding:"11px 13px",borderRadius:14,border:`1px solid ${C.gold}55`,background:"transparent",color:C.gold,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:12,whiteSpace:"nowrap"}}>Read Source</button>
-          <button onClick={()=>setTab(wnbaCoach.tab)} style={{padding:"11px 13px",borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.teal},${C.purple})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:12,whiteSpace:"nowrap"}}>{wnbaCoach.button}</button>
+
+        <div style={{marginTop:10,padding:11,borderRadius:16,background:`${C.teal}10`,border:`1px solid ${C.teal}2e`,fontSize:12,lineHeight:1.45,color:C.light}}>
+          <span style={{color:C.teal,fontWeight:950}}>Today’s focus:</span> {wnbaCoach.takeaway}
         </div>
       </div>
 
