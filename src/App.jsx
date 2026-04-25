@@ -67,20 +67,30 @@ const daysAgo=d=>{try{return Math.round((Date.now()-new Date(d+"T12:00:00"))/864
 const gpaCalc=subs=>{const v=Object.values(subs).map(g=>gradeValue(g)||0);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):"—";};
 const pct=(n,d)=>d?Math.round(n/d*100):0;
 
+// ── FAMILY SYNC ENGINE ────────────────────────────────────────────────────
+let _FC=null;
+function getFamilyCode(){if(!_FC){try{_FC=localStorage.getItem("sc_family_code")||null;}catch{}}return _FC;}
+function setFamilyCodeGlobal(code){_FC=code;try{if(code)localStorage.setItem("sc_family_code",code);else localStorage.removeItem("sc_family_code");}catch{}}
+function fKey(k){const fc=getFamilyCode();return fc?`glowup_fc_${fc}_${k}`:null;}
+
 async function sg(k){
   try{
+    const shared_key=fKey(k);
+    if(shared_key&&window.storage){
+      try{const r=await window.storage.get(shared_key,true);if(r&&r.value!=null)return JSON.parse(r.value);}catch{}
+    }
     const raw=localStorage.getItem(k);
     return raw?JSON.parse(raw):null;
-  }catch{
-    return null;
-  }
+  }catch{return null;}
 }
 async function ss(k,v){
   try{
     const payload=JSON.stringify(v);
-    localStorage.setItem(k,payload);
-    const saved=localStorage.getItem(k);
-    if(saved!==payload) throw new Error("Save verification failed");
+    const shared_key=fKey(k);
+    if(shared_key&&window.storage){
+      try{await window.storage.set(shared_key,payload,true);}catch(e){console.warn("Sync save failed:",e);}
+    }
+    try{localStorage.setItem(k,payload);}catch{}
     return true;
   }catch(err){
     console.warn("Scarlett Tracker save failed:",k,err);
@@ -239,6 +249,9 @@ function StableRenderer({render}){return render();}
 
 export default function ScarlettTracker(){
   const[loaded,setLoaded]=useState(false);
+  const[familyCode,setFamilyCode]=useState(()=>{try{return localStorage.getItem("sc_family_code")||"";}catch{return "";}});
+  const[syncStatus,setSyncStatus]=useState("idle"); // idle|syncing|ok|error
+  const[codeInput,setCodeInput]=useState("");
   const[tab,setTab]=useState(()=>{
     try{return localStorage.getItem("sc_last_tab")||"today";}catch{return "today";}
   });
@@ -274,9 +287,61 @@ export default function ScarlettTracker(){
   const[habits,setHabits]=useState(clone(DEF_HABITS));
   const[profile,setProfile]=useState(clone(DEF_PROFILE));
   const[trainingDays,setTrainingDays]=useState(clone(DEF_TRAINING));
-  const[syncCode,setSyncCode]=useState("");
-  const[syncMsg,setSyncMsg]=useState("");
   const supRef=useRef(false),saveTmr=useRef(null),savedTm=useRef(null),editBlurT=useRef(null);
+
+  // ── XP / LEVEL SYSTEM ──────────────────────────────────────────────────
+  const XP_PER_LEVEL=100;
+  const xp=stars*10;
+  const level=Math.max(1,Math.floor(xp/XP_PER_LEVEL)+1);
+  const xpInLevel=xp%XP_PER_LEVEL;
+  const LEVEL_TITLES=["Rookie","Rising Star","Athlete","Contender","Competitor","Elite","All-Star","Champion","Legend","Icon"];
+  const levelTitle=LEVEL_TITLES[Math.min(level-1,LEVEL_TITLES.length-1)]||"Icon";
+
+  // ── HABIT STREAK ──────────────────────────────────────────────────────
+  const hasHabitOnMain=iso=>{const e=dailyHist[iso];if(!e)return false;return Object.values(e.c||{}).some(Boolean)||(e.w||0)>0;};
+  const habitStreakMain=(()=>{let n=0;for(let i=0;i<30;i++){const d=shiftISO(todayISO(),-i);if(hasHabitOnMain(d))n++;else break;}return n;})();
+
+  // ── DAILY MISSIONS ─────────────────────────────────────────────────────
+  const dailyMissions=[
+    {id:"m_hydrate",icon:"💧",title:"Hydration Quest",desc:"Hit 8 cups of water today",xp:15,done:()=>dailyHist[todayISO()]&&(dailyHist[todayISO()].w||0)>=8},
+    {id:"m_habits",icon:"✅",title:"Daily Quest",desc:"Complete all daily habits",xp:20,done:()=>habits.length>0&&habits.every(h=>(dailyHist[todayISO()]?.c||{})[h.id])},
+    {id:"m_routine",icon:"✨",title:"Glow Quest",desc:"Finish your night routine",xp:15,done:()=>{const e=routineHist[todayISO()];if(!e)return false;const done=Object.values(e.c||{}).filter(Boolean).length;return done>0&&done>=(routineItems.length/2);}},
+    {id:"m_practice",icon:"💪",title:"Grind Quest",desc:"Log a practice session today",xp:25,done:()=>practices.some(p=>p.dateISO===todayISO())},
+    {id:"m_sleep",icon:"🌙",title:"Recovery Quest",desc:"Log 8+ hours of sleep",xp:20,done:()=>sleepEntries.some(s=>s.dateISO===todayISO()&&s.hours>=8)},
+  ];
+  const missionsCompleted=dailyMissions.filter(m=>m.done()).length;
+
+  // ── FAMILY SYNC ───────────────────────────────────────────────────────
+  const genCode=()=>{const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");};
+  const activateCode=async(code)=>{
+    const clean=(code||"").trim().toUpperCase();
+    if(clean.length<4)return;
+    setFamilyCodeGlobal(clean);
+    setFamilyCode(clean);
+    setSyncStatus("syncing");
+    // Re-load all data from shared storage with the new code
+    setTimeout(async()=>{
+      const daily=await sg("sc_daily")||{entries:{}};
+      const bball=await sg("sc_bball")||{games:[],skills:clone(DEF_SKILLS)};
+      const prax=await sg("sc_practices")||{entries:[]};
+      const styleD=await sg("sc_style")||{fits:[],shoes:[],trends:[]};
+      const routineD=await sg("sc_routine")||{entries:{},items:clone(ROUTINE_ITEMS)};
+      const slp=await sg("sc_sleep")||{entries:[]};
+      const school=await sg("sc_school")||{subjects:clone(DEF_SUBJECTS),quizLog:[]};
+      const gd=await sg("sc_goals")||{entries:[],stars:0};
+      const hd2=await sg("sc_habits")||{entries:clone(DEF_HABITS)};
+      const pd=await sg("sc_profile")||clone(DEF_PROFILE);
+      const td=await sg("sc_training")||{days:clone(DEF_TRAINING)};
+      setDailyHist(daily.entries||{});setGames(bball.games||[]);setSkills(bball.skills||clone(DEF_SKILLS));
+      setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);setTrendBoard(styleD.trends||[]);setRoutineHist(routineD.entries||{});setRoutineItems(routineD.items||clone(ROUTINE_ITEMS));setSleepEntries(slp.entries||[]);
+      setSubjects(normalizeSubjects(school.subjects||clone(DEF_SUBJECTS)));setQuizLog((school.quizLog||[]).map(q=>({...q,grade:normGrade(q.grade==="A"?4:q.grade==="B"?3:q.grade==="C"?2:q.grade==="D"?1:q.grade==="F"?1:q.grade)})));
+      setGoals(gd.entries||[]);setStars(gd.stars||0);setHabits(hd2.entries||clone(DEF_HABITS));
+      setProfile(pd);setTrainingDays(td.days||clone(DEF_TRAINING));
+      setSyncStatus("ok");setTimeout(()=>setSyncStatus("idle"),3000);
+    },300);
+  };
+  const clearCode=()=>{setFamilyCodeGlobal(null);setFamilyCode("");setSyncStatus("idle");};
+
   const allH=habits,habitPct=allH.length?Math.round(allH.filter(h=>checks[h.id]).length/allH.length*100):0;
 
   const onEditFocus=e=>{
@@ -335,31 +400,6 @@ export default function ScarlettTracker(){
   const saveStyle=async(fits=styleLog,shoes=shoeWish,trends=trendBoard)=>{setStyleLog(fits);setShoeWish(shoes);setTrendBoard(trends);const ok=await ss("sc_style",{fits,shoes,trends});if(ok)markSaved();};
   const saveRoutine=async(entries=routineHist,items=routineItems)=>{setRoutineHist(entries);setRoutineItems(items);const ok=await ss("sc_routine",{entries,items});if(ok)markSaved();};
   const saveSchool=async(sub,ql)=>{setSubjects(sub);setQuizLog(ql);const ok=await ss("sc_school",{subjects:sub,quizLog:ql});if(ok)markSaved();};
-
-  const buildFamilyBackup=()=>({
-    app:"ScarlettTracker",version:"EliteMultiDevice_v1",exportedAt:new Date().toISOString(),
-    daily:{entries:{...dailyHist,[selDay]:{c:checks,w:water,n:notes,vitals}}},bball:{games,skills},practices:{entries:practices},
-    style:{fits:styleLog,shoes:shoeWish,trends:trendBoard},routine:{entries:routineHist,items:routineItems},sleep:{entries:sleepEntries},
-    school:{subjects,quizLog},goals:{entries:goals,stars},habits:{entries:habits},profile,training:{days:trainingDays}
-  });
-  const encodeBackup=data=>btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-  const decodeBackup=code=>JSON.parse(decodeURIComponent(escape(atob(String(code||"").trim()))));
-  const applyFamilyBackup=async data=>{
-    if(!data||data.app!=="ScarlettTracker") throw new Error("This does not look like a Scarlett Tracker backup.");
-    const d=data.daily||{entries:{}};const b=data.bball||{games:[],skills:clone(DEF_SKILLS)};const p=data.practices||{entries:[]};
-    const st=data.style||{fits:[],shoes:[],trends:[]};const r=data.routine||{entries:{},items:clone(ROUTINE_ITEMS)};const sl=data.sleep||{entries:[]};
-    const sc=data.school||{subjects:clone(DEF_SUBJECTS),quizLog:[]};const g=data.goals||{entries:[],stars:0};const h=data.habits||{entries:clone(DEF_HABITS)};
-    const pr=data.profile||clone(DEF_PROFILE);const tr=data.training||{days:clone(DEF_TRAINING)};
-    await Promise.all([ss("sc_daily",d),ss("sc_bball",b),ss("sc_practices",p),ss("sc_style",st),ss("sc_routine",r),ss("sc_sleep",sl),ss("sc_school",sc),ss("sc_goals",g),ss("sc_habits",h),ss("sc_profile",pr),ss("sc_training",tr)]);
-    setDailyHist(d.entries||{});setGames(b.games||[]);setSkills(b.skills||clone(DEF_SKILLS));setPractices(p.entries||[]);
-    setStyleLog(st.fits||[]);setShoeWish(st.shoes||[]);setTrendBoard(st.trends||[]);setRoutineHist(r.entries||{});setRoutineItems(r.items||clone(ROUTINE_ITEMS));setSleepEntries(sl.entries||[]);
-    setSubjects(normalizeSubjects(sc.subjects||clone(DEF_SUBJECTS)));setQuizLog(sc.quizLog||[]);setGoals(g.entries||[]);setStars(g.stars||0);setHabits(h.entries||clone(DEF_HABITS));setProfile(pr);setTrainingDays(tr.days||clone(DEF_TRAINING));
-    supRef.current=true;applyDay((d.entries||{})[selDay]||(d.entries||{})[todayISO()]);markSaved();
-  };
-  const makeSyncCode=()=>{try{const code=encodeBackup(buildFamilyBackup());setSyncCode(code);setSyncMsg("Family Sync Code created. Copy it to the other device and import it there.");}catch(e){setSyncMsg("Could not create sync code on this device.");}};
-  const importSyncCode=async()=>{try{await applyFamilyBackup(decodeBackup(syncCode));setSyncMsg("Imported successfully. This device now matches the family backup.");}catch(e){setSyncMsg(e.message||"Import failed. Make sure the full code was copied.");}};
-  const downloadBackup=()=>{try{const data=buildFamilyBackup();const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`scarlett-tracker-backup-${todayISO()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),800);setSyncMsg("Backup file downloaded.");}catch(e){setSyncMsg("Could not download backup.");}};
-  const importBackupFile=async file=>{try{const txt=await file.text();await applyFamilyBackup(JSON.parse(txt));setSyncMsg("Backup file imported successfully.");}catch(e){setSyncMsg("File import failed. Use a Scarlett Tracker backup file.");}};
   const getGlowReport=()=>{
     const report=[];
     const add=(area,e,col,doing,needs,next,stat)=>report.push({area,e,col,doing,needs,next,stat});
@@ -501,13 +541,33 @@ export default function ScarlettTracker(){
         {homeQuickActions.map(b=><GlamButton key={b.t} e={b.e} l={b.l} c={b.c} onClick={()=>setTab(b.t)}/>) }
       </div>
 
-      <div style={{...cs,padding:14,background:"linear-gradient(160deg,rgba(255,26,140,.14),rgba(139,92,246,.11),rgba(0,229,204,.07))"}}>
-        <CH e="📱" title="Star Feed" sub="Shorts-style quests that feel fast, fun, and tappable"/>
-        <div style={{display:"flex",gap:10,overflowX:"auto",scrollSnapType:"x mandatory",paddingBottom:4}}>
-          {[{e:"🔥",tag:"For You",title:"60-Second Handle Combo",body:"Cross · between · behind · sprint finish",btn:"Start",tab:"practice",col:C.coral},{e:"💎",tag:"Roblox Energy",title:`Level ${Math.floor(stars/25)+1} Glow-Up`,body:`${stars%25}/25 stars to unlock the next level`,btn:"Level Up",tab:"goals",col:C.gold},{e:"👟",tag:"Style Drop",title:"Build Tomorrow’s Fit",body:"Shoes, hair, outfit, backpack — make it a look.",btn:"Style",tab:"style",col:C.pink},{e:"📚",tag:"Boss Mode",title:"Homework Before Screens",body:"Win the school quest first, then enjoy the fun apps.",btn:"School",tab:"school",col:C.teal},{e:"🌙",tag:"Reset",title:"Night Routine Streak",body:"Face care, teeth, outfit, backpack, calm down.",btn:"Routine",tab:"routine",col:C.purple}].map(card=><button key={card.title} onClick={()=>setTab(card.tab)} style={{minWidth:255,scrollSnapAlign:"start",borderRadius:22,padding:14,textAlign:"left",fontFamily:"system-ui",cursor:"pointer",border:`1px solid ${card.col}55`,background:`radial-gradient(circle at 85% 10%,${card.col}44,transparent 38%),linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.035))`,boxShadow:`0 18px 38px rgba(0,0,0,.32),0 0 26px ${card.col}22`,color:C.white,position:"relative",overflow:"hidden"}}>
-            <div style={{position:"absolute",right:-20,bottom:-30,fontSize:92,opacity:.10}}>{card.e}</div><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:14,position:"relative"}}><div style={{fontSize:28,filter:`drop-shadow(0 0 15px ${card.col})`}}>{card.e}</div><div style={{fontSize:8,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",color:card.col,border:`1px solid ${card.col}55`,borderRadius:999,padding:"5px 8px",background:`${card.col}13`}}>{card.tag}</div></div>
-            <div style={{fontSize:17,fontWeight:950,lineHeight:1.05,letterSpacing:"-.25px",position:"relative"}}>{card.title}</div><div style={{fontSize:11,color:C.light,lineHeight:1.45,marginTop:8,minHeight:32,position:"relative"}}>{card.body}</div><div style={{display:"inline-flex",alignItems:"center",gap:6,marginTop:13,padding:"8px 11px",borderRadius:999,background:`linear-gradient(135deg,${card.col},${C.purple})`,color:C.white,fontSize:10,fontWeight:950,position:"relative"}}>{card.btn} →</div>
-          </button>)}
+      {/* ── DAILY MISSION BOARD (Roblox/TikTok-style) ── */}
+      <div style={{...cs,padding:14,background:"linear-gradient(145deg,rgba(139,92,246,.18),rgba(10,5,22,.98))",marginBottom:14}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+          <div>
+            <div style={{fontSize:10,fontWeight:950,letterSpacing:"2px",color:C.purple,textTransform:"uppercase"}}>Daily Missions</div>
+            <div style={{fontSize:12,color:C.light,marginTop:3}}>{missionsCompleted}/{dailyMissions.length} complete · earn XP</div>
+          </div>
+          <div style={{background:`linear-gradient(135deg,${C.purple},${C.pink})`,borderRadius:12,padding:"6px 10px",textAlign:"center"}}>
+            <div style={{fontSize:14,fontWeight:950,color:C.white}}>{missionsCompleted*15}+</div>
+            <div style={{fontSize:7,color:"rgba(255,255,255,.8)",fontWeight:900,letterSpacing:"1px"}}>XP TODAY</div>
+          </div>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {dailyMissions.map(m=>{
+            const done=m.done();
+            return <div key={m.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:14,background:done?`linear-gradient(135deg,${C.green}20,${C.teal}12)`:"rgba(255,255,255,.05)",border:`1px solid ${done?C.green+"55":C.border}`,transition:"all .2s"}}>
+              <div style={{width:38,height:38,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,background:done?`linear-gradient(135deg,${C.green},${C.teal})`:`${C.purple}22`,border:`1px solid ${done?C.green+"44":C.purple+"33"}`,flexShrink:0,boxShadow:done?`0 0 16px ${C.green}44`:"none"}}>{done?"✓":m.icon}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:12,fontWeight:950,color:done?C.green:C.white,textDecoration:done?"line-through":"none"}}>{m.title}</div>
+                <div style={{fontSize:10,color:done?C.green:C.muted,marginTop:2}}>{done?"Mission complete!":m.desc}</div>
+              </div>
+              <div style={{background:done?`${C.green}25`:`${C.purple}22`,border:`1px solid ${done?C.green+"44":C.purple+"33"}`,borderRadius:999,padding:"4px 8px",fontSize:10,fontWeight:900,color:done?C.green:C.purple,flexShrink:0}}>+{m.xp} XP</div>
+            </div>;
+          })}
+        </div>
+        <div style={{marginTop:12,height:8,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${(missionsCompleted/dailyMissions.length)*100}%`,background:`linear-gradient(90deg,${C.purple},${C.pink},${C.gold})`,borderRadius:99,transition:"width .4s ease",boxShadow:`0 0 12px ${C.pink}55`}}/>
         </div>
       </div>
 
@@ -1855,6 +1915,15 @@ export default function ScarlettTracker(){
             <div style={{fontSize:11,color:C.gold,fontWeight:900,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:6}}>Glow Command Center ✨</div>
             <div style={{fontSize:28,fontWeight:900,lineHeight:1.06,color:C.text,marginBottom:6}}>The <span style={{color:glowTier.col}}>best version</span> of Scarlett, tracked in one place.</div>
             <div style={{fontSize:11,color:C.light,lineHeight:1.65,maxWidth:420}}>{glowTier.blurb}</div>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginTop:10}}>
+              <div style={{background:`linear-gradient(135deg,${C.purple},${C.pink})`,borderRadius:10,padding:"5px 10px"}}>
+                <div style={{fontSize:10,fontWeight:950,color:C.white}}>LV {level} {levelTitle}</div>
+              </div>
+              <div style={{flex:1,height:7,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden",maxWidth:100}}>
+                <div style={{height:"100%",width:`${xpInLevel}%`,background:`linear-gradient(90deg,${C.purple},${C.pink})`,borderRadius:99}}/>
+              </div>
+              <div style={{fontSize:10,color:C.purple,fontWeight:900}}>{xp} XP</div>
+            </div>
           </div>
           <div style={{minWidth:112,textAlign:"center",padding:"10px 12px",borderRadius:20,background:`linear-gradient(145deg,${glowTier.col}22,rgba(14,11,27,.72))`,border:`1px solid ${glowTier.col}55`,boxShadow:`0 0 24px ${glowTier.col}22,inset 0 1px 0 rgba(255,255,255,.12)`}}>
             <div style={{fontSize:36,fontWeight:900,color:glowTier.col,lineHeight:1,textShadow:`0 0 18px ${glowTier.col}77`}}>{overallGlow}</div>
@@ -2044,16 +2113,6 @@ export default function ScarlettTracker(){
         <button onClick={()=>saveRoutine(routineHist,clone(ROUTINE_ITEMS))} style={{width:"100%",marginTop:10,padding:9,background:"transparent",border:`1px solid ${C.orange}55`,color:C.orange,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Routine Items to Default</button>
       </div>;
     };
-    const FamilySync=()=><div style={cs}>
-      <CH e="🔐" title="Family Multi-Device Sync" sub="Parent-controlled backup, transfer, and restore"/>
-      <div style={{padding:12,borderRadius:16,background:"linear-gradient(145deg,rgba(0,229,204,.10),rgba(255,26,140,.08))",border:`1px solid ${C.teal}44`,marginBottom:12}}><div style={{fontSize:13,fontWeight:950,color:C.white,marginBottom:5}}>How this works</div><div style={{fontSize:11,color:C.light,lineHeight:1.55}}>This saves everything into a family backup code or file so Mom, Dad, and Scarlett can move the tracker between devices. For true live cloud sync, connect this app to Firebase or Supabase later.</div></div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}><button onClick={makeSyncCode} style={{padding:11,borderRadius:14,border:`1px solid ${C.gold}66`,background:`${C.gold}18`,color:C.gold,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Create Sync Code</button><button onClick={downloadBackup} style={{padding:11,borderRadius:14,border:`1px solid ${C.teal}66`,background:`${C.teal}14`,color:C.teal,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Download Backup</button></div>
-      <textarea value={syncCode} onChange={e=>setSyncCode(e.target.value)} placeholder="Paste family sync code here, or create one to copy to another device..." style={{...INP,minHeight:116,fontSize:12,lineHeight:1.45,resize:"vertical",marginBottom:8}}/>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}><button onClick={()=>{navigator.clipboard?.writeText(syncCode);setSyncMsg(syncCode?"Sync code copied.":"Create a code first.");}} style={{padding:10,borderRadius:13,border:`1px solid ${C.purple}66`,background:`${C.purple}18`,color:C.purple,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Copy Code</button><button onClick={importSyncCode} style={{padding:10,borderRadius:13,border:`1px solid ${C.green}66`,background:`${C.green}16`,color:C.green,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Import Code</button></div>
-      <label style={{display:"block",padding:12,borderRadius:14,border:`1px dashed ${C.pink}77`,background:`${C.pink}10`,color:C.pink,fontSize:12,fontWeight:900,textAlign:"center",cursor:"pointer",fontFamily:"system-ui"}}>Import Backup File<input type="file" accept="application/json,.json" onChange={e=>{const f=e.target.files?.[0];if(f)importBackupFile(f);e.target.value="";}} style={{display:"none"}}/></label>
-      {syncMsg&&<div style={{marginTop:10,padding:10,borderRadius:12,background:"rgba(255,255,255,.06)",border:`1px solid ${C.border}`,fontSize:11,lineHeight:1.45,color:C.light}}>{syncMsg}</div>}
-      <div style={{marginTop:12,fontSize:10,color:C.muted,lineHeight:1.55}}>Parent note: this does not expose social features, comments, public profiles, or messaging. It is intentionally game-like without turning into social media.</div>
-    </div>;
     const DataEd=()=><div style={cs}><CH e="🗑️" title="Data Management"/><div style={{fontSize:12,color:C.muted,marginBottom:12,lineHeight:1.6}}>All data saves automatically. Use buttons below to reset specific sections.</div><div style={{display:"flex",flexDirection:"column",gap:8}}>
       <button onClick={async()=>{setGames([]);await saveBball([],skills);}} style={{padding:10,background:"transparent",border:`1px solid ${C.red}55`,color:C.red,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Games Log</button>
       <button onClick={async()=>{setPractices([]);await savePrax([]);}} style={{padding:10,background:"transparent",border:`1px solid ${C.red}55`,color:C.red,borderRadius:8,cursor:"pointer",fontWeight:700,fontFamily:"system-ui"}}>Reset Practice Log</button>
@@ -2066,9 +2125,40 @@ export default function ScarlettTracker(){
     </div></div>;
     return<div>
       <div style={{display:"flex",gap:5,overflowX:"auto",marginBottom:12,paddingBottom:2}}>
-        {[["profile","Profile"],["habits","Habits"],["routine","Routine"],["training","Training"],["family","Family Sync"],["data","Data"]].map(([id,lbl])=><button key={id} onClick={()=>{setSec(id);stopEdit();}} style={{padding:"9px 12px",borderRadius:8,border:`1px solid ${sec===id?C.purple:C.border}`,background:sec===id?`${C.purple}18`:C.card,color:sec===id?C.purple:C.text,cursor:"pointer",whiteSpace:"nowrap",fontWeight:700,fontSize:13,fontFamily:"system-ui"}}>{lbl}</button>)}
+        {[["profile","Profile"],["habits","Habits"],["routine","Routine"],["training","Training"],["sync","☁ Sync"],["data","Data"]].map(([id,lbl])=><button key={id} onClick={()=>{setSec(id);stopEdit();}} style={{padding:"9px 12px",borderRadius:8,border:`1px solid ${sec===id?C.purple:C.border}`,background:sec===id?`${C.purple}18`:C.card,color:sec===id?C.purple:C.text,cursor:"pointer",whiteSpace:"nowrap",fontWeight:700,fontSize:13,fontFamily:"system-ui"}}>{lbl}</button>)}
       </div>
-      {sec==="profile"&&<ProfileEd/>}{sec==="habits"&&<HabitEd/>}{sec==="routine"&&<RoutineEd/>}{sec==="training"&&<TrainingEd/>}{sec==="family"&&<FamilySync/>}{sec==="data"&&<DataEd/>}
+      {sec==="profile"&&<ProfileEd/>}{sec==="habits"&&<HabitEd/>}{sec==="routine"&&<RoutineEd/>}{sec==="training"&&<TrainingEd/>}{sec==="data"&&<DataEd/>}
+      {sec==="sync"&&<div style={cs}>
+        <CH e="☁️" title="Family Sync" sub="Same data on every device — phone, tablet, or laptop"/>
+        <div style={{fontSize:12,color:C.muted,marginBottom:16,lineHeight:1.7}}>Create a Family Code and share it with a parent or on any other device. Everyone who enters the same code sees the same data in real time.</div>
+
+        {familyCode?(<>
+          <div style={{padding:16,borderRadius:16,background:`linear-gradient(135deg,${C.green}18,${C.teal}12)`,border:`1px solid ${C.green}55`,marginBottom:14,textAlign:"center"}}>
+            <div style={{fontSize:10,color:C.green,fontWeight:950,letterSpacing:"2px",textTransform:"uppercase",marginBottom:8}}>Your Active Family Code</div>
+            <div style={{fontSize:36,fontWeight:950,color:C.white,letterSpacing:"10px",textShadow:`0 0 30px ${C.green}44`}}>{familyCode}</div>
+            <div style={{fontSize:11,color:C.muted,marginTop:8,lineHeight:1.5}}>Share this code with a parent or on another device. Enter it in the Sync tab and data will stay connected.</div>
+          </div>
+          <div style={{display:"flex",gap:8,marginBottom:12}}>
+            <button onClick={()=>{try{navigator.clipboard.writeText(familyCode);}catch{}}} style={{flex:1,padding:12,borderRadius:12,border:`1px solid ${C.teal}55`,background:`${C.teal}18`,color:C.teal,fontWeight:900,fontFamily:"system-ui",cursor:"pointer",fontSize:13}}>Copy Code 📋</button>
+            <button onClick={clearCode} style={{flex:1,padding:12,borderRadius:12,border:`1px solid ${C.red}44`,background:`${C.red}12`,color:C.red,fontWeight:900,fontFamily:"system-ui",cursor:"pointer",fontSize:13}}>Disconnect</button>
+          </div>
+          <div style={{padding:12,borderRadius:14,background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`}}>
+            <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1.2px",textTransform:"uppercase",marginBottom:5}}>Sync Status</div>
+            <div style={{fontSize:12,color:syncStatus==="ok"?C.green:syncStatus==="syncing"?C.gold:C.teal,fontWeight:800}}>{syncStatus==="ok"?"✓ Synced with family cloud":syncStatus==="syncing"?"⟳ Syncing now...":"☁ Connected · data syncs on every save"}</div>
+          </div>
+        </>):(<>
+          <div style={{display:"flex",gap:8,marginBottom:12}}>
+            <input value={codeInput} onChange={e=>setCodeInput(e.target.value.toUpperCase())} placeholder="Enter code (e.g. SC7X2K)" maxLength={6} style={{...INP,letterSpacing:"6px",fontWeight:950,fontSize:18,textAlign:"center"}}/>
+          </div>
+          <button onClick={()=>activateCode(codeInput)} style={{width:"100%",padding:13,background:`linear-gradient(135deg,${C.purple},${C.pink})`,color:C.white,border:"none",borderRadius:12,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14,marginBottom:10,boxShadow:`0 12px 28px ${C.purple}33`}}>Connect with Code ☁</button>
+          <div style={{textAlign:"center",marginBottom:10,fontSize:11,color:C.muted}}>— or —</div>
+          <button onClick={()=>activateCode(genCode())} style={{width:"100%",padding:13,background:`${C.teal}18`,color:C.teal,border:`1px solid ${C.teal}44`,borderRadius:12,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Create New Family Code ✨</button>
+          <div style={{marginTop:14,padding:12,borderRadius:14,background:"rgba(255,255,255,.04)",border:`1px solid ${C.border}`}}>
+            <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1.2px",textTransform:"uppercase",marginBottom:6}}>How it works</div>
+            <div style={{fontSize:11,color:C.muted,lineHeight:1.7}}>1. One person creates the code or enters the same one on every device.<br/>2. All data — games, habits, sleep, goals — stays in sync.<br/>3. Parents can check in from their own phone without touching anything.</div>
+          </div>
+        </>)}
+      </div>}
     </div>;
   };
 
@@ -2087,7 +2177,15 @@ export default function ScarlettTracker(){
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
           <div>
             <div style={{fontWeight:900,fontSize:22,letterSpacing:"-.5px",color:C.white,lineHeight:1}}><span style={{color:C.gold}}>✦</span> <span style={{background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</span></div>
-            <div style={{fontSize:10,color:C.light,letterSpacing:"1px",fontWeight:800}}>{profile.grade} Grade{profile.teamName?` · ${profile.teamName}`:""} · {profile.primaryGoal}</div>
+            <div style={{fontSize:10,color:C.light,letterSpacing:"1px",fontWeight:800}}>{profile.grade} Grade{profile.teamName?` · ${profile.teamName}`:""} · {levelTitle}</div>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginTop:5}}>
+              <div style={{fontSize:9,color:C.purple,fontWeight:900}}>LV {level}</div>
+              <div style={{flex:1,height:5,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden",maxWidth:80}}>
+                <div style={{height:"100%",width:`${xpInLevel}%`,background:`linear-gradient(90deg,${C.purple},${C.pink})`,borderRadius:99,transition:"width .4s"}}/>
+              </div>
+              {habitStreakMain>0&&<div style={{fontSize:9,color:C.orange,fontWeight:900}}>🔥{habitStreakMain}</div>}
+              {familyCode&&<div style={{fontSize:9,color:syncStatus==="ok"?C.green:syncStatus==="syncing"?C.gold:C.teal,fontWeight:900}}>{syncStatus==="ok"?"✓ Synced":syncStatus==="syncing"?"⟳ Syncing":"☁ "+familyCode}</div>}
+            </div>
           </div>
           <div style={{background:"linear-gradient(135deg,rgba(255,215,0,.30),rgba(255,26,140,.18))",border:`1px solid ${C.gold}77`,borderRadius:16,padding:"7px 12px",textAlign:"center",boxShadow:`0 0 28px ${C.gold}33,inset 0 1px 0 rgba(255,255,255,.2)`}}><div style={{fontWeight:900,fontSize:18,color:C.gold,textShadow:"0 0 20px rgba(255,215,0,.8)"}}>⭐ {stars}</div><div style={{fontSize:8,color:"rgba(255,255,255,.7)",fontWeight:800,letterSpacing:"1px"}}>STARS</div></div>
         </div>
