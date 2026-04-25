@@ -8,7 +8,7 @@ const TABS=[
   {id:"hoops",e:"🏀",label:"Hoops"},
   {id:"glow",e:"✨",label:"My Glow"},
   {id:"goals",e:"🎯",label:"Goals"},
-  {id:"progress",e:"⭐",label:"Progress"},
+  {id:"progress",e:"🎁",label:"Rewards"},
 ];
 
 const DEF_VITALS={energy:0,mood:0};
@@ -62,7 +62,6 @@ function fKey(k){const fc=getFamilyCode();return fc?`glow_${fc}_${k}`:null;}
 async function sg(k){try{const sk=fKey(k);if(sk&&window.storage){try{const r=await window.storage.get(sk,true);if(r?.value)return JSON.parse(r.value);}catch{}}const raw=localStorage.getItem(k);return raw?JSON.parse(raw):null;}catch{return null;}}
 async function ss(k,v){try{const p=JSON.stringify(v);const sk=fKey(k);if(sk&&window.storage){try{await window.storage.set(sk,p,true);}catch{}}try{localStorage.setItem(k,p);}catch{}return true;}catch{return false;}}
 const genCode=()=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join("");};
-function StableRenderer({render}){return render();}
 
 // ── UI ATOMS ──────────────────────────────────────────────────────────────
 const cs={background:"linear-gradient(145deg,rgba(32,14,62,.97),rgba(10,5,22,.99))",borderRadius:20,border:`1px solid rgba(255,255,255,.11)`,padding:16,marginBottom:14,boxShadow:"0 22px 55px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.09)",position:"relative",overflow:"hidden"};
@@ -131,6 +130,7 @@ export default function ScarlettTracker(){
   const[styleLog,setStyleLog]=useState([]);
   const[shoeWish,setShoeWish]=useState([]);
   const[goals,setGoals]=useState([]);
+  const[rewardClaims,setRewardClaims]=useState([]);
   const[habits,setHabits]=useState(clone(DEF_HABITS));
 
   const saveTmr=useRef(null),savedTm=useRef(null),editBlurT=useRef(null),supRef=useRef(false);
@@ -154,12 +154,13 @@ export default function ScarlettTracker(){
     const slp=await sg("sc_sleep")||{entries:[]};
     const school=await sg("sc_school")||{subjects:clone(DEF_SUBJECTS)};
     const gd=await sg("sc_goals")||{entries:[],stars:0};
+    const rd=await sg("sc_rewards")||{claims:[]};
     const pd=await sg("sc_profile")||clone(DEF_PROFILE);
     setDailyHist(daily.entries||{});setGames(bball.games||[]);setSkills(bball.skills||clone(DEF_SKILLS));
     setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);
     setRoutineHist(routineD.entries||{});setSleepEntries(slp.entries||[]);
     setSubjects(school.subjects||clone(DEF_SUBJECTS));
-    setGoals(gd.entries||[]);setStars(gd.stars||0);setProfile(pd);
+    setGoals(gd.entries||[]);setStars(gd.stars||0);setRewardClaims(rd.claims||[]);setProfile(pd);
     const e=daily.entries?.[todayISO()]||{};
     setChecks(e.c||{});setWater(e.w||0);setVitals(e.vitals||clone(DEF_VITALS));
     supRef.current=true;setLoaded(true);
@@ -174,6 +175,7 @@ export default function ScarlettTracker(){
   const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
   const savePrax=async p=>{setPractices(p);await ss("sc_practices",{entries:p});};
   const saveGoals=async(g,s=stars)=>{setGoals(g);setStars(s);await ss("sc_goals",{entries:g,stars:s});};
+  const saveRewards=async claims=>{setRewardClaims(claims);await ss("sc_rewards",{claims});};
   const saveStyle=async(fits=styleLog,shoes=shoeWish)=>{setStyleLog(fits);setShoeWish(shoes);await ss("sc_style",{fits,shoes});};
   const saveRoutine=async entries=>{setRoutineHist(entries);await ss("sc_routine",{entries});};
   const saveSleep=async e=>{setSleepEntries(e);await ss("sc_sleep",{entries:e});};
@@ -183,7 +185,7 @@ export default function ScarlettTracker(){
   const activateCode=async code=>{
     const c=(code||"").trim().toUpperCase();if(c.length<4)return;
     setFCGlobal(c);setFamilyCode(c);
-    const [daily,bball,prax,styleD,routineD,slp,school,gd,pd]=await Promise.all([sg("sc_daily"),sg("sc_bball"),sg("sc_practices"),sg("sc_style"),sg("sc_routine"),sg("sc_sleep"),sg("sc_school"),sg("sc_goals"),sg("sc_profile")]);
+    const [daily,bball,prax,styleD,routineD,slp,school,gd,rd,pd]=await Promise.all([sg("sc_daily"),sg("sc_bball"),sg("sc_practices"),sg("sc_style"),sg("sc_routine"),sg("sc_sleep"),sg("sc_school"),sg("sc_goals"),sg("sc_rewards"),sg("sc_profile")]);
     if(daily?.entries)setDailyHist(daily.entries);
     if(bball?.games)setGames(bball.games);
     if(bball?.skills)setSkills(bball.skills);
@@ -195,6 +197,7 @@ export default function ScarlettTracker(){
     if(school?.subjects)setSubjects(school.subjects);
     if(gd?.entries)setGoals(gd.entries);
     if(gd?.stars)setStars(gd.stars);
+    if(rd?.claims)setRewardClaims(rd.claims);
     if(pd)setProfile(pd);
   };
 
@@ -205,6 +208,36 @@ export default function ScarlettTracker(){
   if(!loaded)return<div style={{background:C.bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:14,fontFamily:"system-ui"}}><div style={{fontSize:52,filter:`drop-shadow(0 0 22px ${C.gold})`}}>⭐</div><div style={{fontWeight:900,fontSize:18,color:C.white}}>Loading {profile.name}'s Glow Up...</div></div>;
 
   const badgeData={games,practices,sleepEntries,subjects,goals,skills,dailyHist,shoeWish,styleLog,stars};
+  const rewardCost=item=>{
+    if(item?.cost)return item.cost;
+    const p=String(item?.priority||"").toLowerCase();
+    if(p.includes("dream"))return 3;
+    if(p.includes("next"))return 2;
+    return 1;
+  };
+  const approvedGoalCount=goals.filter(g=>g.parentApproved).length;
+  const spentRewardTokens=rewardClaims.filter(r=>["requested","approved"].includes(r.status)).reduce((a,r)=>a+(r.cost||1),0);
+  const rewardTokens=Math.max(0,approvedGoalCount-spentRewardTokens);
+  const claimFor=item=>rewardClaims.find(r=>r.itemId===item.id&&r.status!=="rejected");
+  const approveGoal=async id=>{
+    let shouldReward=false;
+    const ng=goals.map(g=>{
+      if(g.id!==id)return g;
+      shouldReward=!g.parentApproved;
+      return {...g,done:true,submitted:true,parentApproved:true,approvedDate:toShort(todayISO())};
+    });
+    await saveGoals(ng,shouldReward?stars+5:stars);
+  };
+  const requestReward=async item=>{
+    const existing=claimFor(item);
+    if(existing||rewardTokens<rewardCost(item))return;
+    const claim={id:uid(),itemId:item.id,itemName:item.name,cost:rewardCost(item),status:"requested",date:toShort(todayISO())};
+    await saveRewards([claim,...rewardClaims]);
+  };
+  const updateRewardClaim=async(id,status)=>{
+    const nr=rewardClaims.map(r=>r.id===id?{...r,status,approvedDate:status==="approved"?toShort(todayISO()):r.approvedDate}:r);
+    await saveRewards(nr);
+  };
 
   // ── TODAY TAB ──────────────────────────────────────────────────────────
   const Today=()=>{
@@ -431,7 +464,7 @@ export default function ScarlettTracker(){
     const logFit=async()=>{if(!stf.outfit&&!stf.hair)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...stf};await saveStyle([entry,...styleLog].slice(0,30),shoeWish);await addStars(3);setStf({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});};
     // Shoe form
     const[shf,setShf]=useState({name:"",why:"",priority:"Dream 🌟"});
-    const addShoe=async()=>{if(!shf.name)return;const entry={id:uid(),...shf};await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));await addStars(2);setShf({name:"",why:"",priority:"Dream 🌟"});};
+    const addShoe=async()=>{if(!shf.name)return;const entry={id:uid(),...shf,cost:shf.priority.includes("Dream")?3:shf.priority.includes("Next")?2:1};await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));await addStars(2);setShf({name:"",why:"",priority:"Dream 🌟"});};
     const avgSleep=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours)).toFixed(1):"—";
 
     return<div>
@@ -549,7 +582,7 @@ export default function ScarlettTracker(){
     const active=goals.filter(g=>!g.done);
     const done=goals.filter(g=>g.done).length;
     const addGoal=async()=>{if(!gf.text.trim())return;const entry={id:uid(),text:gf.text.trim(),category:gf.category,targetDate:gf.targetDate,done:false,date:toShort(todayISO())};await saveGoals([...goals,entry]);setGf({text:"",category:"basketball",targetDate:addDays(7)});};
-    const toggleGoal=async id=>{const ng=goals.map(g=>{if(g.id!==id)return g;const completing=!g.done;if(completing){addStars(5);setBurst(id);setTimeout(()=>setBurst(null),2200);}return{...g,done:completing};});await saveGoals(ng);};
+    const toggleGoal=async id=>{const ng=goals.map(g=>{if(g.id!==id)return g;const completing=!g.done;if(completing){setBurst(id);setTimeout(()=>setBurst(null),2200);return{...g,done:true,submitted:true,parentApproved:false,completedDate:toShort(todayISO())};}return{...g,done:false,submitted:false,parentApproved:false,completedDate:"",approvedDate:""};});await saveGoals(ng);};
     const weakestSkill=Object.entries(skills).sort((a,b)=>a[1]-b[1])[0]||null;
     const templates=[
       {text:"Practice shooting for 15 minutes, 4 times this week",category:"basketball"},
@@ -567,6 +600,18 @@ export default function ScarlettTracker(){
 
     return<div>
       {burst&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,pointerEvents:"none",fontSize:56,filter:`drop-shadow(0 0 24px ${C.gold})`}}>🎉 ⭐ 🎯</div>}
+
+      <div style={{...cs,background:"radial-gradient(ellipse at 75% 0%,rgba(255,215,0,.18),transparent 45%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",borderTop:`3px solid ${C.gold}`}}>
+        <CH e="🤝" title="Goal Deal" sub="Set it. Do it. Parent approves it. Unlock rewards."/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+          <SBox value={active.length} label="Active" color={C.coral}/>
+          <SBox value={goals.filter(g=>g.done&&!g.parentApproved).length} label="Needs OK" color={C.gold}/>
+          <SBox value={rewardTokens} label="Reward Tokens" color={C.green}/>
+        </div>
+        <div style={{fontSize:12,color:C.muted,lineHeight:1.55}}>
+          A completed goal does not unlock a reward until a parent verifies the follow-through. Each approved goal gives <span style={{color:C.gold,fontWeight:900}}>1 Reward Token</span> toward shoes, clothes, skincare, or other wishlist items.
+        </div>
+      </div>
 
       {/* Coach card */}
       <div style={{...cs,background:"linear-gradient(135deg,rgba(54,24,102,.98),rgba(16,7,35,.98))"}}>
@@ -628,11 +673,17 @@ export default function ScarlettTracker(){
 
       {/* Completed goals */}
       {done>0&&<div style={cs}>
-        <CH e="✅" title={`Completed (${done})`}/>
-        {goals.filter(g=>g.done).slice(0,5).map(g=><div key={g.id} style={{display:"flex",gap:10,padding:"8px 0",borderBottom:`1px solid ${C.border}`,alignItems:"center"}}>
-          <div style={{fontSize:18}}>⭐</div>
-          <div style={{flex:1,fontSize:12,color:C.green,textDecoration:"line-through",fontWeight:700}}>{g.text}</div>
-          <button onClick={()=>toggleGoal(g.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:11}}>undo</button>
+        <CH e="✅" title={`Completed (${done})`} sub="Parent approval turns follow-through into reward tokens."/>
+        {goals.filter(g=>g.done).slice(0,8).map(g=><div key={g.id} style={{padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{display:"flex",gap:10,alignItems:"center"}}>
+            <div style={{fontSize:18}}>{g.parentApproved?"🎟️":"⏳"}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:12,color:g.parentApproved?C.green:C.gold,textDecoration:g.parentApproved?"line-through":"none",fontWeight:800,lineHeight:1.35}}>{g.text}</div>
+              <div style={{fontSize:9,color:C.muted,marginTop:3}}>{g.parentApproved?`Approved ${g.approvedDate||""} · 1 Reward Token earned`:"Waiting for parent approval"}</div>
+            </div>
+            {!g.parentApproved&&<button onClick={()=>approveGoal(g.id)} style={{padding:"8px 10px",borderRadius:10,border:`1px solid ${C.green}44`,background:`${C.green}16`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Parent OK</button>}
+            <button onClick={()=>toggleGoal(g.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:11}}>undo</button>
+          </div>
         </div>)}
       </div>}
     </div>;
@@ -653,6 +704,31 @@ export default function ScarlettTracker(){
     const overallGlow=Math.round(avgArr([avgSk,Math.round(gpa/4*100),games.length?winPct:0].filter(v=>v>0)))||0;
 
     return<div>
+      <div style={{...cs,background:"radial-gradient(ellipse at 80% 0%,rgba(255,215,0,.22),transparent 45%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",borderTop:`3px solid ${C.gold}`}}>
+        <CH e="🎁" title="Reward Shop" sub="Wishlist rewards unlock only after real goals are approved."/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+          <SBox value={approvedGoalCount} label="Approved Goals" color={C.green}/>
+          <SBox value={spentRewardTokens} label="Tokens Used" color={C.purple}/>
+          <SBox value={rewardTokens} label="Available" color={C.gold}/>
+        </div>
+        {shoeWish.length===0?<div style={{padding:14,borderRadius:16,background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`,fontSize:12,color:C.muted,lineHeight:1.5}}>Add shoes, clothes, skincare, or trend items in My Glow → Shoes. Then she can request them when she has enough approved-goal tokens.</div>:shoeWish.slice(0,8).map(item=>{
+          const claim=claimFor(item);
+          const cost=rewardCost(item);
+          const enough=rewardTokens>=cost;
+          return <div key={item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 0",borderBottom:`1px solid ${C.border}`}}>
+            <div style={{fontSize:26}}>🎁</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13,fontWeight:950,color:C.white}}>{item.name}</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:2}}>{item.priority||"Wishlist"} · Costs {cost} token{cost===1?"":"s"}</div>
+              {item.why&&<div style={{fontSize:10,color:C.gold,marginTop:2}}>{item.why}</div>}
+              {claim&&<div style={{fontSize:10,color:claim.status==="approved"?C.green:C.gold,marginTop:3,fontWeight:900}}>Status: {claim.status==="approved"?"Parent approved / obtained":"Requested — waiting for parent"}</div>}
+            </div>
+            {!claim&&<button disabled={!enough} onClick={()=>requestReward(item)} style={{padding:"9px 10px",borderRadius:11,border:`1px solid ${enough?C.gold:C.border}`,background:enough?`${C.gold}18`:"rgba(255,255,255,.04)",color:enough?C.gold:C.muted,fontWeight:900,cursor:enough?"pointer":"not-allowed",fontSize:11,fontFamily:"system-ui"}}>{enough?"Request":"Need tokens"}</button>}
+            {claim?.status==="requested"&&<button onClick={()=>updateRewardClaim(claim.id,"approved")} style={{padding:"9px 10px",borderRadius:11,border:`1px solid ${C.green}44`,background:`${C.green}16`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Parent OK</button>}
+          </div>;
+        })}
+      </div>
+
       {/* Level card */}
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.24),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",textAlign:"center",padding:20}}>
         <div style={{fontSize:44,marginBottom:6}}>⭐</div>
@@ -774,7 +850,7 @@ export default function ScarlettTracker(){
       </div>}
 
       {/* ── CONTENT ── */}
-      <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"14px 14px calc(90px + env(safe-area-inset-bottom,0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
+      <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"14px 14px calc(90px + env(safe-area-inset-bottom,0px))"}}>{(CONTENT[tab]||Today)()}</div>
 
       {/* ── BOTTOM NAV ── */}
       <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(400px,calc(100% - 20px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:3,background:"rgba(12,0,25,.92)",backdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"7px 6px calc(7px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
