@@ -7,6 +7,7 @@ const TABS=[
   {id:"today",e:"🏠",label:"Today"},
   {id:"hoops",e:"🏀",label:"Hoops"},
   {id:"glow",e:"✨",label:"My Glow"},
+  {id:"wishlist",e:"🛍️",label:"Wishlist"},
   {id:"goals",e:"🎯",label:"Goals"},
   {id:"progress",e:"🎁",label:"Rewards"},
 ];
@@ -61,11 +62,48 @@ const TRENDING_SNEAKERS=[
     search:"Nike Ja 3 SE Zero Gravity Big Kids"
   }
 ];
+
+const WISH_CATEGORIES=[
+  {id:"auto",label:"Auto",icon:"✨",col:"pink"},
+  {id:"sneakers",label:"Sneakers",icon:"👟",col:"gold"},
+  {id:"clothing",label:"Clothes",icon:"👚",col:"pink"},
+  {id:"beauty",label:"Beauty",icon:"💄",col:"purple"},
+  {id:"toys",label:"Toys",icon:"🧸",col:"teal"},
+  {id:"school",label:"School",icon:"🎒",col:"blue"},
+  {id:"future",label:"Future",icon:"🚀",col:"green"},
+  {id:"other",label:"Other",icon:"🌟",col:"gold"}
+];
+const WISH_STORES={
+  sneakers:["nike","stockx","goat"],
+  clothing:["nike","stockx","goat","target"],
+  beauty:["sephora","ulta","target"],
+  toys:["amazon","target","walmart"],
+  school:["target","amazon","walmart"],
+  future:["google","amazon","target"],
+  other:["google","amazon","target"]
+};
+const WISH_STARTERS=[
+  {category:"sneakers",name:"Sabrina 3 Big Kids",why:"A real basketball shoe goal for practice and games.",search:"Nike Sabrina 3 Big Kids",img:"https://images.stockx.com/images/Nike-Sabrina-3-SE-What-The-GS.jpg?fit=fill&bg=FFFFFF&w=520&h=360&q=70&dpr=1"},
+  {category:"sneakers",name:"Kobe V Big Kids",why:"A dream hooper sneaker reward.",search:"Nike Kobe V Big Kids basketball shoes",img:"https://images.stockx.com/images/Nike-Kobe-5-Protro-GS.jpg?fit=fill&bg=FFFFFF&w=520&h=360&q=70&dpr=1"},
+  {category:"clothing",name:"Nike hoodie",why:"A cozy sporty reward that still feels stylish.",search:"Nike girls hoodie"},
+  {category:"clothing",name:"Cargo pants",why:"Streetwear style reward for school or weekends.",search:"girls cargo pants streetwear"},
+  {category:"beauty",name:"Glow skincare set",why:"A face-care reward for routine follow-through.",search:"teen gentle skincare set"},
+  {category:"beauty",name:"Lip balm set",why:"Small trendy reward for finishing a goal.",search:"lip balm set for kids"},
+  {category:"toys",name:"Mini brands toy",why:"Fun trendy reward after a completed goal.",search:"Mini Brands toy"},
+  {category:"toys",name:"Stanley-style tumbler charm",why:"Cute trendy accessory reward.",search:"tumbler charms for girls"},
+  {category:"school",name:"Cute backpack charm",why:"School style reward that feels fun but useful.",search:"cute backpack charm"},
+  {category:"future",name:"Basketball camp savings",why:"Future-focused reward tied to getting better.",search:"youth basketball camp"}
+];
 const shopUrl=(shop,query)=>{
   const q=encodeURIComponent(query||"");
   if(shop==="nike")return `https://www.nike.com/w?q=${q}`;
   if(shop==="stockx")return `https://stockx.com/search?s=${q}`;
   if(shop==="goat")return `https://www.goat.com/search?query=${q}`;
+  if(shop==="sephora")return `https://www.sephora.com/search?keyword=${q}`;
+  if(shop==="ulta")return `https://www.ulta.com/search?search=${q}`;
+  if(shop==="target")return `https://www.target.com/s?searchTerm=${q}`;
+  if(shop==="amazon")return `https://www.amazon.com/s?k=${q}`;
+  if(shop==="walmart")return `https://www.walmart.com/search?q=${q}`;
   return `https://www.google.com/search?q=${q}`;
 };
 const openShop=(shop,query)=>{try{window.open(shopUrl(shop,query),"_blank","noopener,noreferrer");}catch{}};
@@ -100,6 +138,40 @@ const buildRewardFromName=(form)=>{
     cost:form.priority.includes("Dream")?3:form.priority.includes("Next")?2:1
   };
 };
+const detectWishCategory=(name,chosen="auto")=>{
+  if(chosen&&chosen!=="auto")return chosen;
+  const s=normalizeSneakerText(name);
+  if(/shoe|sneaker|jordan|kobe|sabrina|ja|lebron|kd|luka|nike|adidas|puma|new balance|ae 1|a one/.test(s))return "sneakers";
+  if(/hoodie|shirt|tee|pants|cargo|leggings|shorts|jacket|sweats|outfit|dress|skirt|clothes|clothing|streetwear/.test(s))return "clothing";
+  if(/makeup|lip|gloss|balm|skin|skincare|face|moisturizer|cleanser|mascara|blush|sephora|ulta|routine/.test(s))return "beauty";
+  if(/toy|lego|squish|slime|doll|mini brands|plush|game|roblox|stanley|tumbler/.test(s))return "toys";
+  if(/backpack|notebook|pen|pencil|binder|school|planner/.test(s))return "school";
+  if(/camp|college|training|save|trip|future|lesson|class/.test(s))return "future";
+  return "other";
+};
+const findWishlistStarter=q=>{
+  const s=normalizeSneakerText(q);
+  if(!s)return null;
+  const all=[...TRENDING_SNEAKERS.map(x=>({...x,category:"sneakers"})),...WISH_STARTERS];
+  return all.find(item=>{
+    const name=normalizeSneakerText(item.name);
+    const search=normalizeSneakerText(item.search||item.name);
+    return name.includes(s)||s.includes(name)||search.includes(s)||s.split(" ").some(w=>w.length>=4&&(name.includes(w)||search.includes(w)));
+  })||null;
+};
+const buildWishlistItem=(form)=>{
+  const q=form.search||form.name;
+  const match=findWishlistStarter(q);
+  const category=detectWishCategory(q,form.category||"auto");
+  const stores=WISH_STORES[category]||WISH_STORES.other;
+  const item={id:uid(),...form,category,search:match?.search||q,img:form.img||match?.img||"",why:form.why||match?.why||"",cost:form.priority?.includes("Dream")?3:form.priority?.includes("Next")?2:1};
+  stores.forEach(shop=>{item[`${shop}Url`]=form[`${shop}Url`]||match?.[`${shop}Url`]||shopUrl(shop,item.search||item.name);});
+  item.storeList=stores;
+  return item;
+};
+const wishCategoryMeta=id=>WISH_CATEGORIES.find(c=>c.id===id)||WISH_CATEGORIES[0];
+const rewardStores=item=>item?.storeList||WISH_STORES[item?.category]||["google","amazon","target"];
+
 const SneakerPhoto=({src,name,size=74})=>{
   const [bad,setBad]=useState(false);
   return <div style={{width:size,height:size,borderRadius:18,background:"linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.72))",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",boxShadow:"0 12px 24px rgba(0,0,0,.18)",flexShrink:0}}>{src&&!bad?<img src={src} alt={name||"Sneaker"} onError={()=>setBad(true)} style={{width:"100%",height:"100%",objectFit:"contain",padding:6,boxSizing:"border-box"}}/>:<span style={{fontSize:32}}>👟</span>}</div>;
@@ -616,12 +688,12 @@ export default function ScarlettTracker(){
     const addSleep=async()=>{if(!sf.quality)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),bedtime:sf.bed,waketime:sf.wake,hours:hoursNow,quality:sf.quality};await saveSleep([entry,...sleepEntries].slice(0,90));await addStars(hoursNow>=9?3:2);setSf({bed:"21:00",wake:"06:30",quality:0});};
     const[stf,setStf]=useState({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});
     const logFit=async()=>{if(!stf.outfit&&!stf.hair)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...stf};await saveStyle([entry,...styleLog].slice(0,30),shoeWish);await addStars(3);setStf({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});};
-    const[shf,setShf]=useState({name:"",why:"",priority:"Dream 🌟",img:"",search:"",nikeUrl:"",stockxUrl:"",goatUrl:""});
+    const[shf,setShf]=useState({name:"",category:"auto",why:"",priority:"Dream 🌟",img:"",search:""});
     const addShoe=async()=>{
       if(!shf.name)return;
-      const entry=buildRewardFromName(shf);
+      const entry=buildWishlistItem(shf);
       await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));
-      setShf({name:"",why:"",priority:"Dream 🌟",img:"",search:"",nikeUrl:"",stockxUrl:"",goatUrl:""});
+      setShf({name:"",category:"auto",why:"",priority:"Dream 🌟",img:"",search:""});
     };
     const addTrendShoe=async item=>{
       const q=item.search||item.name;
@@ -776,6 +848,107 @@ export default function ScarlettTracker(){
         </div>}
         {shoeWish.length===0&&<div style={{textAlign:"center",padding:"30px 20px",color:C.muted}}><div style={{fontSize:40,marginBottom:10}}>👟</div><div style={{fontSize:13}}>Add a sneaker or reward she can work toward.</div></div>}
       </>}
+    </div>;
+  };
+
+
+  // ── WISHLIST ────────────────────────────────────────────────────────────
+  const Wishlist=()=>{
+    const [wf,setWf]=useState({name:"",category:"auto",why:"",priority:"Dream 🌟",search:""});
+    const [filter,setFilter]=useState("all");
+    const addWish=async()=>{
+      if(!wf.name.trim())return;
+      const item=buildWishlistItem(wf);
+      await saveStyle(styleLog,[item,...shoeWish].slice(0,40));
+      setWf({name:"",category:"auto",why:"",priority:"Dream 🌟",search:""});
+    };
+    const addStarter=async starter=>{
+      const item=buildWishlistItem({...starter,priority:"Dream 🌟",category:starter.category||"auto"});
+      await saveStyle(styleLog,[item,...shoeWish].slice(0,40));
+      await addStars(1);
+    };
+    const shown=filter==="all"?shoeWish:shoeWish.filter(x=>(x.category||detectWishCategory(x.name))===filter);
+    return <div>
+      <GlamHero style={{marginBottom:12}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
+          <div>
+            <div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:6}}>Reward Wishlist</div>
+            <div style={{fontSize:28,fontWeight:950,lineHeight:1.06,color:C.text}}>Goals should lead to something she can see.</div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.6,marginTop:6}}>Sneakers, outfits, face care, toys, school style, and future rewards — all connected to follow-through and parent approval.</div>
+          </div>
+          <div style={{minWidth:88,textAlign:"center",padding:"10px 12px",borderRadius:20,background:`${C.gold}18`,border:`1px solid ${C.gold}44`}}>
+            <div style={{fontSize:30,fontWeight:950,color:C.gold,lineHeight:1}}>{shoeWish.length}</div>
+            <div style={{fontSize:9,fontWeight:900,color:C.light,letterSpacing:"1px"}}>SAVED</div>
+          </div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+          <SBox value={rewardTokens} label="Tokens" color={C.gold} sub="approved goals"/>
+          <SBox value={shoeWish.filter(x=>(x.category||"")==="sneakers").length} label="Sneakers" color={C.teal}/>
+          <SBox value={rewardClaims.filter(x=>x.status==="requested").length} label="Requests" color={C.pink}/>
+        </div>
+      </GlamHero>
+
+      <div style={cs}>
+        <CH e="✨" title="Add Anything to the Wishlist" sub="She types the name. The app creates store links automatically."/>
+        <input value={wf.name} onChange={e=>setWf(p=>({...p,name:e.target.value,search:e.target.value}))} placeholder="Example: Sabrina 3 pink shoes, Nike hoodie, lip balm set..." style={{...INP,marginBottom:10}}/>
+        <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,marginBottom:10}}>
+          {WISH_CATEGORIES.map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={wf.category===c.id} col={C[c.col]||C.pink} onClick={()=>setWf(p=>({...p,category:c.id}))}/>)}
+        </div>
+        <input value={wf.why} onChange={e=>setWf(p=>({...p,why:e.target.value}))} placeholder="Why do you want it? What goal will it motivate?" style={{...INP,marginBottom:10}}/>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+          {SHOE_PRIORITY.map(p=><Chip key={p} label={p} active={wf.priority===p} col={C.gold} onClick={()=>setWf(x=>({...x,priority:p}))}/>)}
+        </div>
+        {wf.name&&<div style={{background:`${C.teal}10`,border:`1px solid ${C.teal}33`,borderRadius:14,padding:10,marginBottom:12}}>
+          <div style={{fontSize:11,color:C.teal,fontWeight:900,marginBottom:4}}>Auto category: {wishCategoryMeta(detectWishCategory(wf.name,wf.category)).icon} {wishCategoryMeta(detectWishCategory(wf.name,wf.category)).label}</div>
+          <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:8}}>Links will be created for: {rewardStores({category:detectWishCategory(wf.name,wf.category)}).map(s=>s.toUpperCase()).join(" · ")}</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {rewardStores({category:detectWishCategory(wf.name,wf.category)}).map(shop=><button key={shop} onClick={()=>openShop(shop,wf.search||wf.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Preview {shop.toUpperCase()}</button>)}
+          </div>
+        </div>}
+        <button onClick={addWish} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Add to Wishlist 🛍️</button>
+      </div>
+
+      <div style={cs}>
+        <CH e="🔥" title="Trending Reward Ideas" sub="Tap to add. Parents can check current prices and sizes."/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
+          {WISH_STARTERS.map(item=>{const cat=wishCategoryMeta(item.category);return <div key={`${item.category}_${item.name}`} style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:10,padding:11,borderRadius:18,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
+            <SneakerPhoto src={item.img} name={item.name} size={72}/>
+            <div style={{minWidth:0}}>
+              <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:3}}><span>{cat.icon}</span><span style={{fontSize:10,color:C.gold,fontWeight:900}}>{cat.label}</span></div>
+              <div style={{fontSize:14,fontWeight:950,color:C.white,lineHeight:1.2}}>{item.name}</div>
+              <div style={{fontSize:10,color:C.muted,lineHeight:1.4,marginTop:4}}>{item.why}</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
+                <button onClick={()=>addStarter(item)} style={{padding:"8px 10px",borderRadius:10,border:"none",background:`linear-gradient(135deg,${C.gold},${C.orange})`,color:C.bg,fontWeight:950,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Add reward</button>
+                {(WISH_STORES[item.category]||WISH_STORES.other).slice(0,3).map(shop=><button key={shop} onClick={()=>openShop(shop,item.search||item.name)} style={{padding:"8px 10px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>{shop.toUpperCase()}</button>)}
+              </div>
+            </div>
+          </div>})}
+        </div>
+      </div>
+
+      <div style={cs}>
+        <CH e="🌟" title="Saved Wishlist" sub="Every item has automatic shopping links."/>
+        <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:6,marginBottom:10}}>
+          {[{id:"all",label:"All",icon:"🛍️"},...WISH_CATEGORIES.filter(c=>c.id!=="auto")].map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={filter===c.id} col={C.pink} onClick={()=>setFilter(c.id)}/>)}
+        </div>
+        {shown.length>0?shown.map(s=>{const cat=wishCategoryMeta(s.category||detectWishCategory(s.name));return <div key={s.id} style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:10,padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
+          <SneakerPhoto src={s.img} name={s.name} size={64}/>
+          <div style={{minWidth:0}}>
+            <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"flex-start"}}>
+              <div>
+                <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.25}}>{s.name}</div>
+                <div style={{fontSize:10,color:C.gold,marginTop:2}}>{cat.icon} {cat.label} · {s.priority||"Dream 🌟"} · {rewardCost(s)} token{rewardCost(s)===1?"":"s"}</div>
+              </div>
+              <button onClick={()=>saveStyle(styleLog,shoeWish.filter(x=>x.id!==s.id))} aria-label={`Remove ${s.name}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
+            </div>
+            {s.why&&<div style={{fontSize:10,color:C.muted,marginTop:4,lineHeight:1.4}}>{s.why}</div>}
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
+              {rewardStores(s).map(shop=><button key={shop} onClick={()=>openRewardShop(shop,s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>{shop.toUpperCase()}</button>)}
+              <button disabled={!!claimFor(s)||rewardTokens<rewardCost(s)} onClick={()=>requestReward(s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.gold}44`,background:claimFor(s)?`${C.green}12`:rewardTokens>=rewardCost(s)?`${C.gold}18`:"rgba(255,255,255,.04)",color:claimFor(s)?C.green:rewardTokens>=rewardCost(s)?C.gold:C.muted,fontWeight:900,cursor:claimFor(s)||rewardTokens<rewardCost(s)?"not-allowed":"pointer",fontSize:10,fontFamily:"system-ui"}}>{claimFor(s)?"Requested":"Request Reward"}</button>
+            </div>
+          </div>
+        </div>}):<div style={{textAlign:"center",padding:"28px 18px",color:C.muted}}><div style={{fontSize:42,marginBottom:8}}>🛍️</div><div style={{fontSize:13}}>No wishlist items in this category yet.</div></div>}
+      </div>
     </div>;
   };
 
@@ -985,7 +1158,7 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  const CONTENT={today:Today,hoops:Hoops,glow:MyGlow,goals:Goals,progress:Progress};
+  const CONTENT={today:Today,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
 
   return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
     <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden}`}</style>
@@ -1048,7 +1221,7 @@ export default function ScarlettTracker(){
         <StableRenderer key={tab} render={CONTENT[tab]||Today}/>
       </div>
 
-      <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(400px,calc(100% - 20px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:3,background:"rgba(12,0,25,.92)",backdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"7px 6px calc(7px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
+      <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(400px,calc(100% - 20px))",display:"grid",gridTemplateColumns:`repeat(${TABS.length},1fr)`,gap:3,background:"rgba(12,0,25,.92)",backdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:22,padding:"7px 6px calc(7px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
         {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?`${C.pink}22`:"transparent",border:"none",borderRadius:16,color:tab===t.id?C.pink:C.muted,padding:"6px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:tab===t.id?20:18,lineHeight:1}}>{t.e}</div><div style={{fontSize:7,marginTop:2,letterSpacing:".3px"}}>{t.label}</div></button>)}
       </div>
     </div>
