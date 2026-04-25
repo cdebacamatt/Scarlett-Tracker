@@ -1031,27 +1031,149 @@ export default function ScarlettTracker(){
   // ── SLEEP ──────────────────────────────────────────────────────────────
   const Sleep=()=>{
     const calcH=(bed,wake)=>{try{const[bh,bm]=bed.split(":").map(Number),[wh,wm]=wake.split(":").map(Number);let m=(wh*60+wm)-(bh*60+bm);if(m<0)m+=1440;return Math.round(m/60*10)/10;}catch{return 0;}};
-    const addSleep=async()=>{if(!sleepForm.quality)return;const entry={date:toShort(todayISO()),dateISO:todayISO(),bedtime:sleepForm.bedtime,waketime:sleepForm.waketime,hours:calcH(sleepForm.bedtime,sleepForm.waketime),quality:sleepForm.quality,notes:sleepForm.notes};await saveSleep([entry,...sleepEntries].slice(0,90));setSleepForm({bedtime:"21:00",waketime:"06:30",quality:0,notes:""});};
+    const hoursNow=calcH(sleepForm.bedtime,sleepForm.waketime);
+    const sleepScore=Math.min(100,Math.max(0,Math.round((hoursNow/10)*75+(sleepForm.quality||0)*5)));
     const avgH=sleepEntries.length?Math.round(avgArr(sleepEntries.slice(0,7).map(e=>e.hours))*10)/10:0;
-    return<div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}><SBox value={avgH||"—"} label="Avg Hours" color={C.purple} sub="7-night avg"/><SBox value={(sleepEntries[0]?sleepEntries[0].quality:0)||"—"} label="Last Quality" color={C.gold} sub="out of 5"/><SBox value={sleepEntries.length} label="Nights Logged" color={C.teal}/></div>
-      {avgH>0&&<div style={{background:avgH>=9?`${C.green}15`:`${C.orange}15`,border:`1px solid ${avgH>=9?C.green:C.orange}44`,borderRadius:10,padding:12,marginBottom:12,fontSize:12,color:C.text,lineHeight:1.7}}>{avgH>=9.5?"🌟 Elite sleep! Your skills and memory are consolidating every night.":avgH>=8?"✅ Good sleep. Aim for 9–10h for peak athletic performance.":avgH>=7?"⚠️ Slightly short. Try moving bedtime 30 minutes earlier.": `🔴 ${avgH.toFixed(1)}h is below what young athletes need. Sleep is when you grow.`}</div>}
+    const lastQ=(sleepEntries[0]?sleepEntries[0].quality:0)||0;
+    const week=sleepEntries.slice(0,7);
+    const avgQ=week.length?Math.round(avgArr(week.map(e=>e.quality||0))*10)/10:0;
+    const sleepLevel=hoursNow>=9&&sleepForm.quality>=4?{label:"Recovery Queen",icon:"👑",col:C.gold,msg:"Elite sleep setup — body and brain recharge mode."}:hoursNow>=8?{label:"Recharge Mode",icon:"🌙",col:C.teal,msg:"Strong recovery window. Keep it calm and consistent."}:hoursNow>=7?{label:"Almost There",icon:"✨",col:C.orange,msg:"Pretty good. A little more sleep would level this up."}:{label:"Needs Rest",icon:"💤",col:C.purple,msg:"Try an earlier wind down tonight."};
+    const sleepTips=[
+      {e:"📵",t:"Screens Off",d:"Put screens away 30 min before bed"},
+      {e:"💧",t:"Water Ready",d:"Set water nearby before sleep"},
+      {e:"🎒",t:"Bag Packed",d:"Less morning stress"},
+      {e:"🧘‍♀️",t:"Calm Body",d:"Stretch or breathe for 2 minutes"}
+    ];
+    const bedtimePresets=[
+      {label:"School Night",bed:"21:00",wake:"06:30",e:"📚"},
+      {label:"Game Recovery",bed:"20:45",wake:"06:45",e:"🏀"},
+      {label:"Weekend Reset",bed:"22:00",wake:"08:00",e:"✨"}
+    ];
+    const addSleep=async()=>{
+      if(!sleepForm.quality)return;
+      const entry={date:toShort(todayISO()),dateISO:todayISO(),bedtime:sleepForm.bedtime,waketime:sleepForm.waketime,hours:hoursNow,quality:sleepForm.quality,notes:sleepForm.notes,score:sleepScore};
+      await saveSleep([entry,...sleepEntries].slice(0,90));
+      const ns=stars+(hoursNow>=9?2:1)+(sleepForm.quality>=4?1:0);
+      await saveGoals(goals,ns);
+      setSleepForm({bedtime:"21:00",waketime:"06:30",quality:0,notes:""});
+    };
+    return <div>
+      <GlamHero style={{padding:16}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:12,alignItems:"center",marginBottom:12}}>
+          <div>
+            <div style={{fontSize:30,fontWeight:950,lineHeight:1,background:`linear-gradient(135deg,${C.purple},${C.blue} 58%,${C.teal})`,WebkitBackgroundClip:"text",color:"transparent",letterSpacing:"-.8px"}}>Sleep Studio</div>
+            <div style={{fontSize:10,color:C.light,letterSpacing:"1.2px",fontWeight:900,marginTop:6}}>RECOVER · GROW · WAKE UP STRONG</div>
+          </div>
+          <div style={{width:62,height:62,borderRadius:22,background:"linear-gradient(145deg,rgba(120,189,251,.24),rgba(159,122,234,.16))",border:"1px solid rgba(255,255,255,.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:31,boxShadow:`0 0 26px ${C.blue}33`}}>🌙</div>
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
+          <div style={{...glass,borderRadius:18,padding:12,textAlign:"center",background:"linear-gradient(145deg,rgba(159,122,234,.18),rgba(255,255,255,.04))"}}>
+            <div style={{fontSize:8,color:C.purple,fontWeight:950,letterSpacing:"1.4px",textTransform:"uppercase",marginBottom:5}}>Avg Sleep</div>
+            <div style={{fontSize:25,fontWeight:950,color:C.white,lineHeight:1}}>{avgH||"—"}</div>
+            <div style={{fontSize:9,color:C.muted,marginTop:5}}>7-night avg</div>
+          </div>
+          <div style={{...glass,borderRadius:18,padding:12,textAlign:"center",background:"linear-gradient(145deg,rgba(255,215,0,.16),rgba(255,255,255,.04))"}}>
+            <div style={{fontSize:8,color:C.gold,fontWeight:950,letterSpacing:"1.4px",textTransform:"uppercase",marginBottom:5}}>Quality</div>
+            <div style={{fontSize:25,fontWeight:950,color:lastQ>=4?C.gold:C.white,lineHeight:1}}>{lastQ||"—"}</div>
+            <div style={{fontSize:9,color:C.muted,marginTop:5}}>last night</div>
+          </div>
+          <div style={{...glass,borderRadius:18,padding:12,textAlign:"center",background:"linear-gradient(145deg,rgba(44,230,209,.16),rgba(255,255,255,.04))"}}>
+            <div style={{fontSize:8,color:C.teal,fontWeight:950,letterSpacing:"1.4px",textTransform:"uppercase",marginBottom:5}}>Logged</div>
+            <div style={{fontSize:25,fontWeight:950,color:C.teal,lineHeight:1}}>{sleepEntries.length}</div>
+            <div style={{fontSize:9,color:C.muted,marginTop:5}}>nights</div>
+          </div>
+        </div>
+
+        <div style={{padding:13,borderRadius:18,background:`linear-gradient(145deg,${sleepLevel.col}1F,rgba(255,255,255,.04))`,border:`1px solid ${sleepLevel.col}44`}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <RingChart val={sleepScore} col={sleepLevel.col} label={sleepScore+"%"} size={64}/>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:16,fontWeight:950,color:sleepLevel.col,lineHeight:1.1}}>{sleepLevel.icon} {sleepLevel.label}</div>
+              <div style={{fontSize:11,color:C.light,lineHeight:1.45,marginTop:5}}>{sleepLevel.msg}</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:6}}>{hoursNow} hours planned · quality {sleepForm.quality||"not set"}/5</div>
+            </div>
+          </div>
+        </div>
+      </GlamHero>
+
       <div style={cs}>
-        <CH e="➕" title="Log Sleep"/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:8}}><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>BEDTIME</div><input type="time" value={sleepForm.bedtime} onChange={e=>setSleepForm(p=>({...p,bedtime:e.target.value}))} style={INP}/></div><div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>WAKE TIME</div><input type="time" value={sleepForm.waketime} onChange={e=>setSleepForm(p=>({...p,waketime:e.target.value}))} style={INP}/></div></div>
-        {sleepForm.bedtime&&sleepForm.waketime&&<div style={{fontSize:12,color:C.teal,fontWeight:700,marginBottom:8}}>= {calcH(sleepForm.bedtime,sleepForm.waketime)} hours of sleep</div>}
-        <div style={{marginBottom:8}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:6}}>SLEEP QUALITY</div><RD val={sleepForm.quality} max={5} col={C.purple} onSet={v=>setSleepForm(p=>({...p,quality:v}))}/></div>
-        <textarea value={sleepForm.notes} onChange={e=>setSleepForm(p=>({...p,notes:e.target.value}))} placeholder="How did you sleep? Restless? Dreams?" style={{...TXT,marginTop:6,marginBottom:10}}/>
-        <button onClick={addSleep} style={{width:"100%",padding:12,background:`linear-gradient(135deg,${C.purple},${C.blue})`,color:C.white,border:"none",borderRadius:8,fontWeight:800,cursor:"pointer",fontFamily:"system-ui"}}>Save Sleep Entry</button>
+        <CH e="⚡" title="Quick Sleep Mode" sub="Tap one to set bedtime and wake time"/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+          {bedtimePresets.map(p=><button key={p.label} onClick={()=>setSleepForm(f=>({...f,bedtime:p.bed,waketime:p.wake}))} style={{background:(sleepForm.bedtime===p.bed&&sleepForm.waketime===p.wake)?`linear-gradient(135deg,${C.purple},${C.blue})`:"rgba(255,255,255,.05)",border:`1px solid ${(sleepForm.bedtime===p.bed&&sleepForm.waketime===p.wake)?C.blue:C.border}`,borderRadius:16,padding:"11px 6px",fontFamily:"system-ui",color:C.white,cursor:"pointer",textAlign:"center"}}>
+            <div style={{fontSize:21,marginBottom:5}}>{p.e}</div>
+            <div style={{fontSize:10,fontWeight:950,lineHeight:1.1}}>{p.label}</div>
+            <div style={{fontSize:8,color:"rgba(255,255,255,.60)",marginTop:5}}>{p.bed} → {p.wake}</div>
+          </button>)}
+        </div>
       </div>
-      {sleepEntries.length>0&&<div style={cs}><CH e="📅" title="Sleep History"/>
-        {sleepEntries.slice(0,14).map((e,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:`1px solid ${C.border}`}}>
-          <div style={{minWidth:52,fontSize:10,color:C.muted}}>{e.date}</div>
-          <div style={{minWidth:40,fontWeight:800,color:e.hours>=9?C.green:e.hours>=7?C.teal:C.orange}}>{e.hours}h</div>
-          <div style={{flex:1,fontSize:10,color:C.muted}}>{"⭐".repeat(e.quality||0)} {e.notes||""}</div>
-          <button onClick={()=>saveSleep(sleepEntries.filter((_,idx)=>idx!==i))} style={{background:"none",border:"none",color:C.muted,cursor:"pointer"}}>×</button>
+
+      <div style={{...cs,background:"radial-gradient(circle at 18% 0%,rgba(120,189,251,.14),transparent 30%),linear-gradient(145deg,rgba(31,18,62,.96),rgba(12,5,25,.98))"}}>
+        <CH e="➕" title="Log Sleep" sub="Build her recovery streak"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:4}}>BEDTIME</div><input type="time" value={sleepForm.bedtime} onChange={e=>setSleepForm(p=>({...p,bedtime:e.target.value}))} style={{...INP,fontSize:16,textAlign:"center",fontWeight:850}}/></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:4}}>WAKE TIME</div><input type="time" value={sleepForm.waketime} onChange={e=>setSleepForm(p=>({...p,waketime:e.target.value}))} style={{...INP,fontSize:16,textAlign:"center",fontWeight:850}}/></div>
+        </div>
+
+        <div style={{padding:12,borderRadius:16,background:"rgba(0,0,0,.22)",border:`1px solid ${C.teal}33`,marginBottom:12,textAlign:"center"}}>
+          <div style={{fontSize:22,fontWeight:950,color:C.teal,textShadow:`0 0 18px ${C.teal}55`}}>{hoursNow} hours</div>
+          <div style={{fontSize:10,color:C.muted,marginTop:3}}>sleep target for tonight</div>
+        </div>
+
+        <div style={{marginBottom:12}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
+            <div style={{fontSize:10,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>SLEEP QUALITY</div>
+            <div style={{fontSize:10,color:sleepForm.quality>=4?C.gold:C.muted,fontWeight:900}}>{sleepForm.quality?`${sleepForm.quality}/5`:"tap a number"}</div>
+          </div>
+          <RD val={sleepForm.quality} max={5} col={C.purple} onSet={v=>setSleepForm(p=>({...p,quality:v}))}/>
+        </div>
+
+        <div style={{marginBottom:12}}>
+          <div style={{fontSize:10,color:C.blue,fontWeight:950,letterSpacing:"1.3px",textTransform:"uppercase",marginBottom:8}}>Wind-Down Checklist</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            {sleepTips.map(t=><button key={t.t} onClick={()=>setSleepForm(p=>({...p,notes:(p.notes||"").includes(t.t)?p.notes:`${p.notes?`${p.notes} · `:""}${t.t}`}))} style={{display:"flex",alignItems:"center",gap:8,padding:10,borderRadius:14,border:`1px solid ${(sleepForm.notes||"").includes(t.t)?C.teal:C.border}`,background:(sleepForm.notes||"").includes(t.t)?`${C.teal}18`:"rgba(255,255,255,.045)",color:C.text,fontFamily:"system-ui",textAlign:"left",cursor:"pointer"}}>
+              <div style={{fontSize:18}}>{t.e}</div>
+              <div style={{minWidth:0}}><div style={{fontSize:10,fontWeight:950,color:(sleepForm.notes||"").includes(t.t)?C.teal:C.white}}>{t.t}</div><div style={{fontSize:8,color:C.muted,lineHeight:1.2}}>{t.d}</div></div>
+            </button>)}
+          </div>
+        </div>
+
+        <textarea value={sleepForm.notes} onChange={e=>setSleepForm(p=>({...p,notes:e.target.value}))} placeholder="How did you sleep? Dreams, energy, calm routine..." style={{...TXT,marginBottom:10,minHeight:70}}/>
+        <button onClick={addSleep} style={{width:"100%",padding:13,background:`linear-gradient(135deg,${C.purple},${C.blue})`,color:C.white,border:"none",borderRadius:14,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:13,boxShadow:`0 0 24px ${C.blue}33`}}>Save Sleep Entry 🌙</button>
+      </div>
+
+      {week.length>0&&<div style={cs}>
+        <CH e="📊" title="Sleep Trend" sub="Last 7 nights"/>
+        <div style={{display:"flex",alignItems:"flex-end",gap:5,height:72,marginBottom:8}}>
+          {[...week].reverse().map((e,i)=>{const h=Math.max(8,Math.round((e.hours/10)*62));const col=e.hours>=9?C.green:e.hours>=8?C.teal:e.hours>=7?C.gold:C.orange;return <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+            <div style={{fontSize:8,color:col,fontWeight:900}}>{e.hours}h</div>
+            <div style={{width:"100%",height:h,background:`linear-gradient(180deg,${col},${col}77)`,borderRadius:"7px 7px 2px 2px",boxShadow:`0 0 12px ${col}33`}}/>
+            <div style={{fontSize:7,color:C.muted}}>{(e.date||"").replace(/,.*/,"")}</div>
+          </div>;})}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          <div style={{background:"rgba(255,255,255,.045)",border:`1px solid ${C.border}`,borderRadius:14,padding:10,textAlign:"center"}}>
+            <div style={{fontSize:18,fontWeight:950,color:avgH>=8?C.teal:C.orange}}>{avgH||"—"}h</div>
+            <div style={{fontSize:9,color:C.muted}}>average hours</div>
+          </div>
+          <div style={{background:"rgba(255,255,255,.045)",border:`1px solid ${C.border}`,borderRadius:14,padding:10,textAlign:"center"}}>
+            <div style={{fontSize:18,fontWeight:950,color:avgQ>=4?C.gold:C.purple}}>{avgQ||"—"}/5</div>
+            <div style={{fontSize:9,color:C.muted}}>average quality</div>
+          </div>
+        </div>
+      </div>}
+
+      {sleepEntries.length>0&&<div style={cs}><CH e="📅" title="Sleep History" sub="Tap × to remove an entry"/>
+        {sleepEntries.slice(0,14).map((e,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 0",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{width:42,height:42,borderRadius:13,background:e.hours>=9?`${C.green}18`:e.hours>=8?`${C.teal}18`:`${C.orange}18`,border:`1px solid ${e.hours>=9?C.green:e.hours>=8?C.teal:C.orange}44`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:950,color:e.hours>=9?C.green:e.hours>=8?C.teal:C.orange,flexShrink:0}}>{e.hours}h</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:11,fontWeight:850,color:C.text}}>{e.date} · {"⭐".repeat(e.quality||0)}</div>
+            {e.notes&&<div style={{fontSize:10,color:C.muted,marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{e.notes}</div>}
+          </div>
+          <button onClick={()=>saveSleep(sleepEntries.filter((_,idx)=>idx!==i))} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
         </div>)}
       </div>}
+      <SubmitSpacer/>
     </div>;
   };
 
