@@ -5,7 +5,7 @@ const TABS=[{id:"today",e:"🏠",label:"Today"},{id:"games",e:"🏀",label:"Game
 const DEF_VITALS={energy:0,mood:0};
 const DEF_HABITS=[{id:"h1",time:"Morning",label:"Drink water first thing",group:"MORNING"},{id:"h2",time:"Morning",label:"Make my bed",group:"MORNING"},{id:"h3",time:"After School",label:"Homework before screens",group:"SCHOOL"},{id:"h4",time:"Evening",label:"Basketball practice or drills",group:"BASKETBALL"},{id:"h5",time:"Night",label:"Read for 20 minutes",group:"WIND DOWN"},{id:"h6",time:"Night",label:"In bed by 9:00 PM",group:"WIND DOWN"}];
 const DEF_SKILLS={"Ball Handling":35,"Shooting Form":30,"Layups":35,"Free Throws":30,"Passing":35,"Court Vision":30,"Defense":30,"Rebounding":30,"Footwork":30,"Speed & Agility":35,"Conditioning":35,"Basketball IQ":30,"Confidence":45,"Leadership":40};
-const DEF_SUBJECTS={Math:"B",Reading:"A",Science:"B","Social Studies":"B",Writing:"B"};
+const DEF_SUBJECTS={Math:3,Reading:4,Science:3,"Social Studies":3,Writing:3};
 const DEF_TRAINING=[{id:"td1",day:"MON",focus:"Ball Handling",detail:"Stationary handles, cone weave, off-hand"},{id:"td2",day:"WED",focus:"Shooting",detail:"Form shooting, spot shooting, free throws"},{id:"td3",day:"THU",focus:"Defense & Footwork",detail:"Slides, close-outs, jump rope, agility"},{id:"td4",day:"SAT",focus:"Full Workout",detail:"Handles + shooting + defense + conditioning"}];
 const DEF_PROFILE={name:"Scarlett",grade:"5th",teamName:"",emoji:"⭐",primaryGoal:"All-around player",focus:"Improve every skill and get better at everything",notes:"Work hard every day. Be the best teammate you can be."};
 const PRACTICE_TYPES=["Team Practice","Home Workout","Shooting","Ball Handling","Defense","Conditioning","Full Workout","Film Study"];
@@ -22,8 +22,10 @@ const ROUTINE_ITEMS=[
   {id:"read",e:"📖",label:"Read or calm down time",group:"WIND DOWN"}
 ];
 const ROUTINE_GROUPS=["MORNING","FACE CARE","SCHOOL PREP","STYLE PREP","GAME DAY","NIGHT ROUTINE","WIND DOWN","CUSTOM"];
-const GRADE_MAP={A:4,B:3,C:2,D:1,F:0};
-const GRADE_COL={A:C.green,B:C.teal,C:C.gold,D:C.orange,F:C.red};
+const GRADE_MAP={4:4,3:3,2:2,1:1};
+const GRADE_COL={4:C.green,3:C.teal,2:C.gold,1:C.orange};
+const normGrade=g=>String(g||3);
+const gradeValue=g=>GRADE_MAP[normGrade(g)]||0;
 const SKILL_LEVEL=v=>v>=75?"Elite":v>=55?"Strong":v>=35?"Building":"Beginner";
 const SKILL_COL=v=>v>=75?C.green:v>=55?C.teal:v>=35?C.gold:C.coral;
 const BADGE_DEFS=[
@@ -53,10 +55,16 @@ const toShort=iso=>new Date(`${(iso||todayISO())}T12:00:00`).toLocaleDateString(
 const dayName=iso=>new Date(`${iso||todayISO()}T12:00:00`).toLocaleDateString("en-US",{weekday:"long"});
 const shiftISO=(iso,d)=>{const dt=new Date(`${iso}T12:00:00`);dt.setDate(dt.getDate()+d);return dt.toISOString().slice(0,10);};
 const clone=o=>JSON.parse(JSON.stringify(o));
+
+const normalizeSubjects=subs=>Object.fromEntries(Object.entries(subs||{}).map(([k,v])=>{
+  const s=String(v||"3").toUpperCase();
+  const map={A:"4",B:"3",C:"2",D:"1",F:"1","4":"4","3":"3","2":"2","1":"1"};
+  return [k,map[s]||"3"];
+}));
 const avgArr=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
 const trendArr=arr=>{if(arr.length<2)return 0;const xs=arr.map((_,i)=>i),mX=avgArr(xs),mY=avgArr(arr),num=xs.reduce((s,x,i)=>s+(x-mX)*(arr[i]-mY),0),den=xs.reduce((s,x)=>s+(x-mX)**2,0);return den===0?0:num/den;};
 const daysAgo=d=>{try{return Math.round((Date.now()-new Date(d+"T12:00:00"))/86400000);}catch{return 999;}};
-const gpaCalc=subs=>{const v=Object.values(subs).map(g=>GRADE_MAP[g]||0);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):"—";};
+const gpaCalc=subs=>{const v=Object.values(subs).map(g=>gradeValue(g)||0);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):"—";};
 const pct=(n,d)=>d?Math.round(n/d*100):0;
 
 async function sg(k){
@@ -115,7 +123,7 @@ function generateInsights(profile,games,practices,skills,subjects,sleepEntries,v
   // Skills
   const se=Object.entries(skills).sort((a,b)=>a[1]-b[1]);if(se.length){const[ws,wv]=se[0],[ss2,sv]=se[se.length-1];if(wv<40)ins.push({icon:"🎯",text:`${ws} (${wv}%) is your biggest growth opportunity — 15 min of focused daily reps compounds fast.`,col:C.coral});if(sv>=70)ins.push({icon:"⭐",text:`${ss2} is your strongest weapon at ${sv}% — lean on it in games.`,col:C.gold});}
   // Grades
-  const ge=Object.entries(subjects).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));if(ge.length){const[ws2,wg]=ge[0],[bs,bg]=ge[ge.length-1];if((GRADE_MAP[wg]||0)<3)ins.push({icon:"📚",text:`${ws2} is at ${wg} — 15 min of nightly review will move this grade. Consistency beats cramming.`,col:C.teal});if((GRADE_MAP[bg]||0)>=4)ins.push({icon:"🌟",text:`${bg} in ${bs} — that discipline carries straight to the court.`,col:C.green});}
+  const ge=Object.entries(subjects).sort((a,b)=>(gradeValue(a[1])||0)-(gradeValue(b[1])||0));if(ge.length){const[ws2,wg]=ge[0],[bs,bg]=ge[ge.length-1];if((gradeValue(wg)||0)<3)ins.push({icon:"📚",text:`${ws2} is at ${wg} — 15 min of nightly review will move this grade. Consistency beats cramming.`,col:C.teal});if((gradeValue(bg)||0)>=4)ins.push({icon:"🌟",text:`${bg} in ${bs} — that discipline carries straight to the court.`,col:C.green});}
   // Sleep
   if(sleepEntries.length>=3){const avgH=avgArr(sleepEntries.slice(0,5).map(e=>e.hours));if(avgH<8)ins.push({icon:"🌙",text:`Averaging ${avgH.toFixed(1)}h sleep — athletes need 9–10h for growth, skill retention, and peak energy.`,col:C.red});else if(avgH>=9.5)ins.push({icon:"🌙",text:`${avgH.toFixed(1)}h avg sleep — elite recovery habits!`,col:C.green});}
   // Goals
@@ -304,7 +312,7 @@ export default function ScarlettTracker(){
     const td=await sg("sc_training")||{days:clone(DEF_TRAINING)};
     setDailyHist(daily.entries||{});setGames(bball.games||[]);setSkills(bball.skills||clone(DEF_SKILLS));
     setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);setTrendBoard(styleD.trends||[]);setRoutineHist(routineD.entries||{});setRoutineItems(routineD.items||clone(ROUTINE_ITEMS));setSleepEntries(slp.entries||[]);
-    setSubjects(school.subjects||clone(DEF_SUBJECTS));setQuizLog(school.quizLog||[]);
+    setSubjects(normalizeSubjects(school.subjects||clone(DEF_SUBJECTS)));setQuizLog((school.quizLog||[]).map(q=>({...q,grade:normGrade(q.grade==="A"?4:q.grade==="B"?3:q.grade==="C"?2:q.grade==="D"?1:q.grade==="F"?1:q.grade)})));
     setGoals(gd.entries||[]);setStars(gd.stars||0);setHabits(hd2.entries||clone(DEF_HABITS));
     setProfile(pd);setTrainingDays(td.days||clone(DEF_TRAINING));
     supRef.current=true;applyDay((daily.entries||{})[todayISO()]);setLoaded(true);
@@ -345,8 +353,8 @@ export default function ScarlettTracker(){
     }else add("Practice","💪",C.purple,"No practice sessions logged yet.","Coach cannot tell what she is working on without practice logs.","Next move: log one practice with effort, focus, and what was hard.","0 practices");
     const sk=Object.entries(skills).sort((a,b)=>a[1]-b[1]),weak=sk[0],strong=sk[sk.length-1];
     if(weak&&strong)add("Skills","📊",SKILL_COL(strong[1]),`${strong[0]} is her strongest skill at ${strong[1]}%.`,`${weak[0]} is the next level-up skill at ${weak[1]}%.`,`Next move: 15 minutes of ${weak[0]} reps today.`,`${Math.round(avgArr(Object.values(skills)))}% overall`);
-    const grades=Object.entries(subjects).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0)),low=grades[0],high=grades[grades.length-1];
-    if(low&&high)add("School","📚",(GRADE_MAP[low[1]]||0)<3?C.orange:C.teal,`${high[0]} is looking strong with a ${high[1]}.`,(GRADE_MAP[low[1]]||0)<3?`${low[0]} needs attention at ${low[1]}.`:"Grades look solid right now.",(GRADE_MAP[low[1]]||0)<3?`Next move: 15 minutes of ${low[0]} review tonight.`:"Next move: keep homework-before-screens going.",`GPA ${gpaCalc(subjects)}`);
+    const grades=Object.entries(subjects).sort((a,b)=>(gradeValue(a[1])||0)-(gradeValue(b[1])||0)),low=grades[0],high=grades[grades.length-1];
+    if(low&&high)add("School","📚",(gradeValue(low[1])||0)<3?C.orange:C.teal,`${high[0]} is looking strong with a ${high[1]}.`,(gradeValue(low[1])||0)<3?`${low[0]} needs attention at ${low[1]}.`:"Grades look solid right now.",(gradeValue(low[1])||0)<3?`Next move: 15 minutes of ${low[0]} review tonight.`:"Next move: keep homework-before-screens going.",`GPA ${gpaCalc(subjects)}`);
     const active=goals.filter(g=>!g.done),done=goals.filter(g=>g.done);
     add("Goals","🎯",C.gold,done.length?`${done.length} goal${done.length===1?"":"s"} finished — that is momentum.`:"Goals are ready when she is.",active.length?`${active.length} active goal${active.length===1?"":"s"} still need action.`:"No active goal right now.",active.length?`Next move: choose one tiny action for “${active[0].text.slice(0,32)}${active[0].text.length>32?"...":""}”.`:"Next move: set one basketball, school, or style goal.",`${done.length}/${goals.length||0} done`);
     if(sleepEntries.length){const ah=Math.round(avgArr(sleepEntries.slice(0,7).map(e=>e.hours))*10)/10;add("Sleep","🌙",ah>=8?C.green:C.orange,ah>=8?`${ah}h average sleep — nice recovery habit.`:"Sleep is logged, which is already a win.",ah<8?"Average sleep is under the 8–10h target.":"Keep the bedtime routine steady.",ah<8?"Next move: move bedtime 20–30 minutes earlier tonight.":"Next move: keep the same bedtime routine three nights in a row.",`${ah}h avg`);}else add("Sleep","🌙",C.purple,"No sleep data yet.","Coach needs sleep logs to connect rest with energy and games.","Next move: log bedtime, wake time, and sleep quality tomorrow.","0 nights");
@@ -369,8 +377,8 @@ export default function ScarlettTracker(){
     const topIn=insights.find(i=>i.col===C.red)||insights[0];
     const r=(readiness.score!=null?readiness.score:0),displayVal=(readiness.displayValue!=null?readiness.displayValue:String(r)),circ=2*Math.PI*24,dash=circ-(((readiness.score!=null?readiness.score:0))/100)*circ;
     const weakestSkill=Object.entries(skills).sort((a,b)=>a[1]-b[1])[0]||["Dribbling",30];
-    const gradeEntries=Object.entries(subjects).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
-    const worstSubj=gradeEntries.find(([_,g])=>(GRADE_MAP[g]||0)<3);
+    const gradeEntries=Object.entries(subjects).sort((a,b)=>(gradeValue(a[1])||0)-(gradeValue(b[1])||0));
+    const worstSubj=gradeEntries.find(([_,g])=>(gradeValue(g)||0)<3);
     const activeGoal=goals.find(g=>!g.done);
     const recentDays=Object.keys(dailyHist).sort((a,b)=>b.localeCompare(a)).slice(0,7);
     const groups=allH.reduce((acc,h)=>{if(!acc[h.group])acc[h.group]=[];acc[h.group].push(h);return acc;},{});
@@ -456,7 +464,7 @@ export default function ScarlettTracker(){
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           {missionCard({title:"Hoops Mission",e:"🏀",col:C.coral,onClick:()=>setTab("skills"),children:<div style={{display:"flex",alignItems:"center",gap:9}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={46}/><div><div style={{fontSize:12,fontWeight:950,color:C.white,lineHeight:1.15}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:C.muted,marginTop:3}}>15 min focus</div></div></div>})}
-          {missionCard({title:"School Mission",e:"📚",col:C.teal,onClick:()=>setTab("school"),children:worstSubj?<div style={{display:"flex",alignItems:"center",gap:9}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={46}/><div><div style={{fontSize:12,fontWeight:950,color:C.white,lineHeight:1.15}}>{worstSubj[0]}</div><div style={{fontSize:9,color:C.muted,marginTop:3}}>quick review</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:9}}><div style={{fontSize:25}}>🌟</div><div><div style={{fontSize:12,fontWeight:950,color:C.green}}>All A’s & B’s</div><div style={{fontSize:9,color:C.muted}}>keep it up</div></div></div>})}
+          {missionCard({title:"School Mission",e:"📚",col:C.teal,onClick:()=>setTab("school"),children:worstSubj?<div style={{display:"flex",alignItems:"center",gap:9}}><RingChart val={gradeValue(worstSubj[1])/4*100} col={C.teal} label={worstSubj[1]} size={46}/><div><div style={{fontSize:12,fontWeight:950,color:C.white,lineHeight:1.15}}>{worstSubj[0]}</div><div style={{fontSize:9,color:C.muted,marginTop:3}}>quick review</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:9}}><div style={{fontSize:25}}>🌟</div><div><div style={{fontSize:12,fontWeight:950,color:C.green}}>All A’s & B’s</div><div style={{fontSize:9,color:C.muted}}>keep it up</div></div></div>})}
           {missionCard({title:"Style Pick",e:"👟",col:C.pink,onClick:()=>setTab("style"),children:<><div style={{fontSize:12,fontWeight:950,color:C.white,marginBottom:7}}>Game-Day Drip</div><div style={{display:"flex",gap:5}}>{["10","👟","🎒","✨"].map((x,i)=><div key={i} style={{width:25,height:25,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.18)",fontSize:11,fontWeight:900,color:C.white}}>{x}</div>)}</div></>})}
           {missionCard({title:"Glow Quest",e:"✨",col:C.gold,onClick:()=>setTab("routine"),children:<><div style={{display:"flex",alignItems:"baseline",gap:5}}><div style={{fontSize:30,fontWeight:950,color:C.white,lineHeight:1}}>{routineDays}</div><div style={{fontSize:10,color:C.muted}}>days</div></div><div style={{fontSize:9,color:C.muted,marginTop:4}}>face care · fit · backpack</div></>})}
         </div>
@@ -1346,20 +1354,20 @@ export default function ScarlettTracker(){
 
   // ── SCHOOL ─────────────────────────────────────────────────────────────
   const School=()=>{
-    const[addForm,setAddForm]=useState({name:"",grade:"B"});
-    const grades=["A","B","C","D","F"];
+    const[addForm,setAddForm]=useState({name:"",grade:"3"});
+    const grades=["4","3","2","1"];
     const updateGrade=async(s,g)=>{const ns={...subjects,[s]:g};await saveSchool(ns,quizLog);};
     const removeSubj=async s=>{const{[s]:_,...rest}=subjects;await saveSchool(rest,quizLog);};
-    const addSubj=async()=>{if(!addForm.name.trim())return;const ns={...subjects,[addForm.name.trim()]:addForm.grade};await saveSchool(ns,quizLog);setAddForm({name:"",grade:"B"});};
-    const logQuiz=async()=>{if(!quizForm.score)return;const p2=Math.round(parseInt(quizForm.score)/parseInt(quizForm.total)*100);const grade=p2>=90?"A":p2>=80?"B":p2>=70?"C":p2>=60?"D":"F";const entry={id:uid(),date:toShort(todayISO()),subject:quizForm.subject,score:parseInt(quizForm.score),total:parseInt(quizForm.total),pct:p2,grade,notes:quizForm.notes};const nl=[entry,...quizLog].slice(0,60);await saveSchool(subjects,nl);setQuizForm({subject:Object.keys(subjects)[0]||"Math",score:"",total:"100",notes:""});if(grade==="A"){const ns=stars+3;await saveGoals(goals,ns);}else if(grade==="B"){const ns=stars+1;await saveGoals(goals,ns);}};
+    const addSubj=async()=>{if(!addForm.name.trim())return;const ns={...subjects,[addForm.name.trim()]:addForm.grade};await saveSchool(ns,quizLog);setAddForm({name:"",grade:"3"});};
+    const logQuiz=async()=>{if(!quizForm.score)return;const p2=Math.round(parseInt(quizForm.score)/parseInt(quizForm.total)*100);const grade=p2>=90?"4":p2>=80?"3":p2>=70?"2":"1";const entry={id:uid(),date:toShort(todayISO()),subject:quizForm.subject,score:parseInt(quizForm.score),total:parseInt(quizForm.total),pct:p2,grade,notes:quizForm.notes};const nl=[entry,...quizLog].slice(0,60);await saveSchool(subjects,nl);setQuizForm({subject:Object.keys(subjects)[0]||"Math",score:"",total:"100",notes:""});if(grade==="4"){const ns=stars+3;await saveGoals(goals,ns);}else if(grade==="3"){const ns=stars+1;await saveGoals(goals,ns);}};
     return<div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}><SBox value={gpaCalc(subjects)} label="GPA" color={C.teal}/><SBox value={Object.values(subjects).filter(g=>g==="A").length} label="A's" color={C.green}/><SBox value={Object.values(subjects).filter(g=>g==="B").length} label="B's" color={C.blue}/><SBox value={quizLog.length} label="Tests" color={C.purple} sub="logged"/></div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}><SBox value={gpaCalc(subjects)} label="GPA" color={C.teal}/><SBox value={Object.values(subjects).filter(g=>normGrade(g)==="4").length} label="4s" color={C.green}/><SBox value={Object.values(subjects).filter(g=>normGrade(g)==="3").length} label="3s" color={C.blue}/><SBox value={quizLog.length} label="Tests" color={C.purple} sub="logged"/></div>
       <div style={cs}>
-        <CH e="📝" title="Current Grades" sub="Tap a letter to update"/>
+        <CH e="📝" title="Current Grades" sub="Tap a number to update · 4 is best"/>
         {Object.entries(subjects).map(([s,grade])=><div key={s} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
           <div style={{flex:1,fontWeight:700,fontSize:13,color:C.text}}>{s}</div>
-          <div style={{display:"flex",gap:3}}>{grades.map(g=><button key={g} onClick={()=>updateGrade(s,g)} style={{width:28,height:28,borderRadius:6,border:`2px solid ${grade===g?GRADE_COL[g]:C.border}`,background:grade===g?`${GRADE_COL[g]}22`:"transparent",color:grade===g?GRADE_COL[g]:C.muted,cursor:"pointer",fontWeight:800,fontSize:11,fontFamily:"system-ui"}}>{g}</button>)}</div>
-          <div style={{background:`${GRADE_COL[grade]}22`,color:GRADE_COL[grade],padding:"4px 10px",borderRadius:6,fontWeight:900,fontSize:13,minWidth:30,textAlign:"center"}}>{grade}</div>
+          <div style={{display:"flex",gap:3}}>{grades.map(g=><button key={g} onClick={()=>updateGrade(s,g)} style={{width:28,height:28,borderRadius:6,border:`2px solid ${grade===g?GRADE_COL[normGrade(g)]:C.border}`,background:grade===g?`${GRADE_COL[normGrade(g)]}22`:"transparent",color:grade===g?GRADE_COL[normGrade(g)]:C.muted,cursor:"pointer",fontWeight:800,fontSize:11,fontFamily:"system-ui"}}>{g}</button>)}</div>
+          <div style={{background:`${GRADE_COL[normGrade(grade)]}22`,color:GRADE_COL[normGrade(grade)],padding:"4px 10px",borderRadius:6,fontWeight:900,fontSize:13,minWidth:30,textAlign:"center"}}>{grade}</div>
           <button onClick={()=>removeSubj(s)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:14}}>×</button>
         </div>)}
         <div style={{display:"flex",gap:8,marginTop:12}}><input value={addForm.name} onChange={e=>setAddForm(p=>({...p,name:e.target.value}))} placeholder="Add a subject..." style={{...INP,flex:1}} onKeyDown={e=>e.key==="Enter"&&addSubj()}/><select value={addForm.grade} onChange={e=>setAddForm(p=>({...p,grade:e.target.value}))} style={{...INP,width:56,appearance:"none"}}>{grades.map(g=><option key={g} value={g}>{g}</option>)}</select><button onClick={addSubj} style={{padding:"8px 14px",background:C.teal,color:C.navy,border:"none",borderRadius:7,fontWeight:800,cursor:"pointer",fontFamily:"system-ui",whiteSpace:"nowrap"}}>+ Add</button></div>
@@ -1370,7 +1378,7 @@ export default function ScarlettTracker(){
         <textarea value={quizForm.notes} onChange={e=>setQuizForm(p=>({...p,notes:e.target.value}))} placeholder="Notes about this test..." style={{...TXT,marginBottom:10}}/>
         <button onClick={logQuiz} style={{width:"100%",padding:12,background:C.teal,color:C.navy,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Log Test ⭐</button>
       </div>
-      {quizLog.length>0&&<div style={cs}><CH e="📚" title="Test History"/>{quizLog.slice(0,12).map(q=><div key={q.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><div style={{background:`${GRADE_COL[q.grade]}22`,color:GRADE_COL[q.grade],fontWeight:900,fontSize:16,width:36,height:36,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{q.grade}</div><div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:C.text}}>{q.subject}</div><div style={{fontSize:11,color:C.muted}}>{q.date} · {q.score}/{q.total} ({q.pct}%)</div></div><button onClick={async()=>{const nl=quizLog.filter(x=>x.id!==q.id);await saveSchool(subjects,nl);}} style={{background:"none",border:"none",color:C.muted,cursor:"pointer"}}>×</button></div>)}</div>}
+      {quizLog.length>0&&<div style={cs}><CH e="📚" title="Test History"/>{quizLog.slice(0,12).map(q=><div key={q.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:`1px solid ${C.border}`}}><div style={{background:`${GRADE_COL[normGrade(q.grade)]}22`,color:GRADE_COL[normGrade(q.grade)],fontWeight:900,fontSize:16,width:36,height:36,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{q.grade}</div><div style={{flex:1}}><div style={{fontWeight:700,fontSize:12,color:C.text}}>{q.subject}</div><div style={{fontSize:11,color:C.muted}}>{q.date} · {q.score}/{q.total} ({q.pct}%)</div></div><button onClick={async()=>{const nl=quizLog.filter(x=>x.id!==q.id);await saveSchool(subjects,nl);}} style={{background:"none",border:"none",color:C.muted,cursor:"pointer"}}>×</button></div>)}</div>}
     </div>;
   };
 
@@ -1385,7 +1393,7 @@ export default function ScarlettTracker(){
     const glowReport=getGlowReport();
     const r=(readiness.score!=null?readiness.score:0),displayVal=(readiness.displayValue!=null?readiness.displayValue:String(r)),C2=2*Math.PI*36,dash=C2-(((readiness.score!=null?readiness.score:0))/100)*C2;
     const weakSkills=Object.entries(skills).sort((a,b)=>a[1]-b[1]).slice(0,3);
-    const weakSubjs=Object.entries(subjects).filter(([_,g])=>(GRADE_MAP[g]||0)<3).sort((a,b)=>(GRADE_MAP[a[1]]||0)-(GRADE_MAP[b[1]]||0));
+    const weakSubjs=Object.entries(subjects).filter(([_,g])=>(gradeValue(g)||0)<3).sort((a,b)=>(gradeValue(a[1])||0)-(gradeValue(b[1])||0));
     const typeCounts=practices.reduce((acc,p)=>{acc[p.type]=(acc[p.type]||0)+1;return acc;},{});
     const practiceInsight=practices.length>=3?Object.entries(typeCounts).sort((a,b)=>a[1]-b[1])[0]:null;
     return<div>
@@ -1433,7 +1441,7 @@ export default function ScarlettTracker(){
       {weakSubjs.length>0&&<div style={cs}>
         <div style={{fontWeight:800,fontSize:10,letterSpacing:"1.5px",color:C.text,textTransform:"uppercase",marginBottom:10}}>📚 STUDY PRIORITIES</div>
         {weakSubjs.map(([s,grade],i)=><div key={s} style={{padding:"10px 0",borderBottom:i<weakSubjs.length-1?`1px solid ${C.border}`:"none"}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><div style={{background:`${GRADE_COL[grade]}22`,color:GRADE_COL[grade],fontWeight:900,fontSize:13,width:28,height:28,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center"}}>{grade}</div><div style={{fontWeight:800,fontSize:13,color:C.text}}>{s}</div></div>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><div style={{background:`${GRADE_COL[normGrade(grade)]}22`,color:GRADE_COL[normGrade(grade)],fontWeight:900,fontSize:13,width:28,height:28,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center"}}>{grade}</div><div style={{fontWeight:800,fontSize:13,color:C.text}}>{s}</div></div>
           <div style={{fontSize:11,color:C.muted,lineHeight:1.5}}>15 min of focused {s} review each night. {(GRADE_MAP[grade]||0)<=1?"Ask your teacher for extra help — great students do this.":"Consistent review will move this grade."}</div>
         </div>)}
       </div>}
@@ -1554,9 +1562,9 @@ export default function ScarlettTracker(){
       </div>
       <div style={cs}><CH e="📚" title="Grades" sub={`GPA: ${gpaCalc(subjects)}`}/>
         {Object.entries(subjects).map(([s,grade])=><div key={s} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:`1px solid ${C.border}`}}>
-          <div style={{background:`${GRADE_COL[grade]}22`,color:GRADE_COL[grade],fontWeight:900,fontSize:13,width:28,height:28,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{grade}</div>
+          <div style={{background:`${GRADE_COL[normGrade(grade)]}22`,color:GRADE_COL[normGrade(grade)],fontWeight:900,fontSize:13,width:28,height:28,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{grade}</div>
           <div style={{flex:1,fontSize:12,fontWeight:700,color:C.text}}>{s}</div>
-          <div style={{fontSize:10,color:C.muted}}>{grade==="A"?"Excellent! 🌟":grade==="B"?"Good work":grade==="C"?"Room to grow":grade==="D"?"Needs focus":"See teacher"}</div>
+          <div style={{fontSize:10,color:C.muted}}>{normGrade(grade)==="4"?"Excellent! 🌟":normGrade(grade)==="3"?"Good work":normGrade(grade)==="2"?"Room to grow":"Needs focus"}</div>
         </div>)}
       </div>
       {hScores.length>1&&<div style={cs}><CH e="📋" title="Habit Consistency" sub="Last 14 days"/>
