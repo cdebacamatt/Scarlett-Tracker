@@ -87,48 +87,65 @@ const REWARD_COLORS=[
 ];
 
 const REWARD_VIBES=[
-  "clean girl","sporty glam","streetwear","game day","school fit","weekend vibe","soft glam","cozy mode","preppy","basketball-core","trendy","classic","minimal","bold","fresh start","confidence era","routine queen","locker-room ready","travel day","picture day","practice day","study day","future goal","room refresh","birthday-list","tournament day","after-school","self-care","family day","sneakerhead"
+  "game day","practice day","school fit","weekend vibe","clean girl","sporty glam","streetwear","cozy mode","preppy","basketball-core","trendy","classic","minimal","bold","fresh start","confidence era","routine queen","locker-room ready","travel day","picture day","study day","future goal","room refresh","birthday-list","tournament day","after-school","self-care","family day","sneakerhead","main character"
 ];
 
-const REWARD_PHOTOS={
-  sneakers:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80",
-  clothing:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=640&q=80",
-  beauty:"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=640&q=80",
-  toys:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=640&q=80",
-  school:"https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=640&q=80",
-  future:"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=640&q=80",
-  other:"https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=640&q=80"
-};
+const REWARD_BASE_ITEMS=[
+  // SNEAKERS — names match the photo style so daily cards do not look fake or duplicated.
+  {category:"sneakers",base:"Nike red court sneaker",search:"Nike red girls court sneaker",why:"A real-looking sneaker reward that connects directly to basketball goals.",img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"White low-top sneaker",search:"white youth low top sneakers",why:"A clean everyday sneaker reward for school or weekends.",img:"https://images.unsplash.com/photo-1607522370275-f14206abe5d3?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"High-top basketball shoe",search:"girls high top basketball shoes",why:"A hoop-style reward for practice consistency.",img:"https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"Black street sneaker",search:"black youth streetwear sneakers",why:"A style reward that works with sporty outfits.",img:"https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"Color-pop running sneaker",search:"colorful girls running sneakers",why:"A bright sneaker reward for active days.",img:"https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"Classic white court shoe",search:"white girls court shoes",why:"A simple classic reward she can style with anything.",img:"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=640&q=80"},
 
-const REWARD_TEMPLATES=[
-  {category:"sneakers",base:"Basketball sneakers",search:"girls basketball sneakers",why:"A reward that connects directly to basketball goals.",img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80"},
-  {category:"sneakers",base:"Nike hoop shoes",search:"Nike girls basketball shoes",why:"A sporty reward for finishing a training goal.",img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80"},
-  {category:"sneakers",base:"Jordan style sneakers",search:"Jordan youth sneakers",why:"A trendy sneaker reward for real follow-through.",img:"https://images.unsplash.com/photo-1607522370275-f14206abe5d3?auto=format&fit=crop&w=640&q=80"},
-  {category:"sneakers",base:"Sabrina-style hoop shoes",search:"Nike Sabrina basketball shoes youth",why:"A guard-style basketball reward for skill work.",img:"https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=640&q=80"},
+  // CLOTHING
   {category:"clothing",base:"Oversized hoodie",search:"girls oversized hoodie",why:"A cozy style reward after a completed goal.",img:"https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Streetwear cargo pants",search:"girls cargo pants streetwear",why:"A cool outfit reward for school or weekends.",img:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=640&q=80"},
   {category:"clothing",base:"Graphic tee",search:"girls graphic tee streetwear",why:"A simple reward that lets her express her style.",img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Matching lounge set",search:"girls matching lounge set",why:"A stylish comfort reward for consistency.",img:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Basketball shorts",search:"girls basketball shorts",why:"A practice-ready reward for training goals.",img:"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Cargo pants",search:"girls cargo pants streetwear",why:"A cool outfit reward for school or weekends.",img:"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Matching lounge set",search:"girls matching lounge set",why:"A stylish comfort reward for routine follow-through.",img:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Basketball shorts",search:"girls basketball shorts",why:"A practical reward for practice days.",img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Denim jacket",search:"girls denim jacket",why:"A style reward that can make a school outfit feel complete.",img:"https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=640&q=80"},
+
+  // BEAUTY / SELF CARE
   {category:"beauty",base:"Gentle skincare set",search:"kids gentle skincare set",why:"A self-care reward for completing routines.",img:"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=640&q=80"},
   {category:"beauty",base:"Lip balm set",search:"lip balm set kids",why:"A small trendy reward for goal follow-through.",img:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=640&q=80"},
-  {category:"beauty",base:"Face wash and moisturizer",search:"gentle face wash moisturizer kids",why:"A routine-based reward that supports self-care.",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=640&q=80"},
-  {category:"beauty",base:"Hair care accessories",search:"girls hair accessories bows headbands",why:"A fun style reward for routine consistency.",img:"https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=640&q=80"},
-  {category:"beauty",base:"Skincare headband",search:"skincare headband girls",why:"A face-care routine reward that feels fun.",img:"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=640&q=80"},
+  {category:"beauty",base:"Face wash and moisturizer",search:"gentle face wash moisturizer kids",why:"A routine reward that supports clean habits.",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=640&q=80"},
+  {category:"beauty",base:"Skincare headband",search:"skincare headband girls",why:"A fun face-care reward that makes routine feel special.",img:"https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=640&q=80"},
+  {category:"beauty",base:"Hair accessories set",search:"girls hair accessories bows headbands",why:"A style reward for outfit prep and confidence.",img:"https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=640&q=80"},
+  {category:"beauty",base:"Mini self-care pouch",search:"girls self care pouch",why:"A neat way to organize routine items.",img:"https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=640&q=80"},
+
+  // TOYS / FUN
   {category:"toys",base:"Mini collectible toy",search:"Mini Brands toy",why:"A fun reward after a goal is completed.",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=640&q=80"},
-  {category:"toys",base:"Squishy plush",search:"cute squishy plush toy",why:"A comfort reward for steady progress.",img:"https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Cute plush",search:"cute plush toy",why:"A comfort reward for steady progress.",img:"https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=640&q=80"},
   {category:"toys",base:"Craft kit",search:"craft kit for girls",why:"A creative reward for finishing school or habit goals.",img:"https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=640&q=80"},
   {category:"toys",base:"Room decor light",search:"girls room decor light",why:"A fun room reward for a bigger goal.",img:"https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Sticker pack",search:"cute sticker pack girls",why:"A small creative reward for quick wins.",img:"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Art marker set",search:"art marker set for kids",why:"A creative reward that keeps her off autopilot screens.",img:"https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=640&q=80"},
+
+  // SCHOOL
   {category:"school",base:"Cute notebook",search:"cute notebook for school",why:"A school reward that supports organization.",img:"https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=640&q=80"},
-  {category:"school",base:"Backpack charm",search:"cute backpack charm",why:"A small school-style reward for consistency.",img:"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=640&q=80"},
   {category:"school",base:"Planner and pens",search:"cute planner pens school",why:"A goal-planning reward that keeps her organized.",img:"https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=640&q=80"},
+  {category:"school",base:"Backpack charm",search:"cute backpack charm",why:"A small school-style reward for consistency.",img:"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=640&q=80"},
   {category:"school",base:"Desk organizer",search:"cute desk organizer school",why:"A clean-space reward for focus and homework.",img:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=640&q=80"},
+  {category:"school",base:"Pencil pouch",search:"cute pencil pouch",why:"A practical school reward that still feels fun.",img:"https://images.unsplash.com/photo-1510936111840-65e151ad71bb?auto=format&fit=crop&w=640&q=80"},
+  {category:"school",base:"Bookstore pick",search:"preteen books girls",why:"A future-smart reward that builds reading confidence.",img:"https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=640&q=80"},
+
+  // FUTURE
   {category:"future",base:"Basketball camp savings",search:"youth basketball camp",why:"A future-focused reward connected to growth.",img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=640&q=80"},
-  {category:"future",base:"Training session savings",search:"youth basketball training session",why:"A reward that invests in her future skills.",img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=640&q=80"},
+  {category:"future",base:"Training session savings",search:"youth basketball training session",why:"A reward that invests in her future skills.",img:"https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=640&q=80"},
   {category:"future",base:"Experience day",search:"family experience day ideas",why:"A memory-based reward for a major goal.",img:"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=640&q=80"},
+  {category:"future",base:"Savings jar deposit",search:"kids savings jar",why:"A future-money reward that teaches patience.",img:"https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=640&q=80"},
+  {category:"future",base:"New skill class",search:"kids skill class",why:"A reward that builds confidence beyond today.",img:"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=640&q=80"},
+  {category:"future",base:"Team event fund",search:"youth sports team event",why:"A long-term reward tied to teamwork and memories.",img:"https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=640&q=80"},
+
+  // OTHER / TRENDY ACCESSORIES
   {category:"other",base:"Room refresh item",search:"girls room decor",why:"A personal-space reward for long-term progress.",img:"https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=640&q=80"},
   {category:"other",base:"Water bottle charm",search:"tumbler charm girls",why:"A small trendy accessory reward.",img:"https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=640&q=80"},
-  {category:"other",base:"Jewelry accessory",search:"girls jewelry accessory",why:"A style reward that feels special but simple.",img:"https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=640&q=80"}
+  {category:"other",base:"Jewelry accessory",search:"girls jewelry accessory",why:"A style reward that feels special but simple.",img:"https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=640&q=80"},
+  {category:"other",base:"Phone charm",search:"cute phone charm",why:"A trendy little reward for a completed goal.",img:"https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=640&q=80"},
+  {category:"other",base:"Sports water bottle",search:"girls sports water bottle",why:"A practical reward for practice and school.",img:"https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=640&q=80"},
+  {category:"other",base:"Mini bag",search:"girls mini bag",why:"A fun accessory reward that feels grown-up but age-appropriate.",img:"https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=640&q=80"}
 ];
 
 let REWARD_CATALOG_CACHE=null;
@@ -136,20 +153,24 @@ const buildRewardCatalog=()=>{
   if(REWARD_CATALOG_CACHE)return REWARD_CATALOG_CACHE;
   const items=[];
   let n=0;
-  for(const base of REWARD_TEMPLATES){
+  // Important: variation loops are OUTSIDE the base item loop so each day pulls different items/categories,
+  // instead of six versions of the same sneaker.
+  for(const vibe of REWARD_VIBES){
     for(const color of REWARD_COLORS){
-      for(const vibe of REWARD_VIBES){
-        const name=`${color} ${base.base} (${vibe})`;
+      for(const base of REWARD_BASE_ITEMS){
+        const name=`${color} ${base.base} · ${vibe}`;
+        const storeList=WISH_STORES[base.category]||WISH_STORES.other;
         items.push({
           id:`reward_${String(n).padStart(5,"0")}`,
           category:base.category,
           name,
           search:`${color} ${base.search} ${vibe}`.trim(),
           why:base.why,
-          img:base.img||REWARD_PHOTOS[base.category]||REWARD_PHOTOS.other,
+          img:base.img,
           trendTag:vibe,
           colorLabel:color,
-          storeList:WISH_STORES[base.category]||WISH_STORES.other
+          baseName:base.base,
+          storeList
         });
         n++;
       }
@@ -158,22 +179,52 @@ const buildRewardCatalog=()=>{
   REWARD_CATALOG_CACHE=items;
   return items;
 };
+
 const DAILY_REWARD_COUNT=6;
 const REWARD_ROTATION_START="2026-01-01";
+const DAILY_REWARD_CATEGORY_ORDER=["sneakers","clothing","beauty","toys","school","future","other"];
+
 const getRewardRotationInfo=(count=DAILY_REWARD_COUNT)=>{
   const catalog=buildRewardCatalog();
   const start=new Date(`${REWARD_ROTATION_START}T12:00:00`);
   const now=new Date(`${todayISO()}T12:00:00`);
   const rawDay=Math.max(0,Math.floor((now-start)/86400000));
-  const daysAvailable=Math.floor(catalog.length/count);
-  const day=daysAvailable?rawDay%daysAvailable:0;
-  const startIndex=day*count;
-  return {catalog,day,daysAvailable,startIndex,count};
+  const byCategory=DAILY_REWARD_CATEGORY_ORDER.reduce((acc,c)=>({...acc,[c]:catalog.filter(x=>x.category===c)}),{});
+  const minCatDays=Math.min(...DAILY_REWARD_CATEGORY_ORDER.map(c=>Math.max(1,byCategory[c].length)));
+  return {catalog,byCategory,day:rawDay,daysAvailable:minCatDays,count};
 };
+
 const getDailyRewardIdeas=(count=DAILY_REWARD_COUNT)=>{
-  const {catalog,startIndex}=getRewardRotationInfo(count);
-  return catalog.slice(startIndex,startIndex+count);
+  const {byCategory,day}=getRewardRotationInfo(count);
+  const picked=[];
+  const usedNames=new Set();
+  const usedImgs=new Set();
+
+  for(let i=0;i<count;i++){
+    const cat=DAILY_REWARD_CATEGORY_ORDER[(day+i)%DAILY_REWARD_CATEGORY_ORDER.length];
+    const pool=byCategory[cat]||[];
+    if(!pool.length)continue;
+
+    let item=null;
+    for(let tries=0;tries<pool.length;tries++){
+      // Different stride per card so today's six are different and future days move through the catalog.
+      const idx=(day*17+i*131+tries*19)%pool.length;
+      const cand=pool[idx];
+      const nameKey=(cand.baseName||cand.name||"").toLowerCase();
+      const imgKey=cand.img||"";
+      if(!usedNames.has(nameKey)&&!usedImgs.has(imgKey)){
+        item=cand; break;
+      }
+    }
+    if(!item)item=pool[(day*17+i*131)%pool.length];
+    usedNames.add((item.baseName||item.name||"").toLowerCase());
+    usedImgs.add(item.img||"");
+    picked.push(item);
+  }
+
+  return picked;
 };
+
 const WISH_STARTERS=buildRewardCatalog();
 
 const shopUrl=(shop,query)=>{
@@ -1234,9 +1285,9 @@ export default function ScarlettTracker(){
       </div>
 
       <div style={cs}>
-        <CH e="🔥" title="Daily Reward Ideas" sub={`Fresh ideas today · no repeats for ${rewardRotation.daysAvailable.toLocaleString()} days`}/>
+        <CH e="🔥" title="Daily Reward Ideas" sub={`Different items today · 5+ year idea rotation`}/>
         <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:10}}>
-          The idea engine rotates through a large catalog. It will not show the same reward idea again until the full catalog is exhausted.
+          Today’s ideas are intentionally mixed so she sees different reward types, different photos, and different items.
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
           {safeObjects(dailyRewardIdeas).map(item=>{const cat=cleanCat(item.category);return <div key={item.id} style={{display:"grid",gridTemplateColumns:"86px 1fr",gap:11,padding:11,borderRadius:18,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
