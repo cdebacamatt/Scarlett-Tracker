@@ -376,20 +376,47 @@ export default function ScarlettTracker(){
     const groups=allH.reduce((acc,h)=>{if(!acc[h.group])acc[h.group]=[];acc[h.group].push(h);return acc;},{});
     const routineDays=Object.keys(routineHist).length;
     const homeQuickActions=[{e:"💪",l:"Practice",t:"practice",c:C.purple},{e:"🏀",l:"Game",t:"games",c:C.coral},{e:"👟",l:"Style",t:"style",c:C.pink},{e:"✨",l:"Routine",t:"routine",c:C.gold},{e:"📚",l:"School",t:"school",c:C.teal}];
-    return<div>
+    const dailyDone=allH.filter(h=>checks[h.id]).length;
+    const dailyPct=allH.length?Math.round(dailyDone/allH.length*100):0;
+    const groupInfo={
+      "MORNING":{e:"☀️",title:"Morning Start",col:C.gold,tab:"today"},
+      "SCHOOL":{e:"📚",title:"School Focus",col:C.teal,tab:"school"},
+      "BASKETBALL":{e:"🏀",title:"Hoops Work",col:C.coral,tab:"practice"},
+      "WIND DOWN":{e:"🌙",title:"Wind Down",col:C.purple,tab:"routine"},
+      "FACE CARE":{e:"🫧",title:"Face Glow",col:C.teal,tab:"routine"},
+      "STYLE PREP":{e:"👚",title:"Style Prep",col:C.pink,tab:"style"},
+      "SCHOOL PREP":{e:"🎒",title:"School Ready",col:C.gold,tab:"school"},
+      "NIGHT ROUTINE":{e:"✨",title:"Night Routine",col:C.purple,tab:"routine"}
+    };
+    const groupDone=(items)=>items.filter(h=>checks[h.id]).length;
+    const groupPct=(items)=>items.length?Math.round(groupDone(items)/items.length*100):0;
+    const toggleGroup=(items)=>{
+      const allDone=items.every(h=>checks[h.id]);
+      setChecks(p=>{const n={...p};items.forEach(h=>n[h.id]=!allDone);return n;});
+    };
+    const nextHabit=allH.find(h=>!checks[h.id]);
+    const nextMove=nextHabit?`${nextHabit.label}`:activeGoal?activeGoal.text:topIn?.txt||"Keep your streak alive today.";
+    const missionCard=({title,e,col,children,onClick,wide})=><button onClick={onClick} style={{...glass,textAlign:"left",borderRadius:18,padding:12,cursor:"pointer",background:`linear-gradient(145deg,${col}22,rgba(255,255,255,.045))`,border:`1px solid ${col}44`,fontFamily:"system-ui",minHeight:wide?92:0,boxShadow:`0 12px 24px rgba(0,0,0,.18)`}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+        <div style={{fontSize:18}}>{e}</div>
+        <div style={{fontSize:8,color:col,fontWeight:950,letterSpacing:"1.6px",textTransform:"uppercase"}}>{title}</div>
+      </div>
+      {children}
+    </button>;
+    return <div>
       <GlamHero style={{padding:14,marginBottom:12}}>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:10,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>Plan · Practice · Glow</div>
-            <div style={{fontWeight:900,fontSize:20,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{profile.name}</span> ✨</div>
-            <div style={{fontSize:10,color:C.light,lineHeight:1.45,marginTop:6}}>Big goals. One strong day at a time.</div>
+            <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>Today Mission Board</div>
+            <div style={{fontWeight:950,fontSize:20,lineHeight:1.05,color:C.white}}>Good {new Date().getHours()<12?"Morning":"Afternoon"}, <span style={{background:glamGrad,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{profile.name}</span> ✨</div>
+            <div style={{fontSize:10,color:C.light,lineHeight:1.45,marginTop:6}}>One strong day. Stack small wins.</div>
           </div>
-          <div style={{transform:"scale(.82)",transformOrigin:"right center",marginRight:-14}}><ScarlettAvatar/></div>
+          <div style={{transform:"scale(.78)",transformOrigin:"right center",marginRight:-18}}><ScarlettAvatar/></div>
         </div>
 
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-          <div role="button" tabIndex={0} onClick={()=>setTab("coach")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("coach");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,26,140,.20),rgba(139,92,246,.15))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)",cursor:"pointer"}}>
-            <div style={{fontSize:8,color:C.pink,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>Today’s Vibe</div>
+        <div style={{display:"grid",gridTemplateColumns:"1.15fr .85fr",gap:8,marginBottom:8}}>
+          <button onClick={()=>setTab("coach")} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,26,140,.20),rgba(139,92,246,.15))",cursor:"pointer",textAlign:"left",fontFamily:"system-ui"}}>
+            <div style={{fontSize:8,color:C.pink,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>Today’s Vibe</div>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <svg width={58} height={58} style={{flexShrink:0,filter:`drop-shadow(0 0 14px ${readiness.level.col}77)`}}>
                 <circle cx={29} cy={29} r={24} fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.09)" strokeWidth={6}/>
@@ -398,37 +425,40 @@ export default function ScarlettTracker(){
                 <text x={29} y={38} textAnchor="middle" fill={readiness.level.col} fontSize={5.5} fontWeight={900} fontFamily="system-ui">{readiness.level.label}</text>
               </svg>
               <div style={{minWidth:0}}>
-                <div style={{fontSize:13,fontWeight:900,color:readiness.level.col,textShadow:`0 0 24px ${readiness.level.col}88`,lineHeight:1.05,marginBottom:4}}>{readiness.level.label}</div>
+                <div style={{fontSize:13,fontWeight:950,color:readiness.level.col,textShadow:`0 0 24px ${readiness.level.col}88`,lineHeight:1.05,marginBottom:4}}>{readiness.level.label}</div>
                 <div style={{fontSize:9,color:C.light,lineHeight:1.35}}>{mod.note}</div>
               </div>
             </div>
+          </button>
+
+          <button onClick={()=>setTab("progress")} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,26,140,.14))",cursor:"pointer",textAlign:"left",fontFamily:"system-ui"}}>
+            <div style={{fontSize:8,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:6}}>Stars</div>
+            <div style={{fontSize:36,fontWeight:950,color:C.gold,lineHeight:1,textShadow:"0 0 30px rgba(255,215,0,.9)",letterSpacing:"-1px"}}>⭐ {stars}</div>
+            <div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:6}}>earned so far</div>
+          </button>
+        </div>
+
+        <div style={{padding:12,borderRadius:18,background:"linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.035))",border:`1px solid ${C.border}`,marginBottom:8}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:8}}>
+            <div>
+              <div style={{fontSize:8,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase"}}>Next Best Move</div>
+              <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.3,marginTop:4}}>{nextMove}</div>
+            </div>
+            {nextHabit&&<button onClick={()=>setChecks(p=>({...p,[nextHabit.id]:true}))} style={{background:`linear-gradient(135deg,${C.gold},${C.pink})`,border:"none",color:C.bg,borderRadius:14,padding:"10px 12px",fontSize:11,fontWeight:950,fontFamily:"system-ui",cursor:"pointer",whiteSpace:"nowrap"}}>Done ✓</button>}
           </div>
-          <div role="button" tabIndex={0} onClick={()=>setTab("progress")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("progress");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,26,140,.14))",boxShadow:"inset 0 1px 0 rgba(255,255,255,.12)",cursor:"pointer"}}>
-            <div style={{fontSize:8,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:5}}>Stars Earned</div>
-            <div style={{display:"flex",alignItems:"baseline",gap:6}}><div style={{fontSize:38,fontWeight:900,color:C.gold,lineHeight:1,textShadow:"0 0 30px rgba(255,215,0,.9)",letterSpacing:"-1px"}}>⭐ {stars}</div></div>
-            <div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:5}}>Games · Goals · Practice</div>
+          <div style={{height:8,background:"rgba(0,0,0,.32)",borderRadius:99,overflow:"hidden"}}>
+            <div style={{height:"100%",width:`${dailyPct}%`,background:dailyPct>=100?`linear-gradient(90deg,${C.green},${C.teal})`:glamGrad,borderRadius:99,transition:"width .3s",boxShadow:`0 0 16px ${dailyPct>=100?C.green:C.pink}`}}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:C.muted,marginTop:6}}>
+            <span>Daily Quest</span><span>{dailyDone}/{allH.length} complete</span>
           </div>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-          <div role="button" tabIndex={0} onClick={()=>setTab("skills")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("skills");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(255,61,127,.24),rgba(90,0,110,.46))",cursor:"pointer"}}>
-            <div style={{fontSize:8,color:C.coral,fontWeight:900,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:7}}>Hoops Mission</div>
-            <div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={48}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:900,color:"white",lineHeight:1.15}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>Today’s focus</div></div></div>
-          </div>
-          <div role="button" tabIndex={0} onClick={()=>setTab("school")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setTab("school");}}} style={{...glass,borderRadius:18,padding:12,background:"linear-gradient(145deg,rgba(0,229,204,.22),rgba(16,60,100,.50))",cursor:"pointer"}}>
-            <div style={{fontSize:8,color:C.teal,fontWeight:900,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:7}}>School Focus</div>
-            {worstSubj?<div style={{display:"flex",alignItems:"center",gap:10}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={48}/><div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:900,color:"white",lineHeight:1.15}}>{worstSubj[0]}</div><div style={{fontSize:9,color:"rgba(255,255,255,.55)",marginTop:3}}>15 min tonight</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}><div style={{fontSize:25}}>🌟</div><div><div style={{fontSize:12,fontWeight:900,color:C.green}}>All A's & B's!</div><div style={{fontSize:9,color:"rgba(255,255,255,.5)"}}>Keep it up!</div></div></div>}
-          </div>
-          <button onClick={()=>setTab("style")} style={{...glass,textAlign:"left",borderRadius:18,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,26,140,.26),rgba(255,122,47,.18))",fontFamily:"system-ui",boxShadow:"inset 0 1px 0 rgba(255,255,255,.13)"}}>
-            <div style={{fontSize:8,color:C.pink,fontWeight:900,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:6}}>Fit Check</div>
-            <div style={{fontSize:12,fontWeight:900,color:"white",marginBottom:8}}>Game-Day Drip</div>
-            <div style={{display:"flex",gap:5}}>{["10","👟","🎒","✨"].map((x,i)=><div key={i} style={{width:26,height:26,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.18)",fontSize:11,fontWeight:900,color:C.white}}>{x}</div>)}</div>
-          </button>
-          <button onClick={()=>setTab("routine")} style={{...glass,textAlign:"left",borderRadius:18,padding:12,cursor:"pointer",background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(255,26,140,.16))",fontFamily:"system-ui",boxShadow:"inset 0 1px 0 rgba(255,255,255,.13)"}}>
-            <div style={{fontSize:8,color:C.gold,fontWeight:900,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:4}}>Routine Streak</div>
-            <div style={{display:"flex",alignItems:"baseline",gap:4}}><div style={{fontSize:34,fontWeight:900,color:C.white,lineHeight:1,textShadow:"0 0 24px rgba(255,215,0,.8)",letterSpacing:"-1px"}}>{routineDays}</div><div style={{fontSize:10,color:"rgba(255,255,255,.55)"}}>days</div></div>
-            <div style={{display:"flex",gap:3,marginTop:8}}>{["M","T","W","T","F","S","S"].map((d,i)=>{const act=i<Math.min((routineDays%7)||7,7);return<div key={i} style={{width:16,height:16,borderRadius:"50%",background:act?`linear-gradient(135deg,${C.gold},${C.orange})`:"rgba(255,255,255,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:6,fontWeight:900,color:act?"rgba(0,0,0,.8)":"rgba(255,255,255,.3)"}}>{d}</div>;})}</div>
-          </button>
+          {missionCard({title:"Hoops Mission",e:"🏀",col:C.coral,onClick:()=>setTab("skills"),children:<div style={{display:"flex",alignItems:"center",gap:9}}><RingChart val={weakestSkill[1]} col={C.coral} label={weakestSkill[1]+"%"} size={46}/><div><div style={{fontSize:12,fontWeight:950,color:C.white,lineHeight:1.15}}>{weakestSkill[0]}</div><div style={{fontSize:9,color:C.muted,marginTop:3}}>15 min focus</div></div></div>})}
+          {missionCard({title:"School Mission",e:"📚",col:C.teal,onClick:()=>setTab("school"),children:worstSubj?<div style={{display:"flex",alignItems:"center",gap:9}}><RingChart val={(GRADE_MAP[worstSubj[1]]||0)/4*100} col={C.teal} label={worstSubj[1]} size={46}/><div><div style={{fontSize:12,fontWeight:950,color:C.white,lineHeight:1.15}}>{worstSubj[0]}</div><div style={{fontSize:9,color:C.muted,marginTop:3}}>quick review</div></div></div>:<div style={{display:"flex",alignItems:"center",gap:9}}><div style={{fontSize:25}}>🌟</div><div><div style={{fontSize:12,fontWeight:950,color:C.green}}>All A’s & B’s</div><div style={{fontSize:9,color:C.muted}}>keep it up</div></div></div>})}
+          {missionCard({title:"Style Pick",e:"👟",col:C.pink,onClick:()=>setTab("style"),children:<><div style={{fontSize:12,fontWeight:950,color:C.white,marginBottom:7}}>Game-Day Drip</div><div style={{display:"flex",gap:5}}>{["10","👟","🎒","✨"].map((x,i)=><div key={i} style={{width:25,height:25,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.18)",fontSize:11,fontWeight:900,color:C.white}}>{x}</div>)}</div></>})}
+          {missionCard({title:"Glow Quest",e:"✨",col:C.gold,onClick:()=>setTab("routine"),children:<><div style={{display:"flex",alignItems:"baseline",gap:5}}><div style={{fontSize:30,fontWeight:950,color:C.white,lineHeight:1}}>{routineDays}</div><div style={{fontSize:10,color:C.muted}}>days</div></div><div style={{fontSize:9,color:C.muted,marginTop:4}}>face care · fit · backpack</div></>})}
         </div>
       </GlamHero>
 
@@ -438,9 +468,8 @@ export default function ScarlettTracker(){
 
       {topIn&&<div style={{...cs,padding:14,marginBottom:12}}>
         <CH e={topIn.icon||"🧠"} title="Coach Tip" sub="Smart next step for today"/>
-        <div style={{fontSize:12,fontWeight:800,color:topIn.col||C.text,marginBottom:4}}>{topIn.title}</div>
         <div style={{fontSize:11,color:C.text,lineHeight:1.5}}>{topIn.txt}</div>
-        {activeGoal&&<div style={{marginTop:10,padding:10,borderRadius:12,background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`}}><div style={{fontSize:8,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>Current Goal</div><div style={{fontSize:12,fontWeight:800,color:C.white}}>{activeGoal.text}</div>{activeGoal.targetDate&&<div style={{fontSize:10,color:C.muted,marginTop:3}}>Target: {activeGoal.targetDate}</div>}</div>}
+        {activeGoal&&<div style={{marginTop:10,padding:10,borderRadius:12,background:"rgba(255,255,255,.05)",border:`1px solid ${C.border}`}}><div style={{fontSize:8,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:4}}>Current Goal</div><div style={{fontSize:12,fontWeight:850,color:C.white}}>{activeGoal.text}</div>{activeGoal.targetDate&&<div style={{fontSize:10,color:C.muted,marginTop:3}}>Target: {activeGoal.targetDate}</div>}</div>}
       </div>}
 
       <div style={{...cs,background:C.card2,padding:14}}>
@@ -458,33 +487,65 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
+      <div style={{...cs,padding:14,background:"linear-gradient(145deg,rgba(255,215,0,.12),rgba(18,7,35,.96))"}}>
+        <CH e="⚡" title="Power Check" sub="Energy, mood, and hydration"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
+          <div><div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>ENERGY ⚡</div><RD val={vitals.energy} max={5} col={C.gold} onSet={v=>setVitals(p=>({...p,energy:v}))}/></div>
+          <div><div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>MOOD 😊</div><RD val={vitals.mood} max={5} col={C.pink} onSet={v=>setVitals(p=>({...p,mood:v}))}/></div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:8}}>
+          <div>
+            <div style={{fontSize:10,color:C.teal,fontWeight:950,letterSpacing:"1.4px",textTransform:"uppercase"}}>Hydration Power-Up</div>
+            <div style={{fontSize:11,color:C.muted,marginTop:3}}>{water>=8?"Goal hit! 🎉":`${8-water} more to full power`}</div>
+          </div>
+          <div style={{fontSize:20}}>💧</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:4}}>
+          {Array.from({length:8},(_,i)=><button key={i} onClick={()=>setWater(i<water?i:i+1)} style={{height:34,borderRadius:"5px 5px 10px 10px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,boxShadow:i<water?`0 0 14px ${C.teal}55`:"none",cursor:"pointer",position:"relative",overflow:"hidden",background:i<water?"#00100D":C.card2,padding:0}}>
+            {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"72%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
+          </button>)}
+        </div>
+      </div>
+
       <div style={cs}>
-        <CH e="✨" title="How Are You Feeling?" sub="Quick check-in · saves automatically"/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-          <div><div style={{fontSize:11,color:C.muted,fontWeight:700,marginBottom:6}}>ENERGY ⚡</div><RD val={vitals.energy} max={5} col={C.gold} onSet={v=>setVitals(p=>({...p,energy:v}))}/></div>
-          <div><div style={{fontSize:11,color:C.muted,fontWeight:700,marginBottom:6}}>MOOD 😊</div><RD val={vitals.mood} max={5} col={C.pink} onSet={v=>setVitals(p=>({...p,mood:v}))}/></div>
+        <CH e="✅" title="Daily Quest" sub={`${dailyDone}/${allH.length} complete · tap a card to finish a group`}/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
+          {Object.entries(groups).map(([grp,items])=>{
+            const info=groupInfo[grp]||{e:"✨",title:grp,col:C.purple};
+            const pct2=groupPct(items), d2=groupDone(items);
+            return <button key={grp} onClick={()=>toggleGroup(items)} style={{background:`linear-gradient(145deg,${info.col}18,rgba(255,255,255,.04))`,border:`1px solid ${pct2>=100?C.green:info.col}44`,borderRadius:16,padding:10,textAlign:"left",fontFamily:"system-ui",cursor:"pointer",color:C.text}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
+                <div style={{fontSize:19}}>{info.e}</div>
+                <div style={{fontSize:9,color:pct2>=100?C.green:info.col,fontWeight:950}}>{d2}/{items.length}</div>
+              </div>
+              <div style={{fontSize:11,fontWeight:950,color:C.white,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{info.title}</div>
+              <div style={{height:5,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden",marginTop:8}}>
+                <div style={{height:"100%",width:`${pct2}%`,background:pct2>=100?C.green:info.col,borderRadius:99,transition:"width .3s"}}/>
+              </div>
+            </button>;
+          })}
         </div>
+        {Object.entries(groups).map(([grp,items])=>{
+          const info=groupInfo[grp]||{e:"✨",title:grp,col:C.purple};
+          return <div key={grp} style={{marginBottom:10}}>
+            <div style={{fontSize:8,fontWeight:950,letterSpacing:"1.8px",color:info.col,textTransform:"uppercase",padding:"0 2px 7px"}}>{info.title}</div>
+            {items.map(h=>{
+              const ok=checks[h.id];
+              return <button key={h.id} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 8px",borderRadius:12,cursor:"pointer",background:ok?`${C.green}12`:"rgba(255,255,255,.035)",border:`1px solid ${ok?C.green+"33":"transparent"}`,marginBottom:5,fontFamily:"system-ui",textAlign:"left"}}>
+                <div style={{width:26,height:26,borderRadius:9,border:ok?"none":`2px solid ${info.col}44`,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:`${info.col}12`,display:"flex",alignItems:"center",justifyContent:"center",color:C.white,fontSize:12,boxShadow:ok?`0 0 16px ${C.green}44`:"none",flexShrink:0}}>{ok?"✓":""}</div>
+                <div style={{flex:1,fontSize:12,fontWeight:750,color:ok?C.green:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
+                <div style={{fontSize:9,color:ok?C.green:C.purple,fontWeight:850}}>{ok?"done":h.time}</div>
+              </button>;
+            })}
+          </div>;
+        })}
       </div>
 
-      <div style={{...cs,padding:14}}>
-        <CH e="💧" title="Water" sub="8 glasses target"/>
-        <div style={{display:"flex",flexWrap:"wrap",gap:4,justifyContent:"center",marginBottom:6}}>
-          {Array.from({length:8},(_,i)=><div key={i} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setWater(i<water?i:i+1);}}} onClick={()=>setWater(i<water?i:i+1)} style={{width:28,height:36,borderRadius:"3px 3px 6px 6px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,boxShadow:i<water?`0 0 14px ${C.teal}55`:"none",cursor:"pointer",position:"relative",overflow:"hidden",background:i<water?"#00100D":C.card2}}>
-            {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"70%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
-          </div>)}
-        </div>
-        <div style={{fontSize:10,textAlign:"center",color:water>=8?C.green:C.muted}}>{water>=8?"🎉 Goal hit!":`${8-water} more to go`}</div>
+      <div style={cs}>
+        <CH e="📝" title="Daily Notes" sub="Optional — wins, practice, reminders"/>
+        <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Wins, how practice went, anything worth remembering..." style={{...TXT,minHeight:72}}/>
       </div>
-
-      {Object.entries(groups).map(([grp,items])=><div key={grp} style={cs}>
-        <div style={{fontSize:9,fontWeight:800,letterSpacing:"2px",color:C.muted,textTransform:"uppercase",paddingBottom:8,marginBottom:8,borderBottom:`1px solid ${C.border}`}}>{grp}</div>
-        {items.map(h=>{const ok=checks[h.id];return<div key={h.id} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setChecks(p=>({...p,[h.id]:!p[h.id]}));}}} onClick={()=>setChecks(p=>({...p,[h.id]:!p[h.id]}))} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 6px",borderRadius:8,cursor:"pointer",opacity:ok?0.45:1,background:ok?"#050712":"transparent",marginBottom:2}}>
-          <div style={{width:22,height:22,borderRadius:6,border:ok?"none":`2px solid ${C.border}`,background:ok?`linear-gradient(135deg,${C.green},${C.teal})`:"rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"center",color:C.white,fontSize:11,boxShadow:ok?`0 0 16px ${C.green}66`:"none"}}>{ok&&"✓"}</div>
-          <div style={{flex:1,fontSize:12,color:ok?C.muted:C.text,textDecoration:ok?"line-through":"none"}}>{h.label}</div>
-          <div style={{fontSize:10,color:C.purple,fontWeight:700}}>{h.time}</div>
-        </div>;})}
-      </div>)}
-      <div style={cs}><CH e="📝" title="Daily Notes"/><textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Wins, how practice went, anything worth remembering..." style={TXT}/></div>
+      <SubmitSpacer/>
     </div>;
   };
 
