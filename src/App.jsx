@@ -69,6 +69,12 @@ const shopUrl=(shop,query)=>{
   return `https://www.google.com/search?q=${q}`;
 };
 const openShop=(shop,query)=>{try{window.open(shopUrl(shop,query),"_blank","noopener,noreferrer");}catch{}};
+const rewardShopUrl=(shop,item)=>{
+  if(!item)return shopUrl(shop,"");
+  const key=shop==="stockx"?"stockxUrl":shop==="goat"?"goatUrl":"nikeUrl";
+  return item[key]||shopUrl(shop,item.search||item.name||"");
+};
+const openRewardShop=(shop,item)=>{try{window.open(rewardShopUrl(shop,item),"_blank","noopener,noreferrer");}catch{}};
 const SneakerPhoto=({src,name,size=74})=>{
   const [bad,setBad]=useState(false);
   return <div style={{width:size,height:size,borderRadius:18,background:"linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.72))",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",boxShadow:"0 12px 24px rgba(0,0,0,.18)",flexShrink:0}}>{src&&!bad?<img src={src} alt={name||"Sneaker"} onError={()=>setBad(true)} style={{width:"100%",height:"100%",objectFit:"contain",padding:6,boxSizing:"border-box"}}/>:<span style={{fontSize:32}}>👟</span>}</div>;
@@ -585,9 +591,20 @@ export default function ScarlettTracker(){
     const addSleep=async()=>{if(!sf.quality)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),bedtime:sf.bed,waketime:sf.wake,hours:hoursNow,quality:sf.quality};await saveSleep([entry,...sleepEntries].slice(0,90));await addStars(hoursNow>=9?3:2);setSf({bed:"21:00",wake:"06:30",quality:0});};
     const[stf,setStf]=useState({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});
     const logFit=async()=>{if(!stf.outfit&&!stf.hair)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...stf};await saveStyle([entry,...styleLog].slice(0,30),shoeWish);await addStars(3);setStf({type:"Game Day",outfit:"",hair:"",shoes:"",vibe:0});};
-    const[shf,setShf]=useState({name:"",why:"",priority:"Dream 🌟",img:"",search:""});
-    const addShoe=async()=>{if(!shf.name)return;const entry={id:uid(),...shf,search:shf.search||shf.name,cost:shf.priority.includes("Dream")?3:shf.priority.includes("Next")?2:1};await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));setShf({name:"",why:"",priority:"Dream 🌟",img:"",search:""});};
-    const addTrendShoe=async item=>{const entry={id:uid(),name:item.name,why:item.why,priority:"Dream 🌟",img:item.img,search:item.search||item.name,cost:3};await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));await addStars(1);};
+    const[shf,setShf]=useState({name:"",why:"",priority:"Dream 🌟",img:"",search:"",nikeUrl:"",stockxUrl:"",goatUrl:""});
+    const addShoe=async()=>{
+      if(!shf.name)return;
+      const q=shf.search||shf.name;
+      const entry={id:uid(),...shf,search:q,nikeUrl:shf.nikeUrl||shopUrl("nike",q),stockxUrl:shf.stockxUrl||shopUrl("stockx",q),goatUrl:shf.goatUrl||shopUrl("goat",q),cost:shf.priority.includes("Dream")?3:shf.priority.includes("Next")?2:1};
+      await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));
+      setShf({name:"",why:"",priority:"Dream 🌟",img:"",search:"",nikeUrl:"",stockxUrl:"",goatUrl:""});
+    };
+    const addTrendShoe=async item=>{
+      const q=item.search||item.name;
+      const entry={id:uid(),name:item.name,why:item.why,priority:"Dream 🌟",img:item.img,search:q,nikeUrl:item.nikeUrl||shopUrl("nike",q),stockxUrl:item.stockxUrl||shopUrl("stockx",q),goatUrl:item.goatUrl||shopUrl("goat",q),cost:3};
+      await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));
+      await addStars(1);
+    };
     const avgSleep=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours)).toFixed(1):"—";
 
     return<div>
@@ -699,6 +716,13 @@ export default function ScarlettTracker(){
           <input value={shf.name} onChange={e=>setShf(p=>({...p,name:e.target.value,search:e.target.value}))} placeholder="Reward name — e.g. Sabrina 3 pink shoes" style={{...INP,marginBottom:10}}/>
           <input value={shf.why} onChange={e=>setShf(p=>({...p,why:e.target.value}))} placeholder="Why I want it / what goal it motivates" style={{...INP,marginBottom:10}}/>
           <input value={shf.img} onChange={e=>setShf(p=>({...p,img:e.target.value}))} placeholder="Optional image URL from Nike, StockX, GOAT, etc." style={{...INP,marginBottom:10}}/>
+          <input value={shf.search} onChange={e=>setShf(p=>({...p,search:e.target.value}))} placeholder="Optional search phrase if different from name" style={{...INP,marginBottom:10}}/>
+          <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:8}}>Optional exact store links. If left blank, the app automatically creates Nike, StockX, and GOAT search links from the shoe name.</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr",gap:8,marginBottom:10}}>
+            <input value={shf.nikeUrl} onChange={e=>setShf(p=>({...p,nikeUrl:e.target.value}))} placeholder="Optional exact Nike link" style={INP}/>
+            <input value={shf.stockxUrl} onChange={e=>setShf(p=>({...p,stockxUrl:e.target.value}))} placeholder="Optional exact StockX link" style={INP}/>
+            <input value={shf.goatUrl} onChange={e=>setShf(p=>({...p,goatUrl:e.target.value}))} placeholder="Optional exact GOAT link" style={INP}/>
+          </div>
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
             {SHOE_PRIORITY.map(p=><Chip key={p} label={p} active={shf.priority===p} col={C.gold} onClick={()=>setShf(x=>({...x,priority:p}))}/>)}
           </div>
@@ -715,11 +739,12 @@ export default function ScarlettTracker(){
                 <button onClick={()=>saveStyle(styleLog,shoeWish.filter(x=>x.id!==s.id))} aria-label={`Remove ${s.name}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
               </div>
               <div style={{fontSize:11,color:C.gold,marginTop:2}}>{s.priority} · {rewardCost(s)} token{rewardCost(s)===1?"":"s"}</div>
+              <div style={{fontSize:9,color:C.teal,marginTop:2}}>Nike · StockX · GOAT links ready</div>
               {s.why&&<div style={{fontSize:10,color:C.muted,marginTop:2,lineHeight:1.4}}>{s.why}</div>}
               <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
-                <button onClick={()=>openShop("nike",s.search||s.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.teal}44`,background:`${C.teal}12`,color:C.teal,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Search Nike</button>
-                <button onClick={()=>openShop("stockx",s.search||s.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.green}44`,background:`${C.green}12`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Search StockX</button>
-                <button onClick={()=>openShop("goat",s.search||s.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.purple}44`,background:`${C.purple}12`,color:C.purple,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Search GOAT</button>
+                <button onClick={()=>openRewardShop("nike",s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.teal}44`,background:`${C.teal}12`,color:C.teal,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Search Nike</button>
+                <button onClick={()=>openRewardShop("stockx",s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.green}44`,background:`${C.green}12`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Search StockX</button>
+                <button onClick={()=>openRewardShop("goat",s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.purple}44`,background:`${C.purple}12`,color:C.purple,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Search GOAT</button>
               </div>
             </div>
           </div>)}
