@@ -1533,44 +1533,164 @@ export default function ScarlettTracker(){
   };
 
 
+
   // ── GOALS ──────────────────────────────────────────────────────────────
   const Goals2=()=>{
-    const done=goals.filter(g=>g.done).length;
     const[burst,setBurst]=useState(null);
-    const CAT={basketball:{col:C.coral,icon:"🏀"},school:{col:C.teal,icon:"📚"},health:{col:C.green,icon:"💚"},character:{col:C.purple,icon:"⭐"},personal:{col:C.gold,icon:"🌟"}};
-    const addGoal=async()=>{if(!goalForm.text.trim())return;const entry={id:uid(),text:goalForm.text.trim(),category:goalForm.category,targetDate:goalForm.targetDate,reward:goalForm.reward,done:false,date:toShort(todayISO())};const ng=[...goals,entry];await saveGoals(ng,stars);setGoalForm({text:"",category:"basketball",targetDate:"",reward:""});};
-    const toggleGoal=async id=>{const goal=goals.find(g=>g.id===id);const ng=goals.map(g=>g.id===id?{...g,done:!g.done}:g);let ns=stars;if(!goal.done){ns+=5;setBurst(id);setTimeout(()=>setBurst(null),2500);}await saveGoals(ng,ns);};
+    const CAT={basketball:{col:C.coral,icon:"🏀",label:"Basketball"},school:{col:C.teal,icon:"📚",label:"School"},health:{col:C.green,icon:"💚",label:"Health"},character:{col:C.purple,icon:"⭐",label:"Character"},personal:{col:C.gold,icon:"🌟",label:"Personal"}};
+    const done=goals.filter(g=>g.done).length;
+    const active=goals.filter(g=>!g.done);
+    const completePct=goals.length?Math.round(done/goals.length*100):0;
+    const addDays=(n=7)=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+    const daysUntil=iso=>{if(!iso)return null;const now=new Date();now.setHours(0,0,0,0);const t=new Date(iso+"T00:00:00");return Math.round((t-now)/86400000);};
+    const dueSoon=active.filter(g=>{const d=daysUntil(g.targetDate);return d!=null&&d>=0&&d<=7;}).length;
+    const overdue=active.filter(g=>{const d=daysUntil(g.targetDate);return d!=null&&d<0;}).length;
+    const weakestSkill=Object.entries(skills).sort((a,b)=>a[1]-b[1])[0]||null;
+    const lowestSubject=Object.entries(subjects).sort((a,b)=>(parseFloat(a[1])||0)-(parseFloat(b[1])||0))[0]||null;
+    const templates=[
+      {text:"Practice Shooting Form for 15 minutes 4 times this week",category:"basketball",reward:"Pick the music in the car",days:7},
+      {text:"Turn in all homework on time this week",category:"school",reward:"Pick dessert Friday",days:5},
+      {text:"Be in bed by 9:00 PM 5 nights this week",category:"health",reward:"Movie night",days:7},
+      {text:"Use positive self-talk at every practice this week",category:"character",reward:"Extra fun activity",days:7}
+    ];
+    const coachPrompt=weakestSkill?{title:"Coach recommendation",body:`Build a goal around ${weakestSkill[0]} — it is at ${weakestSkill[1]}% and has the most room to grow.`,fill:{text:`Improve ${weakestSkill[0]} with 15 focused minutes a day this week`,category:"basketball",targetDate:addDays(7),reward:"Pick a treat after finishing"},col:SKILL_COL(weakestSkill[1])}:lowestSubject?{title:"School recommendation",body:`${lowestSubject[0]} needs a little love. A short school goal can raise confidence fast.`,fill:{text:`Review ${lowestSubject[0]} for 15 minutes 4 times this week`,category:"school",targetDate:addDays(7),reward:"Choose a fun reward after review"},col:GRADE_COL[String(lowestSubject[1])]||C.teal}:{title:"Starter recommendation",body:"Start with one simple, winnable goal so momentum begins today.",fill:{text:"Complete one focused practice this week and log it",category:"basketball",targetDate:addDays(7),reward:"Celebrate with something fun"},col:C.purple};
+    const addGoal=async()=>{
+      if(!goalForm.text.trim())return;
+      const entry={id:uid(),text:goalForm.text.trim(),category:goalForm.category,targetDate:goalForm.targetDate,reward:goalForm.reward,done:false,rewarded:false,date:toShort(todayISO())};
+      const ng=[...goals,entry];
+      await saveGoals(ng,stars);
+      setGoalForm({text:"",category:"basketball",targetDate:"",reward:""});
+    };
+    const toggleGoal=async id=>{
+      const goal=goals.find(g=>g.id===id);
+      let ns=stars;
+      const ng=goals.map(g=>{
+        if(g.id!==id)return g;
+        const completing=!g.done;
+        const shouldReward=completing&&!g.rewarded;
+        if(shouldReward){ns+=5;setBurst(id);setTimeout(()=>setBurst(null),2200);}
+        return {...g,done:completing,rewarded:g.rewarded||shouldReward};
+      });
+      await saveGoals(ng,ns);
+    };
     const delGoal=async id=>{await saveGoals(goals.filter(g=>g.id!==id),stars);};
+    const fillTemplate=t=>setGoalForm({text:t.text,category:t.category,targetDate:t.targetDate||addDays(t.days||7),reward:t.reward||""});
+    const statusFor=g=>{
+      if(g.done)return{label:"Complete",col:C.green,bg:`${C.green}18`};
+      const d=daysUntil(g.targetDate);
+      if(d==null)return{label:"No date",col:C.muted,bg:"rgba(255,255,255,.05)"};
+      if(d<0)return{label:`${Math.abs(d)} day${Math.abs(d)===1?"":"s"} overdue`,col:C.coral,bg:`${C.coral}18`};
+      if(d===0)return{label:"Due today",col:C.gold,bg:`${C.gold}18`};
+      if(d<=7)return{label:`${d} day${d===1?"":"s"} left`,col:C.teal,bg:`${C.teal}18`};
+      return{label:`${d} days left`,col:C.light,bg:"rgba(255,255,255,.05)"};
+    };
+    const sortGoals=list=>[...list].sort((a,b)=>{
+      const ad=daysUntil(a.targetDate),bd=daysUntil(b.targetDate);
+      if(ad==null&&bd==null)return 0;
+      if(ad==null)return 1;
+      if(bd==null)return -1;
+      return ad-bd;
+    });
+    const activeSorted=sortGoals(active);
+    const doneSorted=[...goals.filter(g=>g.done)].reverse();
     return<div>
-      {burst&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,pointerEvents:"none",fontSize:60}}>🎉⭐🏆⭐🎉</div>}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}><SBox value={goals.length} label="Set" color={C.purple}/><SBox value={done} label="Done" color={C.green}/><SBox value={goals.length?Math.round(done/goals.length*100)+"%":"—"} label="Complete" color={C.gold}/><SBox value={stars} label="⭐ Stars" color={C.gold}/></div>
-      {goals.length>0&&<div style={{height:8,background:C.navy,borderRadius:100,overflow:"hidden",marginBottom:12}}><div style={{height:"100%",background:`linear-gradient(to right,${C.purple},${C.gold})`,width:`${Math.round((done/goals.length||0)*100)}%`,borderRadius:100,transition:"width .4s"}}/></div>}
+      {burst&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,pointerEvents:"none",fontSize:56,filter:"drop-shadow(0 0 24px rgba(255,215,0,.45))"}}>🎉 ⭐ 🎯 ⭐ 🎉</div>}
+
+      <GlamHero style={{marginBottom:12}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:10}}>
+          <div>
+            <div style={{fontSize:11,color:C.gold,fontWeight:900,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:5}}>Goal Studio</div>
+            <div style={{fontWeight:900,fontSize:28,lineHeight:1.08,color:C.text}}>Big goals. <span style={{color:C.gold}}>Small daily wins.</span></div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.6,marginTop:5,maxWidth:430}}>Set it. Track it. Celebrate it. Coach uses your goals to guide the next best move across basketball, school, health, and confidence.</div>
+          </div>
+          <div style={{background:`${C.gold}18`,border:`1px solid ${C.gold}44`,borderRadius:16,padding:"8px 12px",textAlign:"center",minWidth:82}}>
+            <div style={{fontWeight:900,fontSize:24,color:C.gold,textShadow:`0 0 18px ${C.gold}55`}}>{stars}</div>
+            <div style={{fontSize:9,fontWeight:900,color:C.light,letterSpacing:"1px"}}>STAR BANK</div>
+          </div>
+        </div>
+        <div style={{height:10,background:"rgba(0,0,0,.35)",borderRadius:999,overflow:"hidden",marginBottom:9}}><div style={{height:"100%",width:`${completePct}%`,borderRadius:999,background:`linear-gradient(90deg,${C.pink},${C.gold})`,boxShadow:`0 0 18px ${C.pink}55`,transition:"width .35s ease"}}/></div>
+        <div style={{display:"flex",justifyContent:"space-between",gap:8,flexWrap:"wrap"}}>
+          <div style={{fontSize:11,color:C.text,fontWeight:800}}>{done}/{goals.length||0} goals complete</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            <div style={{background:`${C.teal}18`,border:`1px solid ${C.teal}44`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:800,color:C.teal}}>⏳ {dueSoon} due soon</div>
+            <div style={{background:`${C.coral}18`,border:`1px solid ${C.coral}44`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:800,color:C.coral}}>🚨 {overdue} overdue</div>
+            <div style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:800,color:C.green}}>✅ {done} wins</div>
+          </div>
+        </div>
+      </GlamHero>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}>
+        <SBox value={active.length} label="Active" color={C.purple}/>
+        <SBox value={done} label="Done" color={C.green}/>
+        <SBox value={dueSoon} label="Due Soon" color={C.gold}/>
+        <SBox value={stars} label="⭐ Stars" color={C.gold}/>
+      </div>
+
+      <div style={{...cs,background:`linear-gradient(135deg,rgba(255,44,140,.10),rgba(13,194,232,.05),rgba(16,8,34,.98))`,border:`1px solid ${coachPrompt.col}33`}}>
+        <CH e="🧠" title={coachPrompt.title} sub="A smart, easy place to start"/>
+        <div style={{fontSize:12,color:C.text,lineHeight:1.6,marginBottom:10}}>{coachPrompt.body}</div>
+        <button onClick={()=>fillTemplate(coachPrompt.fill)} style={{background:`${coachPrompt.col}18`,border:`1px solid ${coachPrompt.col}55`,color:coachPrompt.col,borderRadius:999,padding:"8px 12px",fontSize:11,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Use this goal</button>
+      </div>
+
       <div style={cs}>
         <CH e="✨" title="Set a New Goal" sub="Be specific — the more detail, the better"/>
-        <textarea value={goalForm.text} onChange={e=>setGoalForm(p=>({...p,text:e.target.value}))} placeholder="What do you want to achieve? Be specific and bold!" style={{...TXT,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>CATEGORY</div><select value={goalForm.category} onChange={e=>setGoalForm(p=>({...p,category:e.target.value}))} style={{...INP,appearance:"none"}}>{Object.entries(CAT).map(([k,v])=><option key={k} value={k}>{v.icon} {k.charAt(0).toUpperCase()+k.slice(1)}</option>)}</select></div>
-          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>TARGET DATE</div><input type="date" value={goalForm.targetDate} onChange={e=>setGoalForm(p=>({...p,targetDate:e.target.value}))} style={INP}/></div>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4,marginBottom:10}}>
+          {templates.map((t,i)=><button key={i} onClick={()=>fillTemplate(t)} style={{background:`${CAT[t.category].col}14`,border:`1px solid ${CAT[t.category].col}40`,borderRadius:12,padding:"8px 10px",color:C.text,cursor:"pointer",whiteSpace:"nowrap",fontSize:10,fontWeight:800,fontFamily:"system-ui"}}>{CAT[t.category].icon} {t.text.slice(0,24)}{t.text.length>24?"…":""}</button>)}
         </div>
-        <div style={{marginBottom:10}}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>REWARD (optional)</div><input value={goalForm.reward} onChange={e=>setGoalForm(p=>({...p,reward:e.target.value}))} placeholder="e.g. Get ice cream, pick the movie, extra screen time" style={INP}/></div>
-        <button onClick={addGoal} style={{width:"100%",padding:12,background:C.purple,color:C.white,border:"none",borderRadius:8,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Add Goal 🎯</button>
+        <textarea value={goalForm.text} onChange={e=>setGoalForm(p=>({...p,text:e.target.value}))} placeholder="What do you want to achieve? Be specific and bold!" style={{...TXT,marginBottom:10}}/>
+        <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:10}}>
+          {Object.entries(CAT).map(([k,v])=>{
+            const on=goalForm.category===k;
+            return<button key={k} onClick={()=>setGoalForm(p=>({...p,category:k}))} style={{background:on?`${v.col}22`:"rgba(255,255,255,.04)",border:`1px solid ${on?v.col:C.border}`,borderRadius:999,padding:"8px 10px",color:on?v.col:C.text,cursor:"pointer",fontSize:10,fontWeight:900,fontFamily:"system-ui"}}>{v.icon} {v.label}</button>
+          })}
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>TARGET DATE</div><input type="date" value={goalForm.targetDate} onChange={e=>setGoalForm(p=>({...p,targetDate:e.target.value}))} style={INP}/></div>
+          <div><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:3}}>REWARD (optional)</div><input value={goalForm.reward} onChange={e=>setGoalForm(p=>({...p,reward:e.target.value}))} placeholder="Ice cream, movie, fun pick..." style={INP}/></div>
+        </div>
+        <button onClick={addGoal} style={{width:"100%",padding:12,background:glamGrad,color:C.white,border:"none",borderRadius:12,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui",boxShadow:`0 10px 24px ${C.pink}33`}}>Add Goal 🎯</button>
       </div>
-      {Object.entries(CAT).map(([cat,{col,icon}])=>{const cg=goals.filter(g=>g.category===cat);if(!cg.length)return null;return<div key={cat} style={cs}>
-        <CH e={icon} title={cat.charAt(0).toUpperCase()+cat.slice(1)} sub={`${cg.filter(g=>g.done).length}/${cg.length} complete`}/>
-        {cg.map(g=><div key={g.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 8px",borderRadius:10,marginBottom:6,background:g.done?"#060C06":`${col}08`,border:`1px solid ${g.done?C.green+"33":col+"33"}`}}>
-          <div onClick={()=>toggleGoal(g.id)} style={{width:28,height:28,borderRadius:"50%",border:g.done?"none":`2.5px solid ${col}`,background:g.done?C.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:C.white,fontSize:14,flexShrink:0,marginTop:2}}>{g.done&&"✓"}</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:13,fontWeight:700,color:g.done?C.muted:C.text,textDecoration:g.done?"line-through":"none"}}>{g.text}</div>
-            <div style={{fontSize:10,color:C.muted,marginTop:2}}>{g.targetDate?`Target: ${g.targetDate} · `:""}{g.date}</div>
-            {g.reward&&!g.done&&<div style={{fontSize:10,color:C.gold,marginTop:2}}>🎁 Reward: {g.reward}</div>}
-            {g.done&&g.reward&&<div style={{fontSize:10,color:C.gold,marginTop:2}}>🎉 You earned: {g.reward}</div>}
+
+      <div style={cs}>
+        <CH e="🎯" title="Active Goals" sub={active.length?`${active.length} goal${active.length===1?"":"s"} in progress`:"No active goals yet"}/>
+        {activeSorted.length===0?<div style={{background:"rgba(255,255,255,.03)",border:`1px dashed ${C.border}`,borderRadius:14,padding:18,textAlign:"center"}}>
+          <div style={{fontSize:26,marginBottom:6}}>🌈</div>
+          <div style={{fontWeight:900,fontSize:15,color:C.text,marginBottom:4}}>Start with one goal this week</div>
+          <div style={{fontSize:11,color:C.muted,lineHeight:1.6,marginBottom:10}}>A tiny, clear goal builds momentum faster than waiting for the perfect plan.</div>
+          <button onClick={()=>setTab("coach")} style={{background:`${C.pink}18`,border:`1px solid ${C.pink}44`,color:C.pink,borderRadius:999,padding:"8px 12px",fontSize:10,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Need ideas? Open Coach</button>
+        </div>:activeSorted.map(g=>{const meta=CAT[g.category]||CAT.personal;const st=statusFor(g);return<div key={g.id} style={{background:`${meta.col}10`,border:`1px solid ${meta.col}33`,borderRadius:16,padding:12,marginBottom:8,boxShadow:`inset 0 1px 0 rgba(255,255,255,.05)`}}>
+          <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+            <button onClick={()=>toggleGoal(g.id)} style={{width:30,height:30,borderRadius:"50%",border:`2px solid ${meta.col}`,background:"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:meta.col,fontSize:14,flexShrink:0,marginTop:2,fontFamily:"system-ui"}}>✓</button>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:5}}>
+                <div style={{fontSize:17}}>{meta.icon}</div>
+                <div style={{fontSize:12,fontWeight:900,color:meta.col,letterSpacing:"1px",textTransform:"uppercase"}}>{meta.label}</div>
+                <div style={{background:st.bg,border:`1px solid ${st.col}44`,borderRadius:999,padding:"4px 8px",fontSize:9,fontWeight:900,color:st.col}}>{st.label}</div>
+              </div>
+              <div style={{fontSize:14,fontWeight:800,color:C.text,lineHeight:1.45,marginBottom:4}}>{g.text}</div>
+              <div style={{fontSize:10,color:C.muted,lineHeight:1.55}}>Created {g.date}{g.targetDate?` · Target ${g.targetDate}`:""}</div>
+              {g.reward&&<div style={{fontSize:10,color:C.gold,marginTop:5,lineHeight:1.5}}>🎁 Reward: {g.reward}</div>}
+            </div>
+            <button onClick={()=>delGoal(g.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18,flexShrink:0,fontFamily:"system-ui"}}>×</button>
           </div>
-          {g.done&&<div style={{fontSize:18,flexShrink:0}}>⭐</div>}
-          <button onClick={()=>delGoal(g.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
-        </div>)}
-      </div>;})}
+        </div>})}
+      </div>
+
+      {doneSorted.length>0&&<div style={cs}>
+        <CH e="🏆" title="Completed Goals" sub={`${doneSorted.length} finished goal${doneSorted.length===1?"":"s"}`}/>
+        {doneSorted.map(g=>{const meta=CAT[g.category]||CAT.personal;return<div key={g.id} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{width:28,height:28,borderRadius:"50%",background:`${C.green}20`,border:`1px solid ${C.green}55`,display:"flex",alignItems:"center",justifyContent:"center",color:C.green,fontWeight:900,flexShrink:0}}>✓</div>
+          <div style={{flex:1}}>
+            <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",marginBottom:3}}><span style={{fontSize:16}}>{meta.icon}</span><span style={{fontSize:11,fontWeight:900,color:meta.col,letterSpacing:"1px",textTransform:"uppercase"}}>{meta.label}</span></div>
+            <div style={{fontSize:12,color:C.muted,textDecoration:"line-through",lineHeight:1.45}}>{g.text}</div>
+            <div style={{fontSize:10,color:C.gold,marginTop:4}}>⭐ +5 stars earned{g.reward?` · Reward: ${g.reward}`:""}</div>
+          </div>
+          <button onClick={()=>delGoal(g.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16,fontFamily:"system-ui"}}>×</button>
+        </div>})}
+      </div>}
     </div>;
   };
+
 
   // ── PROGRESS ───────────────────────────────────────────────────────────
   const Progress=()=>{
