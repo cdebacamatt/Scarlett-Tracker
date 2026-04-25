@@ -75,6 +75,31 @@ const rewardShopUrl=(shop,item)=>{
   return item[key]||shopUrl(shop,item.search||item.name||"");
 };
 const openRewardShop=(shop,item)=>{try{window.open(rewardShopUrl(shop,item),"_blank","noopener,noreferrer");}catch{}};
+const normalizeSneakerText=t=>(t||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+const findTrendingSneaker=q=>{
+  const s=normalizeSneakerText(q);
+  if(!s)return null;
+  return TRENDING_SNEAKERS.find(item=>{
+    const name=normalizeSneakerText(item.name);
+    const search=normalizeSneakerText(item.search);
+    return name.includes(s)||s.includes(name.split(" ")[0])||search.includes(s)||s.split(" ").some(w=>w.length>=4&&(name.includes(w)||search.includes(w)));
+  })||null;
+};
+const buildRewardFromName=(form)=>{
+  const q=form.search||form.name;
+  const match=findTrendingSneaker(q);
+  return {
+    id:uid(),
+    ...form,
+    search:q,
+    img:form.img||match?.img||"",
+    why:form.why||match?.why||"",
+    nikeUrl:form.nikeUrl||match?.nikeUrl||shopUrl("nike",q),
+    stockxUrl:form.stockxUrl||match?.stockxUrl||shopUrl("stockx",q),
+    goatUrl:form.goatUrl||match?.goatUrl||shopUrl("goat",q),
+    cost:form.priority.includes("Dream")?3:form.priority.includes("Next")?2:1
+  };
+};
 const SneakerPhoto=({src,name,size=74})=>{
   const [bad,setBad]=useState(false);
   return <div style={{width:size,height:size,borderRadius:18,background:"linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.72))",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",boxShadow:"0 12px 24px rgba(0,0,0,.18)",flexShrink:0}}>{src&&!bad?<img src={src} alt={name||"Sneaker"} onError={()=>setBad(true)} style={{width:"100%",height:"100%",objectFit:"contain",padding:6,boxSizing:"border-box"}}/>:<span style={{fontSize:32}}>👟</span>}</div>;
@@ -594,8 +619,7 @@ export default function ScarlettTracker(){
     const[shf,setShf]=useState({name:"",why:"",priority:"Dream 🌟",img:"",search:"",nikeUrl:"",stockxUrl:"",goatUrl:""});
     const addShoe=async()=>{
       if(!shf.name)return;
-      const q=shf.search||shf.name;
-      const entry={id:uid(),...shf,search:q,nikeUrl:shf.nikeUrl||shopUrl("nike",q),stockxUrl:shf.stockxUrl||shopUrl("stockx",q),goatUrl:shf.goatUrl||shopUrl("goat",q),cost:shf.priority.includes("Dream")?3:shf.priority.includes("Next")?2:1};
+      const entry=buildRewardFromName(shf);
       await saveStyle(styleLog,[entry,...shoeWish].slice(0,20));
       setShf({name:"",why:"",priority:"Dream 🌟",img:"",search:"",nikeUrl:"",stockxUrl:"",goatUrl:""});
     };
@@ -712,17 +736,18 @@ export default function ScarlettTracker(){
         </div>
 
         <div style={cs}>
-          <CH e="✨" title="Add a Custom Wishlist Reward" sub="Shoes, clothes, skincare, bags, or anything age-appropriate."/>
+          <CH e="✨" title="Add a Custom Wishlist Reward" sub="Just type the name — links are created automatically."/>
           <input value={shf.name} onChange={e=>setShf(p=>({...p,name:e.target.value,search:e.target.value}))} placeholder="Reward name — e.g. Sabrina 3 pink shoes" style={{...INP,marginBottom:10}}/>
           <input value={shf.why} onChange={e=>setShf(p=>({...p,why:e.target.value}))} placeholder="Why I want it / what goal it motivates" style={{...INP,marginBottom:10}}/>
-          <input value={shf.img} onChange={e=>setShf(p=>({...p,img:e.target.value}))} placeholder="Optional image URL from Nike, StockX, GOAT, etc." style={{...INP,marginBottom:10}}/>
-          <input value={shf.search} onChange={e=>setShf(p=>({...p,search:e.target.value}))} placeholder="Optional search phrase if different from name" style={{...INP,marginBottom:10}}/>
-          <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:8}}>Optional exact store links. If left blank, the app automatically creates Nike, StockX, and GOAT search links from the shoe name.</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr",gap:8,marginBottom:10}}>
-            <input value={shf.nikeUrl} onChange={e=>setShf(p=>({...p,nikeUrl:e.target.value}))} placeholder="Optional exact Nike link" style={INP}/>
-            <input value={shf.stockxUrl} onChange={e=>setShf(p=>({...p,stockxUrl:e.target.value}))} placeholder="Optional exact StockX link" style={INP}/>
-            <input value={shf.goatUrl} onChange={e=>setShf(p=>({...p,goatUrl:e.target.value}))} placeholder="Optional exact GOAT link" style={INP}/>
+          <div style={{background:`${C.teal}10`,border:`1px solid ${C.teal}33`,borderRadius:14,padding:10,marginBottom:10}}>
+            <div style={{fontSize:11,color:C.teal,fontWeight:900,marginBottom:4}}>Auto-link mode is on</div>
+            <div style={{fontSize:10,color:C.muted,lineHeight:1.5}}>She only needs to type the shoe or reward name. The app automatically creates Nike, StockX, and GOAT search links. If the name matches one of the trending shoes, the app also uses that real sneaker photo.</div>
           </div>
+          {shf.name&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+            <button onClick={()=>openShop("nike",shf.search||shf.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.teal}44`,background:`${C.teal}12`,color:C.teal,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Preview Nike</button>
+            <button onClick={()=>openShop("stockx",shf.search||shf.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.green}44`,background:`${C.green}12`,color:C.green,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Preview StockX</button>
+            <button onClick={()=>openShop("goat",shf.search||shf.name)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.purple}44`,background:`${C.purple}12`,color:C.purple,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Preview GOAT</button>
+          </div>}
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
             {SHOE_PRIORITY.map(p=><Chip key={p} label={p} active={shf.priority===p} col={C.gold} onClick={()=>setShf(x=>({...x,priority:p}))}/>)}
           </div>
