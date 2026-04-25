@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const C={bg:"#06040F",nav:"#0C0A1A",navy:"#0E0B1B",navy2:"#150F28",card:"#180D2C",card2:"#1E1238",border:"rgba(255,255,255,.12)",coral:"#FF3D7F",teal:"#00E5CC",purple:"#8B5CF6",gold:"#FFD700",green:"#22D97A",blue:"#4DA6FF",pink:"#FF1A8C",orange:"#FF7A2F",red:"#FF3D5A",white:"#FFFFFF",text:"#FFF0FF",muted:"#A89BC0",light:"#E8D5FF"};
+const C={bg:"#070611",nav:"#100B1C",navy:"#120E20",navy2:"#191228",card:"#1D1430",card2:"#231934",border:"rgba(255,255,255,.11)",coral:"#F04D82",teal:"#18D6C8",purple:"#8E6CF2",gold:"#F6D25A",green:"#3DDC84",blue:"#62A8F7",pink:"#F35CB7",orange:"#F59A45",red:"#F05268",white:"#FFFFFF",text:"#F8F2FF",muted:"#B6A9C9",light:"#E9DFFF"};
 
 // 5 tabs instead of 12
 const TABS=[
@@ -344,7 +344,16 @@ export default function ScarlettTracker(){
           </div>
         </div>
 
-        <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="Today's motto: I will..." style={{...INP,fontWeight:800}}/>
+        <div style={{padding:14,borderRadius:18,background:"rgba(255,255,255,.045)",border:`1px solid ${C.border}`}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+            <span style={{fontSize:18}}>💬</span>
+            <div>
+              <div style={{fontSize:11,color:C.light,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase"}}>My Affirmation</div>
+              <div style={{fontSize:11,color:C.muted,marginTop:2}}>Start with “I am” and say who you are becoming.</div>
+            </div>
+          </div>
+          <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="I am..." style={{...INP,fontWeight:850,fontSize:16,background:"rgba(0,0,0,.26)"}}/>
+        </div>
       </div>
       <div style={cs}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
