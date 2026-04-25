@@ -1382,6 +1382,7 @@ export default function ScarlettTracker(){
     </div>;
   };
 
+
   // ── COACH ──────────────────────────────────────────────────────────────
   const Coach=()=>{
     const style2=goalStyle(profile.primaryGoal||"");
@@ -1396,61 +1397,141 @@ export default function ScarlettTracker(){
     const weakSubjs=Object.entries(subjects).filter(([_,g])=>(gradeValue(g)||0)<3).sort((a,b)=>(gradeValue(a[1])||0)-(gradeValue(b[1])||0));
     const typeCounts=practices.reduce((acc,p)=>{acc[p.type]=(acc[p.type]||0)+1;return acc;},{});
     const practiceInsight=practices.length>=3?Object.entries(typeCounts).sort((a,b)=>a[1]-b[1])[0]:null;
+    const activeGoals=goals.filter(g=>!g.done);
+    const avgSleep=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours||0)):0;
+    const avgEffort=practices.length?avgArr(practices.slice(0,6).map(p=>p.effort||0)):0;
+    const schoolAvg=Object.keys(subjects).length?avgArr(Object.values(subjects).map(g=>gradeValue(g)||0)):0;
+    const focusSkill=weakSkills[0]||null;
+    const focusSubject=weakSubjs[0]||null;
+    const coachMode=dataPoints<6?"Learning":r>=80?"Locked In":r>=60?"Building Momentum":"Reset & Refocus";
+    const playbook=[
+      focusSkill?{e:"🎯",title:"Today’s edge",body:`${focusSkill[0]} is the best place to level up next. Just 15 focused minutes makes this move fast.`,cta:`Open Skills`,tab:"skills",col:SKILL_COL(focusSkill[1])}:{e:"🎯",title:"Today’s edge",body:"Keep logging work — Coach will surface your best next skill once there is more data.",cta:"Open Skills",tab:"skills",col:C.pink},
+      focusSubject?{e:"📚",title:"School lock-in",body:`${focusSubject[0]} is the school priority right now. A short review block tonight keeps grades strong.`,cta:`Open School`,tab:"school",col:GRADE_COL[normGrade(focusSubject[1])]}:{e:"📚",title:"School lock-in",body:`School is looking solid with a ${schoolAvg.toFixed(1)} average. Keep homework and review consistent.`,cta:"Open School",tab:"school",col:C.teal},
+      sleepEntries.length?{e:"🌙",title:"Recovery move",body:avgSleep>=9?`Recovery is trending strong at ${avgSleep.toFixed(1)}h. Protect that bedtime.`:`Average sleep is ${avgSleep.toFixed(1)}h. More rest will help skill growth, focus, and mood.`,cta:`Open Sleep`,tab:"sleep",col:avgSleep>=9?C.green:C.purple}:{e:"🌙",title:"Recovery move",body:"No sleep logs yet. Start tomorrow with bedtime, wake time, and sleep quality.",cta:"Open Sleep",tab:"sleep",col:C.purple}
+    ];
+    const rules=[
+      "Train the weakest skill for 15 minutes a day. Small reps compound fast.",
+      "If practice feels easy, add speed, pressure, or less rest.",
+      "Log games, practices, and sleep — Coach gets smarter with every entry.",
+      "Protect bedtime. Rest helps reaction time, learning, mood, and confidence.",
+      "Missed a day? Reset fast. Momentum matters more than perfection."
+    ];
+
     return<div>
-      {dataPoints<6&&<div style={{background:`${C.purple}18`,border:`1px solid ${C.purple}44`,borderRadius:10,padding:12,marginBottom:12,fontSize:11,color:C.light,lineHeight:1.7}}>
-        <strong style={{color:C.purple}}>🧠 Coach is learning.</strong> Log games, practices, sleep, and grades. The more data, the smarter and more personalized your coaching becomes.
-        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>{[["🏀 Games",games.length],["💪 Practices",practices.length],["🌙 Sleep",sleepEntries.length]].map(([l,v])=><div key={l} style={{background:v>0?`${C.green}22`:C.navy,border:`1px solid ${v>0?C.green:C.border}`,borderRadius:6,padding:"3px 8px",fontSize:10,fontWeight:700,color:v>0?C.green:C.muted}}>{l}: {v}</div>)}</div>
-      </div>}
-      <div style={{...cs,background:C.card2}}>
-        <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:12}}>
-          <svg width={96} height={96} style={{filter:`drop-shadow(0 0 18px ${readiness.level.col}55)`}}><circle cx={48} cy={48} r={38} fill="rgba(0,0,0,.4)" stroke="rgba(255,255,255,.1)" strokeWidth={7}/><circle cx={48} cy={48} r={38} fill="none" stroke={readiness.level.col} strokeWidth={7} strokeLinecap="round" strokeDasharray={C2} strokeDashoffset={dash} transform="rotate(-90 48 48)" style={{transition:"all .6s cubic-bezier(.4,0,.2,1)"}}/><text x={45} y={42} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?16:18} fontWeight={800} fontFamily="system-ui">{displayVal}</text><text x={45} y={57} textAnchor="middle" fill={readiness.level.col} fontSize={readiness.level.label.length>9?7:8} fontWeight={800} fontFamily="system-ui">{readiness.level.label}</text></svg>
-          <div style={{flex:1}}><div style={{fontWeight:900,fontSize:20,color:readiness.level.col,marginBottom:3}}>{readiness.level.label}</div><div style={{fontSize:11,color:C.muted,lineHeight:1.5,marginBottom:8}}>{mod.note}</div><div style={{background:`${params.col}22`,border:`1px solid ${params.col}55`,borderRadius:6,padding:"3px 8px",fontSize:9,fontWeight:800,color:params.col,display:"inline-block"}}>{params.label}</div></div>
+      <div style={{...cs,background:"linear-gradient(135deg,rgba(54,24,102,.98),rgba(16,7,35,.98))",border:`1px solid ${params.col}33`}}>
+        <Sparkles/>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
+          <div>
+            <div style={{fontWeight:900,fontSize:10,letterSpacing:"2px",textTransform:"uppercase",color:C.light,marginBottom:6}}>Coach Command Center</div>
+            <div style={{fontWeight:900,fontSize:24,lineHeight:1.1,color:C.text,marginBottom:4}}>Your smart next move, <span style={{color:params.col}}>Scarlett</span></div>
+            <div style={{fontSize:11,color:C.muted,lineHeight:1.6,maxWidth:420}}>Coach reads your games, practices, sleep, school, and routines to build a personalized plan that gets sharper over time.</div>
+          </div>
+          <div style={{background:`${params.col}1e`,border:`1px solid ${params.col}55`,borderRadius:10,padding:"6px 10px",fontSize:10,fontWeight:900,color:params.col,whiteSpace:"nowrap"}}>{coachMode}</div>
         </div>
-        {readiness.reasons.slice(0,2).map((rs,i)=><div key={i} style={{display:"flex",gap:8,padding:"5px 0",borderTop:`1px solid ${C.border}`,alignItems:"flex-start"}}><span style={{fontSize:12}}>{rs.icon}</span><div style={{fontSize:11,color:C.muted,lineHeight:1.5}}>{rs.txt}</div></div>)}
+
+        <div style={{display:"grid",gridTemplateColumns:"92px 1fr",gap:12,alignItems:"center"}}>
+          <svg width={92} height={92} style={{filter:`drop-shadow(0 0 18px ${readiness.level.col}55)`}}>
+            <circle cx={46} cy={46} r={36} fill="rgba(0,0,0,.42)" stroke="rgba(255,255,255,.1)" strokeWidth={7}/>
+            <circle cx={46} cy={46} r={36} fill="none" stroke={readiness.level.col} strokeWidth={7} strokeLinecap="round" strokeDasharray={C2} strokeDashoffset={dash} transform="rotate(-90 46 46)" style={{transition:"all .6s cubic-bezier(.4,0,.2,1)"}}/>
+            <text x={46} y={42} textAnchor="middle" fill={C.text} fontSize={displayVal.length>2?15:18} fontWeight={900} fontFamily="system-ui">{displayVal}</text>
+            <text x={46} y={58} textAnchor="middle" fill={readiness.level.col} fontSize={8} fontWeight={800} fontFamily="system-ui">READY</text>
+          </svg>
+          <div>
+            <div style={{fontWeight:900,fontSize:18,color:readiness.level.col,marginBottom:4}}>{readiness.level.label}</div>
+            <div style={{fontSize:11,color:C.muted,lineHeight:1.55,marginBottom:8}}>{mod.note}</div>
+            <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+              <div style={{background:`${C.gold}18`,border:`1px solid ${C.gold}44`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:800,color:C.gold}}>📈 {dataPoints} data points</div>
+              <div style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:800,color:C.green}}>🎯 {activeGoals.length} active goals</div>
+              <div style={{background:`${C.teal}18`,border:`1px solid ${C.teal}44`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:800,color:C.teal}}>🌙 {sleepEntries.length?avgSleep.toFixed(1)+"h avg":"No sleep logs"}</div>
+              <div style={{background:`${C.pink}18`,border:`1px solid ${C.pink}44`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:800,color:C.pink}}>💪 {practices.length?avgEffort.toFixed(1)+"/5 effort":"No practice logs"}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:14}}>
+          {[
+            {e:"➕",title:"Log Practice",sub:"Feed Coach more data",tab:"practice",col:C.purple},
+            {e:"🌙",title:"Track Sleep",sub:"Recovery shapes performance",tab:"sleep",col:C.teal},
+            {e:"🎯",title:"Set a Goal",sub:"Give Coach a target",tab:"goals",col:C.gold}
+          ].map(x=><button key={x.title} onClick={()=>setTab(x.tab)} style={{background:`${x.col}14`,border:`1px solid ${x.col}40`,borderRadius:12,padding:10,textAlign:"left",cursor:"pointer",color:C.text,fontFamily:"system-ui"}}>
+            <div style={{fontSize:15,marginBottom:4}}>{x.e}</div>
+            <div style={{fontWeight:800,fontSize:11,color:x.col,marginBottom:1}}>{x.title}</div>
+            <div style={{fontSize:10,color:C.muted,lineHeight:1.35}}>{x.sub}</div>
+          </button>)}
+        </div>
       </div>
+
+      {dataPoints<6&&<div style={{background:`${C.purple}18`,border:`1px solid ${C.purple}44`,borderRadius:14,padding:12,marginBottom:12,fontSize:11,color:C.light,lineHeight:1.7}}>
+        <strong style={{color:C.purple}}>🧠 Coach is still learning.</strong> The more you log, the more personalized the advice gets.
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>{[["🏀 Games",games.length],["💪 Practices",practices.length],["🌙 Sleep",sleepEntries.length],["📚 School",Object.keys(subjects).length]].map(([l,v])=><div key={l} style={{background:v>0?`${C.green}22`:C.navy,border:`1px solid ${v>0?C.green:C.border}`,borderRadius:8,padding:"4px 8px",fontSize:10,fontWeight:700,color:v>0?C.green:C.muted}}>{l}: {v}</div>)}</div>
+      </div>}
+
+      <div style={cs}>
+        <CH e="🧠" title="Coach Playbook" sub="The smartest next moves based on your data"/>
+        <div style={{display:"grid",gap:10}}>
+          {playbook.map(card=><div key={card.title} style={{background:`${card.col}10`,border:`1px solid ${card.col}36`,borderRadius:14,padding:12}}>
+            <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:6}}>
+              <div style={{fontSize:18}}>{card.e}</div>
+              <div style={{flex:1}}><div style={{fontWeight:900,fontSize:13,color:card.col}}>{card.title}</div></div>
+              <button onClick={()=>setTab(card.tab)} style={{background:`${card.col}1f`,color:card.col,border:`1px solid ${card.col}55`,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>{card.cta}</button>
+            </div>
+            <div style={{fontSize:12,color:C.text,lineHeight:1.55}}>{card.body}</div>
+          </div>)}
+        </div>
+      </div>
+
       <div style={cs}>
         <CH e="✨" title="My Glow-Up Report" sub="What is strong, what needs work, and the next move"/>
-        {glowReport.map((x,i)=><div key={x.area} style={{background:`${x.col}10`,border:`1px solid ${x.col}33`,borderRadius:10,padding:10,marginBottom:i<glowReport.length-1?8:0}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
-            <span style={{fontSize:16}}>{x.e}</span><div style={{fontWeight:900,fontSize:12,color:x.col,letterSpacing:"1px",textTransform:"uppercase",flex:1}}>{x.area}</div><div style={{fontSize:9,color:C.muted,fontWeight:800}}>{x.stat}</div>
+        {glowReport.map((x,i)=><div key={x.area} style={{background:`${x.col}10`,border:`1px solid ${x.col}33`,borderRadius:14,padding:12,marginBottom:i<glowReport.length-1?8:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+            <span style={{fontSize:18}}>{x.e}</span>
+            <div style={{fontWeight:900,fontSize:12,color:x.col,letterSpacing:"1px",textTransform:"uppercase",flex:1}}>{x.area}</div>
+            <div style={{fontSize:9,color:C.muted,fontWeight:900}}>{x.stat}</div>
           </div>
-          <div style={{fontSize:11,color:C.text,lineHeight:1.5}}>✅ {x.doing}</div>
-          <div style={{fontSize:11,color:C.muted,lineHeight:1.5,marginTop:2}}>🔎 {x.needs}</div>
-          <div style={{fontSize:11,color:x.col,fontWeight:800,lineHeight:1.5,marginTop:3}}>➡️ {x.next}</div>
+          <div style={{fontSize:11,color:C.text,lineHeight:1.55}}>✅ {x.doing}</div>
+          <div style={{fontSize:11,color:C.muted,lineHeight:1.55,marginTop:2}}>🔎 {x.needs}</div>
+          <div style={{fontSize:11,color:x.col,fontWeight:900,lineHeight:1.55,marginTop:4}}>➡️ {x.next}</div>
         </div>)}
       </div>
+
       {insights.length>0&&<div style={cs}>
-        <div style={{fontWeight:800,fontSize:10,letterSpacing:"1.5px",color:C.text,textTransform:"uppercase",marginBottom:10}}>📊 Trend Analysis · {dataPoints} data points</div>
-        {insights.map((ins,i)=><div key={i} style={{display:"flex",gap:10,padding:"7px 0",borderBottom:i<insights.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
-          <div style={{fontSize:14,flexShrink:0}}>{ins.icon}</div>
-          <div style={{flex:1,fontSize:12,color:C.text,lineHeight:1.5}}>{ins.text}</div>
-          <div style={{width:3,borderRadius:99,background:`linear-gradient(180deg,${ins.col},${ins.col}66)`,alignSelf:"stretch",flexShrink:0,minHeight:24,boxShadow:`0 0 12px ${ins.col}77`}}/>
+        <CH e="📊" title="Trend Analysis" sub={`${dataPoints} data points · what Coach is noticing`}/>
+        {insights.map((ins,i)=><div key={i} style={{display:"flex",gap:10,padding:"8px 0",borderBottom:i<insights.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
+          <div style={{fontSize:15,flexShrink:0}}>{ins.icon}</div>
+          <div style={{flex:1,fontSize:12,color:C.text,lineHeight:1.55}}>{ins.text}</div>
+          <div style={{width:4,borderRadius:99,background:`linear-gradient(180deg,${ins.col},${ins.col}66)`,alignSelf:"stretch",flexShrink:0,minHeight:24,boxShadow:`0 0 12px ${ins.col}77`}}/>
         </div>)}
       </div>}
+
       <div style={cs}>
-        <div style={{fontWeight:800,fontSize:10,letterSpacing:"1.5px",color:C.text,textTransform:"uppercase",marginBottom:10}}>🎯 TOP 3 FOCUS AREAS</div>
-        {weakSkills.map((([sk,val],i)=><div key={sk} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:i<2?`1px solid ${C.border}`:"none"}}>
-          <div style={{width:24,height:24,borderRadius:"50%",background:`${SKILL_COL(val)}22`,border:`2px solid ${SKILL_COL(val)}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:11,color:SKILL_COL(val),flexShrink:0}}>{i+1}</div>
-          <div style={{flex:1}}><div style={{fontWeight:800,fontSize:13,color:C.text}}>{sk}</div><div style={{fontSize:10,color:C.muted,marginTop:1}}>{SKILL_LEVEL(val)} · {val}% · Practice daily for 15 min</div></div>
-          <div style={{fontWeight:900,fontSize:13,color:SKILL_COL(val)}}>{val}%</div>
-        </div>))}
-      </div>
-      {practiceInsight&&<div style={{...cs,background:`${C.purple}12`,border:`1px solid ${C.purple}33`}}>
-        <div style={{fontSize:11,color:C.purple,lineHeight:1.7}}>💡 <strong>Practice balance tip:</strong> {practiceInsight[0]} has been your least-practiced area ({practiceInsight[1]}x). Try adding a dedicated {practiceInsight[0].toLowerCase()} session this week.</div>
-      </div>}
-      {weakSubjs.length>0&&<div style={cs}>
-        <div style={{fontWeight:800,fontSize:10,letterSpacing:"1.5px",color:C.text,textTransform:"uppercase",marginBottom:10}}>📚 STUDY PRIORITIES</div>
-        {weakSubjs.map(([s,grade],i)=><div key={s} style={{padding:"10px 0",borderBottom:i<weakSubjs.length-1?`1px solid ${C.border}`:"none"}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><div style={{background:`${GRADE_COL[normGrade(grade)]}22`,color:GRADE_COL[normGrade(grade)],fontWeight:900,fontSize:13,width:28,height:28,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center"}}>{grade}</div><div style={{fontWeight:800,fontSize:13,color:C.text}}>{s}</div></div>
-          <div style={{fontSize:11,color:C.muted,lineHeight:1.5}}>15 min of focused {s} review each night. {(GRADE_MAP[grade]||0)<=1?"Ask your teacher for extra help — great students do this.":"Consistent review will move this grade."}</div>
+        <CH e="🎯" title="Focus Ladder" sub="The top skills Coach wants you to level up next"/>
+        {weakSkills.map(([sk,val],i)=><div key={sk} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 0",borderBottom:i<weakSkills.length-1?`1px solid ${C.border}`:"none"}}>
+          <div style={{width:28,height:28,borderRadius:"50%",background:`${SKILL_COL(val)}22`,border:`2px solid ${SKILL_COL(val)}`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:11,color:SKILL_COL(val),flexShrink:0}}>{i+1}</div>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:800,fontSize:14,color:C.text}}>{sk}</div>
+            <div style={{fontSize:10,color:C.muted,marginTop:2}}>{SKILL_LEVEL(val)} · {val}% · 15 minutes daily is enough to move this.</div>
+          </div>
+          <div style={{fontWeight:900,fontSize:14,color:SKILL_COL(val)}}>{val}%</div>
         </div>)}
+        {focusSubject&&<div style={{marginTop:10,padding:10,borderRadius:12,background:`${GRADE_COL[normGrade(focusSubject[1])]}12`,border:`1px solid ${GRADE_COL[normGrade(focusSubject[1])]}33`,fontSize:11,color:C.text,lineHeight:1.55}}>
+          📚 <strong style={{color:GRADE_COL[normGrade(focusSubject[1])]}}>School priority:</strong> {focusSubject[0]} is at a {focusSubject[1]}. A short focused review tonight keeps the full glow-up moving.
+        </div>}
+      </div>
+
+      {practiceInsight&&<div style={{...cs,background:`${C.purple}12`,border:`1px solid ${C.purple}33`}}>
+        <div style={{fontSize:11,color:C.purple,lineHeight:1.7}}>💡 <strong>Practice balance tip:</strong> {practiceInsight[0]} has been the least-logged practice type ({practiceInsight[1]}x). Add one more focused session there this week.</div>
       </div>}
-      <div style={{background:C.card2,borderRadius:12,border:`1px solid ${C.border}`,padding:14}}>
-        <div style={{fontWeight:800,fontSize:10,letterSpacing:"1.5px",color:C.text,textTransform:"uppercase",marginBottom:10}}>📈 IMPROVEMENT RULES</div>
-        {["Work your weakest skill for 15 min every day. Small daily reps build elite skill over time.","Practice feels easy? Add speed, add pressure, or shorten rest. Always be at your growing edge.","Log every game and practice — Coach reads the data and tracks your trends automatically.","9–10h of sleep = more skill retention, better reaction time, and faster growth. Use it.","Missed a session? Start fresh tomorrow. Consistency over intensity. Always."].map((t,i)=><div key={i} style={{display:"flex",gap:10,padding:"6px 0",borderBottom:i<4?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}><div style={{fontWeight:900,fontSize:11,color:params.col,minWidth:16}}>{i+1}</div><div style={{fontSize:12,color:C.text,lineHeight:1.5}}>{t}</div></div>)}
+
+      <div style={{...cs,background:C.card2}}>
+        <CH e="📈" title="Coach Rules" sub="Simple rules that keep momentum high"/>
+        {rules.map((t,i)=><div key={i} style={{display:"flex",gap:10,padding:"7px 0",borderBottom:i<rules.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
+          <div style={{fontWeight:900,fontSize:11,color:params.col,minWidth:18}}>{i+1}</div>
+          <div style={{fontSize:12,color:C.text,lineHeight:1.55}}>{t}</div>
+        </div>)}
       </div>
     </div>;
   };
+
 
   // ── GOALS ──────────────────────────────────────────────────────────────
   const Goals2=()=>{
