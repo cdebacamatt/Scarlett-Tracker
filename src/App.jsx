@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+aimport { useState, useEffect, useRef, useCallback } from "react";
 
 const C={bg:"#0B0C14",nav:"#12121F",navy:"#171827",navy2:"#1F2033",card:"#242436",card2:"#2A2A3D",border:"rgba(255,255,255,.10)",coral:"#E86F8F",teal:"#6AD8CF",purple:"#A78BFA",gold:"#EBCB6A",green:"#7DDB9C",blue:"#7DAAF2",pink:"#D978B9",orange:"#E8A35D",red:"#E66B76",white:"#FFFFFF",text:"#F7F2FB",muted:"#B9B2C8",light:"#E7DEEF"};
 
@@ -190,6 +190,7 @@ const todayISO=()=>new Date().toISOString().slice(0,10);
 const toShort=iso=>new Date(`${iso||todayISO()}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const shiftISO=(iso,d)=>{const dt=new Date(`${iso}T12:00:00`);dt.setDate(dt.getDate()+d);return dt.toISOString().slice(0,10);};
 const clone=o=>JSON.parse(JSON.stringify(o));
+const safeArray=v=>Array.isArray(v)?v:[];
 const avgArr=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
 const normGrade=g=>String(g||3);
 const gradeValue=g=>({4:4,3:3,2:2,1:1}[normGrade(g)]||0);
@@ -337,14 +338,14 @@ export default function ScarlettTracker(){
     const pd=await sg("sc_profile")||clone(DEF_PROFILE);
     const hd=await sg("sc_habits")||{entries:clone(DEF_HABITS)};
     setDailyHist(daily.entries||{});setGames(bball.games||[]);setSkills(bball.skills||clone(DEF_SKILLS));
-    setPractices(prax.entries||[]);setStyleLog(styleD.fits||[]);setShoeWish(styleD.shoes||[]);
-    setRoutineHist(routineD.entries||{});setRoutineItems(routineD.items||clone(ROUTINE_ITEMS));setSleepEntries(slp.entries||[]);
+    setPractices(safeArray(prax.entries));setStyleLog(safeArray(styleD.fits));setShoeWish(safeArray(styleD.shoes));
+    setRoutineHist(routineD.entries||{});setRoutineItems(routineD.items||clone(ROUTINE_ITEMS));setSleepEntries(safeArray(slp.entries));
     setSubjects(school.subjects||clone(DEF_SUBJECTS));
     const dailyEntries=daily.entries||{};
-    const goalEntries=gd.entries||[];
-    const realActivity=(bball.games||[]).length>0||(prax.entries||[]).length>0||(styleD.fits||[]).length>0||(styleD.shoes||[]).length>0||(routineD.entries&&Object.values(routineD.entries).some(x=>Object.values(x?.c||{}).some(Boolean)))||(slp.entries||[]).length>0||goalEntries.length>0||Object.values(dailyEntries).some(x=>Object.values(x?.c||{}).some(Boolean)||(x?.w||0)>0||Object.keys(x?.r||{}).length>0);
+    const goalEntries=safeArray(gd.entries);
+    const realActivity=safeArray(bball.games).length>0||safeArray(prax.entries).length>0||safeArray(styleD.fits).length>0||safeArray(styleD.shoes).length>0||(routineD.entries&&Object.values(routineD.entries).some(x=>Object.values(x?.c||{}).some(Boolean)))||(slp.entries||[]).length>0||goalEntries.length>0||Object.values(dailyEntries).some(x=>Object.values(x?.c||{}).some(Boolean)||(x?.w||0)>0||Object.keys(x?.r||{}).length>0);
     const startStars=realActivity?(Number(gd.stars)||0):0;
-    setGoals(goalEntries);setStars(startStars);setRewardClaims(rd.claims||[]);setProfile({...clone(DEF_PROFILE),...pd});setHabits(hd.entries||[]);
+    setGoals(safeArray(goalEntries));setStars(startStars);setRewardClaims(safeArray(rd.claims));setProfile({...clone(DEF_PROFILE),...pd});setHabits(hd.entries||[]);
     if(!realActivity&&(Number(gd.stars)||0)>0)await ss("sc_goals",{entries:goalEntries,stars:0});
     const e=dailyEntries?.[todayISO()]||{};
     setChecks(e.c||{});setStarAwards(e.r||{});setWater(e.w||0);setVitals(e.vitals||clone(DEF_VITALS));
@@ -361,7 +362,7 @@ export default function ScarlettTracker(){
   const saveGoals=async(g,s=stars)=>{setGoals(g);setStars(s);await ss("sc_goals",{entries:g,stars:s});};
   const saveRewards=async claims=>{setRewardClaims(claims);await ss("sc_rewards",{claims});};
   const saveHabits=async entries=>{setHabits(entries);await ss("sc_habits",{entries});};
-  const saveStyle=async(fits=styleLog,shoes=shoeWish)=>{setStyleLog(fits);setShoeWish(shoes);await ss("sc_style",{fits,shoes});};
+  const saveStyle=async(fits=styleLog,shoes=shoeWish)=>{const cleanFits=safeArray(fits),cleanShoes=safeArray(shoes);setStyleLog(cleanFits);setShoeWish(cleanShoes);await ss("sc_style",{fits:cleanFits,shoes:cleanShoes});};
   const saveRoutine=async(entries=routineHist,items=routineItems)=>{setRoutineHist(entries);setRoutineItems(items);await ss("sc_routine",{entries,items});};
   const saveSleep=async e=>{setSleepEntries(e);await ss("sc_sleep",{entries:e});};
   const saveSchool=async sub=>{setSubjects(sub);await ss("sc_school",{subjects:sub});};
@@ -372,13 +373,13 @@ export default function ScarlettTracker(){
     const [daily,bball,prax,styleD,routineD,slp,school,gd,rd,pd,hd]=await Promise.all([sg("sc_daily"),sg("sc_bball"),sg("sc_practices"),sg("sc_style"),sg("sc_routine"),sg("sc_sleep"),sg("sc_school"),sg("sc_goals"),sg("sc_rewards"),sg("sc_profile"),sg("sc_habits")]);
     if(daily?.entries)setDailyHist(daily.entries);
     if(bball?.games)setGames(bball.games);if(bball?.skills)setSkills(bball.skills);
-    if(prax?.entries)setPractices(prax.entries);
-    if(styleD?.fits)setStyleLog(styleD.fits);if(styleD?.shoes)setShoeWish(styleD.shoes);
+    if(prax?.entries)setPractices(safeArray(prax.entries));
+    if(styleD?.fits)setStyleLog(safeArray(styleD.fits));if(styleD?.shoes)setShoeWish(safeArray(styleD.shoes));
     if(routineD?.entries)setRoutineHist(routineD.entries);if(routineD?.items)setRoutineItems(routineD.items);
-    if(slp?.entries)setSleepEntries(slp.entries);
+    if(slp?.entries)setSleepEntries(safeArray(slp.entries));
     if(school?.subjects)setSubjects(school.subjects);
-    if(gd?.entries)setGoals(gd.entries);if(gd?.stars)setStars(gd.stars);
-    if(rd?.claims)setRewardClaims(rd.claims);
+    if(gd?.entries)setGoals(safeArray(gd.entries));if(gd?.stars)setStars(gd.stars);
+    if(rd?.claims)setRewardClaims(safeArray(rd.claims));
     if(hd?.entries)setHabits(hd.entries);
     if(pd)setProfile({...clone(DEF_PROFILE),...pd});
   };
@@ -391,9 +392,9 @@ export default function ScarlettTracker(){
   const badgeData={games,practices,sleepEntries,subjects,goals,skills,dailyHist,shoeWish,styleLog,stars};
   const rewardCost=item=>{if(item?.cost)return item.cost;const p=String(item?.priority||"").toLowerCase();if(p.includes("dream"))return 3;if(p.includes("next"))return 2;return 1;};
   const approvedGoalCount=goals.filter(g=>g.parentApproved).length;
-  const spentRewardTokens=rewardClaims.filter(r=>["requested","approved"].includes(r.status)).reduce((a,r)=>a+(r.cost||1),0);
+  const spentRewardTokens=safeArray(rewardClaims).filter(r=>["requested","approved"].includes(r.status)).reduce((a,r)=>a+(r.cost||1),0);
   const rewardTokens=Math.max(0,approvedGoalCount-spentRewardTokens);
-  const claimFor=item=>rewardClaims.find(r=>r.itemId===item.id&&r.status!=="rejected");
+  const claimFor=item=>safeArray(rewardClaims).find(r=>r.itemId===item.id&&r.status!=="rejected");
   const approveGoal=async id=>{
     let shouldReward=false;
     const ng=goals.map(g=>{if(g.id!==id)return g;shouldReward=!g.parentApproved;return {...g,done:true,submitted:true,parentApproved:true,approvedDate:toShort(todayISO())};});
@@ -406,7 +407,7 @@ export default function ScarlettTracker(){
     if(existing)return;
     if(item?.goalId&&!linkedUnlocked)return;
     if(!item?.goalId&&rewardTokens<rewardCost(item))return;
-    const claim={id:uid(),itemId:item.id,itemName:item.name,goalId:item.goalId||"",goalCode:linked?goalCodeFor(goals,linked):"",cost:item.goalId?0:rewardCost(item),status:"requested",date:toShort(todayISO())};
+    const claim={id:uid(),itemId:item.id,itemName:item.name,goalId:item.goalId||"",goalCode:linked?goalCodeFor(safeGoals,linked):"",cost:item.goalId?0:rewardCost(item),status:"requested",date:toShort(todayISO())};
     await saveRewards([claim,...rewardClaims]);
   };
   const updateRewardClaim=async(id,status)=>{
@@ -878,20 +879,23 @@ export default function ScarlettTracker(){
 
   // ── WISHLIST ────────────────────────────────────────────────────────────
   const Wishlist=()=>{
+    const safeWish=safeArray(shoeWish);
+    const safeGoals=safeArray(goals);
+    const safeClaims=safeArray(rewardClaims);
     const [wf,setWf]=useState({name:"",category:"auto",why:"",priority:"Dream 🌟",search:"",goalId:""});
     const [filter,setFilter]=useState("all");
     const addWish=async()=>{
       if(!wf.name.trim())return;
       const item=buildWishlistItem(wf);
-      await saveStyle(styleLog,[item,...shoeWish].slice(0,40));
+      await saveStyle(styleLog,[item,...safeWish].slice(0,40));
       setWf({name:"",category:"auto",why:"",priority:"Dream 🌟",search:"",goalId:""});
     };
     const addStarter=async starter=>{
       const item=buildWishlistItem({...starter,priority:"Dream 🌟",category:starter.category||"auto"});
-      await saveStyle(styleLog,[item,...shoeWish].slice(0,40));
+      await saveStyle(styleLog,[item,...safeWish].slice(0,40));
       await addStars(1);
     };
-    const shown=filter==="all"?shoeWish:shoeWish.filter(x=>(x.category||detectWishCategory(x.name))===filter);
+    const shown=filter==="all"?safeWish:safeWish.filter(x=>(x.category||detectWishCategory(x.name))===filter);
     return <div>
       <GlamHero style={{marginBottom:12}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
@@ -901,14 +905,14 @@ export default function ScarlettTracker(){
             <div style={{fontSize:11,color:C.light,lineHeight:1.6,marginTop:6}}>Sneakers, outfits, face care, toys, school style, and future rewards — all connected to follow-through and parent approval.</div>
           </div>
           <div style={{minWidth:88,textAlign:"center",padding:"10px 12px",borderRadius:20,background:`${C.gold}18`,border:`1px solid ${C.gold}44`}}>
-            <div style={{fontSize:30,fontWeight:950,color:C.gold,lineHeight:1}}>{shoeWish.length}</div>
+            <div style={{fontSize:30,fontWeight:950,color:C.gold,lineHeight:1}}>{safeWish.length}</div>
             <div style={{fontSize:9,fontWeight:900,color:C.light,letterSpacing:"1px"}}>SAVED</div>
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
           <SBox value={rewardTokens} label="Tokens" color={C.gold} sub="approved goals"/>
-          <SBox value={shoeWish.filter(x=>(x.category||"")==="sneakers").length} label="Sneakers" color={C.teal}/>
-          <SBox value={rewardClaims.filter(x=>x.status==="requested").length} label="Requests" color={C.pink}/>
+          <SBox value={safeWish.filter(x=>(x.category||"")==="sneakers").length} label="Sneakers" color={C.teal}/>
+          <SBox value={safeClaims.filter(x=>x.status==="requested").length} label="Requests" color={C.pink}/>
         </div>
       </GlamHero>
 
@@ -921,7 +925,7 @@ export default function ScarlettTracker(){
         <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:6}}>Choose the exact goal this reward belongs to. When that goal is completed and parent-approved, the reward can be requested.</div>
         <select value={wf.goalId} onChange={e=>setWf(p=>({...p,goalId:e.target.value}))} style={{...INP,marginBottom:10,appearance:"none"}}>
           <option value="">No exact goal selected yet</option>
-          {goals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(goals,g)} — {g.text.slice(0,60)}</option>)}
+          {safeGoals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(safeGoals,g)} — {(g.text||"").slice(0,60)}</option>)}
         </select>
         <input value={wf.why} onChange={e=>setWf(p=>({...p,why:e.target.value}))} placeholder="Why do you want it? What goal will it motivate?" style={{...INP,marginBottom:10}}/>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
@@ -960,21 +964,21 @@ export default function ScarlettTracker(){
         <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:6,marginBottom:10}}>
           {[{id:"all",label:"All",icon:"🛍️"},...WISH_CATEGORIES.filter(c=>c.id!=="auto")].map(c=><Chip key={c.id} label={`${c.icon} ${c.label}`} active={filter===c.id} col={C.pink} onClick={()=>setFilter(c.id)}/>)}
         </div>
-        {shown.length>0?shown.map(s=>{const cat=wishCategoryMeta(s.category||detectWishCategory(s.name));const linked=goalById(goals,s.goalId);const linkedOK=linked&&linked.parentApproved;return <div key={s.id} style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:10,padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
+        {shown.length>0?shown.map(s=>{const cat=wishCategoryMeta(s.category||detectWishCategory(s.name));const linked=goalById(safeGoals,s.goalId);const linkedOK=linked&&linked.parentApproved;return <div key={s.id} style={{display:"grid",gridTemplateColumns:"64px 1fr",gap:10,padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
           <SneakerPhoto src={s.img} name={s.name} size={64}/>
           <div style={{minWidth:0}}>
             <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"flex-start"}}>
               <div>
                 <div style={{fontSize:13,fontWeight:950,color:C.white,lineHeight:1.25}}>{s.name}</div>
-                <div style={{fontSize:10,color:C.gold,marginTop:2}}>{cat.icon} {cat.label} · {s.priority||"Dream 🌟"} · {s.goalId?`Linked to ${linked?goalCodeFor(goals,linked):"missing goal"}`:`${rewardCost(s)} token${rewardCost(s)===1?"":"s"}`}</div>
+                <div style={{fontSize:10,color:C.gold,marginTop:2}}>{cat.icon} {cat.label} · {s.priority||"Dream 🌟"} · {s.goalId?`Linked to ${linked?goalCodeFor(safeGoals,linked):"missing goal"}`:`${rewardCost(s)} token${rewardCost(s)===1?"":"s"}`}</div>
               </div>
-              <button onClick={()=>saveStyle(styleLog,shoeWish.filter(x=>x.id!==s.id))} aria-label={`Remove ${s.name}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
+              <button onClick={()=>saveStyle(styleLog,safeWish.filter(x=>x.id!==s.id))} aria-label={`Remove ${s.name}`} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
             </div>
             {s.why&&<div style={{fontSize:10,color:C.muted,marginTop:4,lineHeight:1.4}}>{s.why}</div>}
-            {s.goalId&&<div style={{fontSize:10,color:linkedOK?C.green:C.orange,marginTop:4,lineHeight:1.4}}>{linkedOK?"Goal approved — reward can be requested ✅":linked?`Waiting for ${goalCodeFor(goals,linked)} to be completed and parent-approved.`:"Linked goal was not found."}</div>}
-            <select value={s.goalId||""} onChange={async e=>{const updated=shoeWish.map(x=>x.id===s.id?{...x,goalId:e.target.value}:x);await saveStyle(styleLog,updated);}} style={{...INP,marginTop:8,marginBottom:2,appearance:"none",fontSize:"12px!important"}}>
+            {s.goalId&&<div style={{fontSize:10,color:linkedOK?C.green:C.orange,marginTop:4,lineHeight:1.4}}>{linkedOK?"Goal approved — reward can be requested ✅":linked?`Waiting for ${goalCodeFor(safeGoals,linked)} to be completed and parent-approved.`:"Linked goal was not found."}</div>}
+            <select value={s.goalId||""} onChange={async e=>{const updated=safeWish.map(x=>x.id===s.id?{...x,goalId:e.target.value}:x);await saveStyle(styleLog,updated);}} style={{...INP,marginTop:8,marginBottom:2,appearance:"none",fontSize:"12px!important"}}>
               <option value="">Link this reward to a goal</option>
-              {goals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(goals,g)} — {g.text.slice(0,60)}</option>)}
+              {safeGoals.map(g=><option key={g.id} value={g.id}>{goalCodeFor(safeGoals,g)} — {(g.text||"").slice(0,60)}</option>)}
             </select>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:8}}>
               {rewardStores(s).map(shop=><button key={shop} onClick={()=>openRewardShop(shop,s)} style={{padding:"7px 9px",borderRadius:10,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>{shop.toUpperCase()}</button>)}
