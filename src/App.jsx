@@ -251,6 +251,26 @@ function getDailyHoroscope(profile){
   return {sign,...h};
 }
 
+// Daily coaching prompts inspired by real WNBA players.
+// These are not direct quotes. They are kid-friendly coaching lessons based on each player's public playing identity.
+const WNBA_DAILY_COACH=[
+  {player:"A'ja Wilson",tag:"MVP mindset",focus:"Do the work before anyone is watching.",advice:"Great players do the boring reps with pride. Pick one skill today and give it clean, focused effort for 15 minutes.",move:"15 focused reps",tab:"hoops",button:"Train Hoops"},
+  {player:"Sabrina Ionescu",tag:"shooter confidence",focus:"Your routine builds your confidence.",advice:"Shooters trust their routine. Before you worry about making every shot, repeat the same form, balance, and follow-through.",move:"Form before makes",tab:"hoops",button:"Work Shooting"},
+  {player:"Caitlin Clark",tag:"court vision",focus:"See the next play early.",advice:"A smart player is not just looking at the ball. Today, practice noticing spacing, open teammates, and the next simple pass.",move:"Eyes up",tab:"hoops",button:"Build IQ"},
+  {player:"Breanna Stewart",tag:"all-around excellence",focus:"Stack small wins everywhere.",advice:"Being all-around means doing a little of everything well. Score, defend, rebound, encourage, and keep learning.",move:"One win in each area",tab:"goals",button:"Set a Goal"},
+  {player:"Diana Taurasi",tag:"competitive fire",focus:"Compete without quitting.",advice:"Confidence grows when you keep showing up after hard moments. If today feels tough, finish one promise anyway.",move:"Finish one promise",tab:"today",button:"Daily Quests"},
+  {player:"Napheesa Collier",tag:"quiet consistency",focus:"Let your habits speak.",advice:"You do not need to be loud to be powerful. A calm routine, steady practice, and good choices add up.",move:"Complete the routine",tab:"glow",button:"Start Glow"},
+  {player:"Jewell Loyd",tag:"scorer's focus",focus:"Create good shots, not rushed shots.",advice:"Good scorers stay patient. Work on footwork, balance, and choosing the shot you practiced.",move:"Balance first",tab:"hoops",button:"Log Practice"},
+  {player:"Chelsea Gray",tag:"point guard poise",focus:"Slow down to make the right play.",advice:"The best pass is often the simple pass. Today, focus on control: dribble with purpose and make the easy read.",move:"Simple reads",tab:"hoops",button:"Practice Handles"},
+  {player:"Kelsey Plum",tag:"work-rate energy",focus:"Bring energy to the next rep.",advice:"Energy changes everything. Pick one drill and attack it with strong body language, even if you are tired.",move:"Strong body language",tab:"hoops",button:"Train Today"},
+  {player:"Alyssa Thomas",tag:"toughness",focus:"Do the helpful things.",advice:"Winning players help in ways that do not always show up first: defense, rebounds, communication, and effort.",move:"One hustle play",tab:"goals",button:"Make It a Goal"},
+  {player:"Angel Reese",tag:"rebound confidence",focus:"Own your space.",advice:"Confidence is taking up space with effort and purpose. Today, go after rebounds, loose balls, and second chances.",move:"Rebound mindset",tab:"hoops",button:"Hoops Work"}
+];
+function getDailyWnbaCoach(){
+  const day=Math.floor(new Date(todayISO()+"T12:00:00").getTime()/86400000);
+  return WNBA_DAILY_COACH[day%WNBA_DAILY_COACH.length];
+}
+
 // ── STORAGE ──────────────────────────────────────────────────────────────
 let _FC=null;
 function getFamilyCode(){try{return _FC||localStorage.getItem("sc_fc")||null;}catch{return null;}}
@@ -457,6 +477,7 @@ export default function ScarlettTracker(){
     const allDone=habits.length>0&&done===habits.length;
     const routineDone=Object.values(routineHist[todayISO()]?.c||{}).filter(Boolean).length;
     const horoscope=getDailyHoroscope(profile);
+    const wnbaCoach=getDailyWnbaCoach();
     const addQuest=async()=>{
       const label=newQuest.trim();
       if(!label)return;
@@ -493,6 +514,29 @@ export default function ScarlettTracker(){
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           <div style={{padding:10,borderRadius:14,background:`${C.purple}16`,border:`1px solid ${C.purple}33`}}><div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>POWER MOVE</div><div style={{fontSize:12,fontWeight:900,color:C.purple,marginTop:2}}>{horoscope.power}</div></div>
           <div style={{padding:10,borderRadius:14,background:`${C.gold}14`,border:`1px solid ${C.gold}33`}}><div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>LUCKY VIBE</div><div style={{fontSize:12,fontWeight:900,color:C.gold,marginTop:2}}>{horoscope.lucky}</div></div>
+        </div>
+      </div>
+
+      <div style={{...cs,borderTop:`3px solid ${C.teal}`,background:"radial-gradient(ellipse at 12% 0%,rgba(106,216,207,.14),transparent 42%),radial-gradient(ellipse at 90% 0%,rgba(217,120,185,.12),transparent 42%),linear-gradient(145deg,rgba(25,18,54,.98),rgba(8,5,20,.99))"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
+          <CH e="🏀" title="WNBA Daily Coach" sub="Inspired by a real WNBA player — not a direct quote"/>
+          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.teal}16`,border:`1px solid ${C.teal}44`,color:C.teal,fontSize:10,fontWeight:950,whiteSpace:"nowrap"}}>new daily</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"58px 1fr",gap:12,alignItems:"center",marginBottom:12}}>
+          <div style={{width:58,height:58,borderRadius:20,background:`linear-gradient(135deg,${C.purple}28,${C.teal}18)`,border:`1px solid ${C.teal}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,boxShadow:`0 0 22px ${C.teal}22`}}>🏆</div>
+          <div>
+            <div style={{fontSize:18,fontWeight:950,color:C.white,lineHeight:1.1}}>{wnbaCoach.player}</div>
+            <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase",marginTop:3}}>{wnbaCoach.tag}</div>
+          </div>
+        </div>
+        <div style={{fontSize:15,fontWeight:950,color:C.teal,marginBottom:6}}>{wnbaCoach.focus}</div>
+        <div style={{fontSize:13,lineHeight:1.55,color:C.light,marginBottom:12}}>{wnbaCoach.advice}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:10,alignItems:"center"}}>
+          <div style={{padding:10,borderRadius:14,background:`${C.teal}10`,border:`1px solid ${C.teal}30`}}>
+            <div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>TODAY'S COACH MOVE</div>
+            <div style={{fontSize:12,fontWeight:950,color:C.teal,marginTop:2}}>{wnbaCoach.move}</div>
+          </div>
+          <button onClick={()=>setTab(wnbaCoach.tab)} style={{padding:"11px 13px",borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.teal},${C.purple})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:12,whiteSpace:"nowrap"}}>{wnbaCoach.button}</button>
         </div>
       </div>
 
