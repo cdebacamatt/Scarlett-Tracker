@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const C={bg:"#06040F",nav:"#0C0A1A",navy:"#0E0B1B",navy2:"#150F28",card:"#180D2C",card2:"#1E1238",border:"rgba(255,255,255,.12)",coral:"#FF3D7F",teal:"#00E5CC",purple:"#8B5CF6",gold:"#FFD700",green:"#22D97A",blue:"#4DA6FF",pink:"#FF1A8C",orange:"#FF7A2F",red:"#FF3D5A",white:"#FFFFFF",text:"#FFF0FF",muted:"#A89BC0",light:"#E8D5FF"};
-const TABS=[{id:"today",e:"🏠",label:"Today"},{id:"reels",e:"🎬",label:"Quest Feed"},{id:"games",e:"🏀",label:"Games"},{id:"practice",e:"💪",label:"Practice"},{id:"style",e:"👟",label:"Style"},{id:"routine",e:"✨",label:"Routine"},{id:"sleep",e:"🌙",label:"Sleep"},{id:"skills",e:"📊",label:"Skills"},{id:"school",e:"📚",label:"School"},{id:"coach",e:"🤖",label:"Coach"},{id:"goals",e:"🎯",label:"Goals"},{id:"progress",e:"📈",label:"Glow Up"},{id:"settings",e:"⚙️",label:"Setup"}];
+const TABS=[{id:"today",e:"🏠",label:"Start"},{id:"practice",e:"＋",label:"Log"},{id:"goals",e:"🎁",label:"Rewards"},{id:"progress",e:"🏆",label:"Badges"},{id:"settings",e:"👨‍👩‍👧",label:"Parent"}];
 const DEF_VITALS={energy:0,mood:0};
 const DEF_HABITS=[{id:"h1",time:"Morning",label:"Drink water first thing",group:"MORNING"},{id:"h2",time:"Morning",label:"Make my bed",group:"MORNING"},{id:"h3",time:"After School",label:"Homework before screens",group:"SCHOOL"},{id:"h4",time:"Evening",label:"Basketball practice or drills",group:"BASKETBALL"},{id:"h5",time:"Night",label:"Read for 20 minutes",group:"WIND DOWN"},{id:"h6",time:"Night",label:"In bed by 9:00 PM",group:"WIND DOWN"}];
 const DEF_SKILLS={"Ball Handling":35,"Shooting Form":30,"Layups":35,"Free Throws":30,"Passing":35,"Court Vision":30,"Defense":30,"Rebounding":30,"Footwork":30,"Speed & Agility":35,"Conditioning":35,"Basketball IQ":30,"Confidence":45,"Leadership":40};
@@ -2068,70 +2068,6 @@ export default function ScarlettTracker(){
 
 
   // ── SETTINGS ───────────────────────────────────────────────────────────
-  // ── QUEST FEED / SHORTS-STYLE KID ENGAGEMENT ──────────────────────────
-  const QuestFeed=()=>{
-    const readiness=computeReadiness(vitals,sleepEntries);
-    const insights=generateInsights(profile,games,practices,skills,subjects,sleepEntries,vitals,goals);
-    const weakestSkill=Object.entries(skills).sort((a,b)=>a[1]-b[1])[0]||["Ball Handling",35];
-    const lowestSubject=Object.entries(subjects).sort((a,b)=>(gradeValue(a[1])||0)-(gradeValue(b[1])||0))[0]||["Math",3];
-    const activeGoal=goals.find(g=>!g.done);
-    const doneToday=allH.filter(h=>checks[h.id]).length;
-    const shortCards=[
-      {id:"today",emoji:"✨",kicker:"FOR YOU",title:`${profile.name}'s Main Quest`,hook:"Beat today with tiny wins.",body:`${doneToday}/${allH.length||0} daily quests complete. The next tap should feel easy, not boring.`,cta:"Open Today",tab:"today",col:C.gold,stat:`${habitPct}%`},
-      {id:"hoops",emoji:"🏀",kicker:"HOOPS SHORT",title:"60-Second Skill Drop",hook:`Level up ${weakestSkill[0]}.`,body:"One minute of focused reps counts. Make it quick, clean, and confident — like a mini challenge before scrolling.",cta:"Open Skills",tab:"skills",col:C.coral,stat:`${weakestSkill[1]}%`},
-      {id:"roblox",emoji:"🕹️",kicker:"LEVEL MAP",title:`Level ${level}: ${levelTitle}`,hook:"Roblox-style progress, real-life rewards.",body:`${xpInLevel}/${XP_PER_LEVEL} XP to the next level. Stars, habits, games, school, and sleep all move the bar.`,cta:"View Glow Up",tab:"progress",col:C.purple,stat:`LV ${level}`},
-      {id:"style",emoji:"👟",kicker:"STYLE DROP",title:"Fit Check Quest",hook:"Confidence is part of the routine.",body:`${styleLog.length} fits logged and ${shoeWish.length} shoes saved. Add one idea, one shoe, or one game-day look.`,cta:"Open Style",tab:"style",col:C.pink,stat:`${styleLog.length}`},
-      {id:"school",emoji:"📚",kicker:"LOCK-IN",title:"Homework Before Screens",hook:`${lowestSubject[0]} is the next school unlock.`,body:"Do the short review first, then screens feel earned. This keeps parents happy and keeps her streak alive.",cta:"Open School",tab:"school",col:C.teal,stat:String(lowestSubject[1])},
-      {id:"coach",emoji:"🤖",kicker:"AI COACH",title:"Personal Coach Drop",hook:(insights[0]?.text||"Log a little more and Coach gets smarter."),body:"The dashboard watches patterns across hoops, sleep, school, goals, routine, and confidence — not just checkboxes.",cta:"Open Coach",tab:"coach",col:C.blue,stat:readiness.displayValue||"✨"},
-      {id:"reward",emoji:"🎁",kicker:"PARENT SAFE",title:"Screen-Time Style Rewards",hook:activeGoal?`Goal: ${activeGoal.text}`:"Set one goal and attach a reward.",body:"Keep the fun inside the family: no public feed, no comments, no DMs — just private quests and parent-approved rewards.",cta:"Open Goals",tab:"goals",col:C.green,stat:`${goals.filter(g=>g.done).length}/${goals.length||0}`}
-    ];
-    const quickTap=(card)=><button onClick={()=>setTab(card.tab)} style={{background:`${card.col}18`,border:`1px solid ${card.col}44`,color:card.col,borderRadius:999,padding:"7px 10px",fontSize:10,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",whiteSpace:"nowrap"}}>{card.cta} →</button>;
-    return <div>
-      <GlamHero style={{marginBottom:12,padding:16}}>
-        <div style={{display:"flex",alignItems:"center",gap:12,justifyContent:"space-between"}}>
-          <div>
-            <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1.7px",textTransform:"uppercase",marginBottom:4}}>Elite Quest Feed</div>
-            <div style={{fontSize:24,fontWeight:950,lineHeight:1.03,color:C.white}}>Shorts energy. Roblox progress. Parent-safe tracking.</div>
-            <div style={{fontSize:11,color:C.light,lineHeight:1.55,marginTop:8}}>Built to grab a 10-year-old's attention without turning the app into social media.</div>
-          </div>
-          <div style={{width:76,height:76,borderRadius:26,background:glamGrad,display:"flex",alignItems:"center",justifyContent:"center",fontSize:34,boxShadow:`0 0 34px ${C.pink}66`,flexShrink:0}}>🎬</div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:14}}>
-          <SBox value={`LV ${level}`} label="PLAYER LEVEL" color={C.purple}/>
-          <SBox value={`${missionsCompleted}/${dailyMissions.length}`} label="DAILY DROPS" color={C.gold}/>
-          <SBox value={familyCode?"ON":"LOCAL"} label="FAMILY SYNC" color={familyCode?C.green:C.orange}/>
-        </div>
-      </GlamHero>
-
-      <div style={{display:"flex",gap:12,overflowX:"auto",padding:"3px 2px 14px",scrollSnapType:"x mandatory"}}>
-        {shortCards.map((card,i)=><div key={card.id} style={{minWidth:"82%",scrollSnapAlign:"center",borderRadius:30,padding:18,position:"relative",overflow:"hidden",background:`radial-gradient(circle at 85% 5%,${card.col}55,transparent 30%),linear-gradient(155deg,rgba(255,255,255,.13),rgba(255,255,255,.035))`,border:`1px solid ${card.col}55`,boxShadow:`0 24px 70px rgba(0,0,0,.48),0 0 34px ${card.col}22`,minHeight:360,display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
-          <div style={{position:"absolute",right:18,top:18,fontSize:74,opacity:.18,filter:`drop-shadow(0 0 20px ${card.col})`}}>{card.emoji}</div>
-          <div>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,position:"relative"}}>
-              <div style={{fontSize:9,color:card.col,fontWeight:950,letterSpacing:"2px",textTransform:"uppercase"}}>{card.kicker}</div>
-              <div style={{background:"rgba(0,0,0,.35)",border:`1px solid ${card.col}55`,color:C.white,borderRadius:999,padding:"5px 9px",fontSize:10,fontWeight:950}}>{card.stat}</div>
-            </div>
-            <div style={{fontSize:54,marginTop:20,filter:`drop-shadow(0 0 18px ${card.col}66)`}}>{card.emoji}</div>
-            <div style={{fontSize:26,fontWeight:950,lineHeight:1.02,color:C.white,marginTop:8,letterSpacing:"-.8px"}}>{card.title}</div>
-            <div style={{fontSize:14,fontWeight:900,color:card.col,marginTop:12,lineHeight:1.25}}>{card.hook}</div>
-            <div style={{fontSize:12,color:C.light,lineHeight:1.65,marginTop:10,maxWidth:290}}>{card.body}</div>
-          </div>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,position:"relative"}}>
-            <div style={{display:"flex",gap:5}}>{[0,1,2,3,4].map(n=><span key={n} style={{width:6,height:6,borderRadius:99,background:n===i?card.col:"rgba(255,255,255,.22)",boxShadow:n===i?`0 0 12px ${card.col}`:"none"}}/> )}</div>
-            {quickTap(card)}
-          </div>
-        </div>)}
-      </div>
-
-      <div style={cs}>
-        <CH e="🛡️" title="Why this is elite for a kid" sub="High attention, low risk"/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-          {[{e:"🎬",t:"Short-form feel",d:"Fast cards, quick hooks, swipe-style flow."},{e:"🕹️",t:"Game loop",d:"Levels, XP, badges, missions, progress."},{e:"👨‍👩‍👧",t:"Family save",d:"Parent and child can use the same sync code."},{e:"🔒",t:"No social risk",d:"No strangers, comments, DMs, or public posting."}].map(x=><div key={x.t} style={{...glass,borderRadius:16,padding:12}}><div style={{fontSize:22}}>{x.e}</div><div style={{fontSize:12,fontWeight:950,color:C.white,marginTop:6}}>{x.t}</div><div style={{fontSize:10,color:C.muted,lineHeight:1.45,marginTop:4}}>{x.d}</div></div>)}
-        </div>
-      </div>
-    </div>;
-  };
-
   const Settings=()=>{
     const[sec,setSec]=useState("profile");
     const[editId,setEditId]=useState(null);
@@ -2226,7 +2162,84 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  const CONTENT={today:Today,reels:QuestFeed,games:Games,practice:Practice,style:Style,routine:Routine,sleep:Sleep,skills:Skills,school:School,coach:Coach,goals:Goals2,progress:Progress,settings:Settings};
+
+  const SimpleToday=()=>{
+    const readiness=computeReadiness(vitals,sleepEntries);
+    const doneHabits=habits.filter(h=>checks[h.id]).length;
+    const todayRoutine=routineHist[selDay]||{c:{},note:""};
+    const routineDone=Object.values(todayRoutine.c||{}).filter(Boolean).length;
+    const quickHomework=habits.find(h=>h.label.toLowerCase().includes("homework"))||habits[2];
+    const quickPractice=habits.find(h=>h.label.toLowerCase().includes("basketball"))||habits[3];
+    const toggleHabit=id=>setChecks(prev=>({...prev,[id]:!prev[id]}));
+    const bigBtn=(icon,title,sub,done,onClick,col)=>(
+      <button onClick={onClick} style={{
+        width:"100%",textAlign:"left",padding:16,borderRadius:22,border:`1px solid ${done?col+"88":"rgba(255,255,255,.12)"}`,
+        background:done?`linear-gradient(135deg,${col}33,rgba(255,255,255,.06))`:"rgba(255,255,255,.065)",
+        color:C.white,fontFamily:"system-ui",cursor:"pointer",boxShadow:done?`0 0 28px ${col}33`:"inset 0 1px 0 rgba(255,255,255,.08)"
+      }}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:46,height:46,borderRadius:17,background:done?col:"rgba(255,255,255,.10)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,boxShadow:done?`0 0 22px ${col}88`:"none"}}>{done?"✅":icon}</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:16,fontWeight:950,letterSpacing:"-.2px"}}>{title}</div>
+            <div style={{fontSize:12,color:done?"rgba(255,255,255,.82)":C.muted,lineHeight:1.35,marginTop:2}}>{done?"Done — nice job!":sub}</div>
+          </div>
+          <div style={{fontSize:18,color:done?C.white:C.gold}}>›</div>
+        </div>
+      </button>
+    );
+    const miniBtn=(label,emoji,onClick,col)=>(
+      <button onClick={onClick} style={{padding:"12px 10px",borderRadius:18,border:`1px solid ${col}55`,background:`${col}18`,color:C.white,fontFamily:"system-ui",fontWeight:950,cursor:"pointer"}}>
+        <div style={{fontSize:22,marginBottom:3}}>{emoji}</div>
+        <div style={{fontSize:11}}>{label}</div>
+      </button>
+    );
+    return <div>
+      <div style={{...cs,padding:18,background:"radial-gradient(circle at 18% 0%,rgba(255,61,127,.28),transparent 38%),radial-gradient(circle at 92% 8%,rgba(0,229,204,.20),transparent 34%),linear-gradient(145deg,rgba(35,14,70,.98),rgba(11,5,24,.98))"}}>
+        <Sparkles/>
+        <div style={{fontSize:11,fontWeight:950,letterSpacing:"1.8px",color:C.gold,textTransform:"uppercase",marginBottom:6}}>Start here</div>
+        <div style={{fontSize:28,fontWeight:950,lineHeight:1.05,letterSpacing:"-.8px",marginBottom:8}}>Hi {profile.name || "Scarlett"} 👋</div>
+        <div style={{fontSize:13,color:C.light,lineHeight:1.55,maxWidth:330}}>Only do these 3 things today. Everything else is extra and parents can use it later.</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:16}}>
+          <SBox value={`${missionsCompleted}/${dailyMissions.length}`} label="MISSIONS" color={C.gold}/>
+          <SBox value={`LV ${level}`} label={levelTitle.toUpperCase()} color={C.purple}/>
+          <SBox value={readiness.displayValue} label={readiness.level.label} color={readiness.level.col}/>
+        </div>
+      </div>
+
+      <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
+        {bigBtn("⚡","1. How do I feel?","Tap once for a quick check-in",vitals.energy>0&&vitals.mood>0,()=>setVitals({energy:4,mood:4}),C.teal)}
+        {bigBtn("📚","2. Homework before screens","Finish homework, then screens feel earned",quickHomework&&checks[quickHomework.id],()=>quickHomework&&toggleHabit(quickHomework.id),C.gold)}
+        {bigBtn("🏀","3. Basketball or movement","Log practice or mark today as active",quickPractice&&checks[quickPractice.id],()=>quickPractice?toggleHabit(quickPractice.id):setTab("practice"),C.coral)}
+      </div>
+
+      <div style={cs}>
+        <CH e="🎮" title="Kid Mode" sub="Simple like a game: tap, earn, level up"/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+          {miniBtn("+ Water","💧",()=>setWater(Math.min(12,water+1)),C.teal)}
+          {miniBtn("Log Practice","🏀",()=>setTab("practice"),C.coral)}
+          {miniBtn("Rewards","🎁",()=>setTab("goals"),C.gold)}
+        </div>
+        <div style={{marginTop:12,padding:12,borderRadius:16,background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.10)"}}>
+          <div style={{fontSize:12,color:C.white,fontWeight:900,marginBottom:7}}>Today’s progress</div>
+          <div style={{height:12,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden"}}>
+            <div style={{height:"100%",width:`${Math.min(100,Math.round(((doneHabits+Math.min(water,8)/8+Math.min(routineDone,3)/3)/Math.max(1,habits.length+2))*100))}%`,background:glamGrad,borderRadius:99,boxShadow:`0 0 18px ${C.pink}66`}}/>
+          </div>
+          <div style={{fontSize:11,color:C.muted,marginTop:8,lineHeight:1.45}}>Habits {doneHabits}/{habits.length} · Water {water}/8 · Routine {routineDone}/{routineItems.length}</div>
+        </div>
+      </div>
+
+      <div style={cs}>
+        <CH e="👨‍👩‍👧" title="For Parents" sub="The app is intentionally simple for her"/>
+        <div style={{fontSize:12,color:C.muted,lineHeight:1.7}}>
+          Let her mostly use Start, Log, Rewards, and Badges. Use the Parent tab for family sync, editing habits, training days, and detailed setup.
+        </div>
+        <button onClick={()=>setTab("settings")} style={{width:"100%",marginTop:12,padding:13,borderRadius:14,border:`1px solid ${C.purple}55`,background:`${C.purple}18`,color:C.white,fontWeight:950,fontFamily:"system-ui",cursor:"pointer"}}>Open Parent Setup</button>
+      </div>
+    </div>;
+  };
+
+
+  const CONTENT={today:SimpleToday,games:Games,practice:Practice,style:Style,routine:Routine,sleep:Sleep,skills:Skills,school:School,coach:Coach,goals:Goals2,progress:Progress,settings:Settings};
   if(!loaded)return<div style={{background:"radial-gradient(circle at 20% 0%,#5E1D8A,transparent 35%),radial-gradient(circle at 80% 20%,#FF5FD255,transparent 35%),#090015",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:C.text,fontFamily:"system-ui",flexDirection:"column",gap:12}}><div style={{fontSize:46,filter:`drop-shadow(0 0 18px ${C.gold})`}}>⭐</div><div style={{fontWeight:900}}>Loading {profile.name||"Scarlett"}'s tracker...</div></div>;
   return<div style={{background:"radial-gradient(circle at 12% -8%,rgba(248,95,200,.18),transparent 28%),radial-gradient(circle at 92% 4%,rgba(44,230,209,.10),transparent 26%),linear-gradient(180deg,#0F0B1C,#080612 58%,#05040B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}><style>{`
         *{box-sizing:border-box}
@@ -2258,8 +2271,8 @@ export default function ScarlettTracker(){
         </div>
       </div>
       <div onFocusCapture={onEditFocus} onBlurCapture={onEditBlur} style={{padding:"12px 12px calc(270px + env(safe-area-inset-bottom, 0px))"}}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></div>
-      <div style={{position:"fixed",left:"50%",bottom:"max(8px, env(safe-area-inset-bottom, 0px))",transform:editing?"translate(-50%, calc(125% + 24px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease, opacity .18s ease",width:"min(392px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4,background:"rgba(12,0,25,.90)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:20,padding:"5px 6px calc(5px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
-        {[["today","🏠","Home"],["reels","🎬","Feed"],["practice","＋","Log"],["progress","📈","Glow"],["style","👟","Style"]].map(([id,e,l])=><button key={id} onClick={()=>setTab(id)} style={{background:tab===id?`${C.pink}22`:"transparent",border:"none",borderRadius:15,color:tab===id?C.pink:C.muted,padding:"5px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:id==="practice"?22:17,lineHeight:1}}>{e}</div><div style={{fontSize:7,marginTop:2}}>{l}</div></button>)}
+      <div style={{position:"fixed",left:"50%",bottom:"max(8px, env(safe-area-inset-bottom, 0px))",transform:editing?"translate(-50%, calc(125% + 24px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease, opacity .18s ease",width:"min(392px,calc(100% - 24px))",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:4,background:"rgba(12,0,25,.90)",backdropFilter:"blur(18px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:20,padding:"5px 6px calc(5px + env(safe-area-inset-bottom, 0px))",boxShadow:"0 18px 50px rgba(0,0,0,.45)",zIndex:60}}>
+        {[["today","🏠","Start"],["practice","＋","Log"],["goals","🎁","Rewards"],["progress","🏆","Badges"]].map(([id,e,l])=><button key={id} onClick={()=>setTab(id)} style={{background:tab===id?`${C.pink}22`:"transparent",border:"none",borderRadius:15,color:tab===id?C.pink:C.muted,padding:"7px 2px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer"}}><div style={{fontSize:id==="practice"?24:18,lineHeight:1}}>{e}</div><div style={{fontSize:8,marginTop:3}}>{l}</div></button>)}
       </div>
     </div>
   </div>;
