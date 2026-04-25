@@ -274,18 +274,34 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
-      <div style={cs}>
-        <CH e="⚡" title="How are you feeling?" sub="Tap to check in"/>
+      <div style={{...cs,borderTop:`3px solid ${C.pink}`,background:"radial-gradient(ellipse at 18% 0%,rgba(255,26,140,.22),transparent 46%),radial-gradient(ellipse at 90% 10%,rgba(0,229,204,.16),transparent 42%),linear-gradient(145deg,rgba(35,13,68,.98),rgba(8,4,18,.99))"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:12}}>
+          <CH e="💫" title="Scarlett's Vibe Check" sub="Pick your mode for today"/>
+          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.gold}18`,border:`1px solid ${C.gold}44`,fontSize:10,fontWeight:950,color:C.gold,whiteSpace:"nowrap"}}>not a worksheet</div>
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+          <button onClick={()=>setVitals(p=>({...p,mode:"hoops"}))} style={{padding:12,borderRadius:18,border:`2px solid ${vitals.mode==="hoops"?C.coral:C.border}`,background:vitals.mode==="hoops"?`${C.coral}20`:"rgba(255,255,255,.045)",color:vitals.mode==="hoops"?C.white:C.muted,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}><div style={{fontSize:24}}>🏀</div><div style={{fontSize:12}}>Court Beast</div></button>
+          <button onClick={()=>setVitals(p=>({...p,mode:"style"}))} style={{padding:12,borderRadius:18,border:`2px solid ${vitals.mode==="style"?C.pink:C.border}`,background:vitals.mode==="style"?`${C.pink}20`:"rgba(255,255,255,.045)",color:vitals.mode==="style"?C.white:C.muted,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}><div style={{fontSize:24}}>💅</div><div style={{fontSize:12}}>Main Character</div></button>
+          <button onClick={()=>setVitals(p=>({...p,mode:"school"}))} style={{padding:12,borderRadius:18,border:`2px solid ${vitals.mode==="school"?C.teal:C.border}`,background:vitals.mode==="school"?`${C.teal}18`:"rgba(255,255,255,.045)",color:vitals.mode==="school"?C.white:C.muted,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}><div style={{fontSize:24}}>📚</div><div style={{fontSize:12}}>School Boss</div></button>
+          <button onClick={()=>setVitals(p=>({...p,mode:"chill"}))} style={{padding:12,borderRadius:18,border:`2px solid ${vitals.mode==="chill"?C.purple:C.border}`,background:vitals.mode==="chill"?`${C.purple}20`:"rgba(255,255,255,.045)",color:vitals.mode==="chill"?C.white:C.muted,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}><div style={{fontSize:24}}>🌙</div><div style={{fontSize:12}}>Reset Mode</div></button>
+        </div>
+
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
-          <div><div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:7}}>ENERGY ⚡</div><EmojiPick val={vitals.energy} emojis={["😴","🙂","😊","💪","⚡"]} onSet={v=>setVitals(p=>({...p,energy:v}))} col={C.gold}/></div>
-          <div><div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:7}}>MOOD 😊</div><EmojiPick val={vitals.mood} emojis={["😞","😐","🙂","😄","🤩"]} onSet={v=>setVitals(p=>({...p,mood:v}))} col={C.pink}/></div>
+          <div><div style={{fontSize:11,color:C.gold,fontWeight:950,letterSpacing:"1px",marginBottom:7}}>ENERGY LEVEL</div><EmojiPick val={vitals.energy} emojis={["🪫","😐","🙂","🔥","⚡"]} onSet={v=>setVitals(p=>({...p,energy:v}))} col={C.gold}/></div>
+          <div><div style={{fontSize:11,color:C.pink,fontWeight:950,letterSpacing:"1px",marginBottom:7}}>CONFIDENCE</div><EmojiPick val={vitals.confidence||0} emojis={["🙈","🙂","😎","💅","👑"]} onSet={v=>setVitals(p=>({...p,confidence:v}))} col={C.pink}/></div>
         </div>
-        <div style={{fontSize:11,color:C.teal,fontWeight:900,letterSpacing:"1px",marginBottom:8}}>HYDRATION 💧{water>=8?"  ✅ Goal hit!":""}</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:4}}>
-          {Array.from({length:8},(_,i)=><button key={i} onClick={()=>setWater(i<water?i:i+1)} style={{height:38,borderRadius:"6px 6px 12px 12px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,background:i<water?"#00100D":C.card2,cursor:"pointer",padding:0,position:"relative",overflow:"hidden",boxShadow:i<water?`0 0 12px ${C.teal}44`:"none"}}>
-            {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"72%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
-          </button>)}
+
+        <div style={{padding:12,borderRadius:16,background:"rgba(0,0,0,.24)",border:`1px solid ${C.border}`,marginBottom:12}}>
+          <div style={{fontSize:11,color:C.teal,fontWeight:950,letterSpacing:"1px",marginBottom:8}}>WATER POWER-UP 💧 {water>=8?"✅ maxed out":""}</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:4}}>
+            {Array.from({length:8},(_,i)=><button key={i} onClick={()=>setWater(i<water?i:i+1)} style={{height:36,borderRadius:"8px 8px 14px 14px",border:`2px solid ${i<water?C.teal:"rgba(255,255,255,.1)"}`,background:i<water?"#00100D":C.card2,cursor:"pointer",padding:0,position:"relative",overflow:"hidden",boxShadow:i<water?`0 0 12px ${C.teal}44`:"none"}}>
+              {i<water&&<div style={{position:"absolute",bottom:0,left:0,right:0,height:"72%",background:`linear-gradient(to top,${C.teal},#70FFE0)`}}/>}
+            </button>)}
+          </div>
         </div>
+
+        <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="Today's motto: I will..." style={{...INP,fontWeight:800}}/>
       </div>
       <div style={cs}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
