@@ -91,61 +91,45 @@ const REWARD_VIBES=[
 ];
 
 const REWARD_BASE_ITEMS=[
-  // SNEAKERS — names match the photo style so daily cards do not look fake or duplicated.
-  {category:"sneakers",base:"Nike red court sneaker",search:"Nike red girls court sneaker",why:"A real-looking sneaker reward that connects directly to basketball goals.",img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80"},
-  {category:"sneakers",base:"White low-top sneaker",search:"white youth low top sneakers",why:"A clean everyday sneaker reward for school or weekends.",img:"https://images.unsplash.com/photo-1607522370275-f14206abe5d3?auto=format&fit=crop&w=640&q=80"},
-  {category:"sneakers",base:"High-top basketball shoe",search:"girls high top basketball shoes",why:"A hoop-style reward for practice consistency.",img:"https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=640&q=80"},
-  {category:"sneakers",base:"Black street sneaker",search:"black youth streetwear sneakers",why:"A style reward that works with sporty outfits.",img:"https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=640&q=80"},
+  // SNEAKERS — sporty, trendy, preteen-friendly search targets.
+  {category:"sneakers",base:"Nike basketball sneaker",search:"Nike youth basketball sneakers",why:"A basketball reward that connects directly to practice and game goals.",img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"White low-top sneaker",search:"white youth low top sneakers",why:"A clean everyday sneaker reward for school and weekends.",img:"https://images.unsplash.com/photo-1607522370275-f14206abe5d3?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"High-top basketball shoe",search:"girls high top basketball shoes",why:"A hoop-style reward for finishing a training goal.",img:"https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"Black street sneaker",search:"black youth streetwear sneakers",why:"A cool sneaker reward that works with sporty outfits.",img:"https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=640&q=80"},
   {category:"sneakers",base:"Color-pop running sneaker",search:"colorful girls running sneakers",why:"A bright sneaker reward for active days.",img:"https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=640&q=80"},
-  {category:"sneakers",base:"Classic white court shoe",search:"white girls court shoes",why:"A simple classic reward she can style with anything.",img:"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"Classic court sneaker",search:"classic youth court sneaker",why:"A simple sneaker reward she can style with almost anything.",img:"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"Retro sneaker",search:"retro youth sneakers",why:"A trendy shoe reward for completing a bigger goal.",img:"https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&w=640&q=80"},
+  {category:"sneakers",base:"Pink sneaker",search:"pink youth sneakers",why:"A fun sneaker reward with a sporty-glam feel.",img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=640&q=80"},
 
-  // CLOTHING
-  {category:"clothing",base:"Oversized hoodie",search:"girls oversized hoodie",why:"A cozy style reward after a completed goal.",img:"https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Graphic tee",search:"girls graphic tee streetwear",why:"A simple reward that lets her express her style.",img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Cargo pants",search:"girls cargo pants streetwear",why:"A cool outfit reward for school or weekends.",img:"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Matching lounge set",search:"girls matching lounge set",why:"A stylish comfort reward for routine follow-through.",img:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Basketball shorts",search:"girls basketball shorts",why:"A practical reward for practice days.",img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=640&q=80"},
-  {category:"clothing",base:"Denim jacket",search:"girls denim jacket",why:"A style reward that can make a school outfit feel complete.",img:"https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=640&q=80"},
-
-  // BEAUTY / SELF CARE
-  {category:"beauty",base:"Gentle skincare set",search:"kids gentle skincare set",why:"A self-care reward for completing routines.",img:"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=640&q=80"},
-  {category:"beauty",base:"Lip balm set",search:"lip balm set kids",why:"A small trendy reward for goal follow-through.",img:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=640&q=80"},
+  // BEAUTY / SELF-CARE — age-appropriate wording.
+  {category:"beauty",base:"Gentle skincare set",search:"kids gentle skincare set",why:"A self-care reward for completing routine goals.",img:"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=640&q=80"},
+  {category:"beauty",base:"Lip balm set",search:"lip balm set kids",why:"A small trendy reward for follow-through.",img:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=640&q=80"},
   {category:"beauty",base:"Face wash and moisturizer",search:"gentle face wash moisturizer kids",why:"A routine reward that supports clean habits.",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=640&q=80"},
   {category:"beauty",base:"Skincare headband",search:"skincare headband girls",why:"A fun face-care reward that makes routine feel special.",img:"https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=640&q=80"},
   {category:"beauty",base:"Hair accessories set",search:"girls hair accessories bows headbands",why:"A style reward for outfit prep and confidence.",img:"https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=640&q=80"},
   {category:"beauty",base:"Mini self-care pouch",search:"girls self care pouch",why:"A neat way to organize routine items.",img:"https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=640&q=80"},
+  {category:"beauty",base:"Glossy lip balm",search:"glossy lip balm kids",why:"A fun, simple beauty reward without making the app too grown-up.",img:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=640&q=80"},
+  {category:"beauty",base:"Face-care mini kit",search:"preteen face care kit",why:"A reward tied directly to building a consistent glow routine.",img:"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=640&q=80"},
 
-  // TOYS / FUN
-  {category:"toys",base:"Mini collectible toy",search:"Mini Brands toy",why:"A fun reward after a goal is completed.",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=640&q=80"},
-  {category:"toys",base:"Cute plush",search:"cute plush toy",why:"A comfort reward for steady progress.",img:"https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=640&q=80"},
-  {category:"toys",base:"Craft kit",search:"craft kit for girls",why:"A creative reward for finishing school or habit goals.",img:"https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=640&q=80"},
-  {category:"toys",base:"Room decor light",search:"girls room decor light",why:"A fun room reward for a bigger goal.",img:"https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=640&q=80"},
-  {category:"toys",base:"Sticker pack",search:"cute sticker pack girls",why:"A small creative reward for quick wins.",img:"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=640&q=80"},
-  {category:"toys",base:"Art marker set",search:"art marker set for kids",why:"A creative reward that keeps her off autopilot screens.",img:"https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=640&q=80"},
+  // TRENDY TEEN / PRETEEN CLOTHING — clean, parent-friendly, modern.
+  {category:"clothing",base:"Oversized hoodie",search:"girls oversized hoodie trendy",why:"A cozy style reward after a completed goal.",img:"https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Graphic tee",search:"girls graphic tee streetwear",why:"A simple reward that lets her express her style.",img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Cargo pants",search:"girls cargo pants streetwear",why:"A cool outfit reward for school or weekends.",img:"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Matching lounge set",search:"girls matching lounge set trendy",why:"A stylish comfort reward for routine follow-through.",img:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Basketball shorts",search:"girls basketball shorts trendy",why:"A practical reward for practice days.",img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Denim jacket",search:"girls denim jacket trendy",why:"A style reward that can make a school outfit feel complete.",img:"https://images.unsplash.com/photo-1543076447-215ad9ba6923?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Cropped athletic hoodie",search:"girls athletic hoodie trendy",why:"A sporty-glam clothing reward for confidence.",img:"https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=640&q=80"},
+  {category:"clothing",base:"Wide-leg sweatpants",search:"girls wide leg sweatpants trendy",why:"A modern comfort reward that still feels stylish.",img:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=640&q=80"},
 
-  // SCHOOL
-  {category:"school",base:"Cute notebook",search:"cute notebook for school",why:"A school reward that supports organization.",img:"https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=640&q=80"},
-  {category:"school",base:"Planner and pens",search:"cute planner pens school",why:"A goal-planning reward that keeps her organized.",img:"https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=640&q=80"},
-  {category:"school",base:"Backpack charm",search:"cute backpack charm",why:"A small school-style reward for consistency.",img:"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=640&q=80"},
-  {category:"school",base:"Desk organizer",search:"cute desk organizer school",why:"A clean-space reward for focus and homework.",img:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=640&q=80"},
-  {category:"school",base:"Pencil pouch",search:"cute pencil pouch",why:"A practical school reward that still feels fun.",img:"https://images.unsplash.com/photo-1510936111840-65e151ad71bb?auto=format&fit=crop&w=640&q=80"},
-  {category:"school",base:"Bookstore pick",search:"preteen books girls",why:"A future-smart reward that builds reading confidence.",img:"https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=640&q=80"},
-
-  // FUTURE
-  {category:"future",base:"Basketball camp savings",search:"youth basketball camp",why:"A future-focused reward connected to growth.",img:"https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=640&q=80"},
-  {category:"future",base:"Training session savings",search:"youth basketball training session",why:"A reward that invests in her future skills.",img:"https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=640&q=80"},
-  {category:"future",base:"Experience day",search:"family experience day ideas",why:"A memory-based reward for a major goal.",img:"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=640&q=80"},
-  {category:"future",base:"Savings jar deposit",search:"kids savings jar",why:"A future-money reward that teaches patience.",img:"https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=640&q=80"},
-  {category:"future",base:"New skill class",search:"kids skill class",why:"A reward that builds confidence beyond today.",img:"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=640&q=80"},
-  {category:"future",base:"Team event fund",search:"youth sports team event",why:"A long-term reward tied to teamwork and memories.",img:"https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=640&q=80"},
-
-  // OTHER / TRENDY ACCESSORIES
-  {category:"other",base:"Room refresh item",search:"girls room decor",why:"A personal-space reward for long-term progress.",img:"https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=640&q=80"},
-  {category:"other",base:"Water bottle charm",search:"tumbler charm girls",why:"A small trendy accessory reward.",img:"https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=640&q=80"},
-  {category:"other",base:"Jewelry accessory",search:"girls jewelry accessory",why:"A style reward that feels special but simple.",img:"https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=640&q=80"},
-  {category:"other",base:"Phone charm",search:"cute phone charm",why:"A trendy little reward for a completed goal.",img:"https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=640&q=80"},
-  {category:"other",base:"Sports water bottle",search:"girls sports water bottle",why:"A practical reward for practice and school.",img:"https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=640&q=80"},
-  {category:"other",base:"Mini bag",search:"girls mini bag",why:"A fun accessory reward that feels grown-up but age-appropriate.",img:"https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=640&q=80"}
+  // TRENDY / VIRAL TOYS — kept broad so search links stay useful.
+  {category:"toys",base:"Mini collectible toy",search:"viral mini collectible toy",why:"A fun reward after a goal is completed.",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Cute plush",search:"viral cute plush toy",why:"A comfort reward for steady progress.",img:"https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Craft kit",search:"viral craft kit for girls",why:"A creative reward for finishing school or habit goals.",img:"https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Room decor light",search:"viral room decor light girls",why:"A fun room reward for a bigger goal.",img:"https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Sticker pack",search:"viral cute sticker pack",why:"A small creative reward for quick wins.",img:"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Art marker set",search:"viral art marker set for kids",why:"A creative reward that keeps her off autopilot screens.",img:"https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Fidget toy set",search:"viral fidget toy set",why:"A fun small reward for completing daily quests.",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=640&q=80"},
+  {category:"toys",base:"Charm bracelet kit",search:"viral charm bracelet kit girls",why:"A creative style reward she can build herself.",img:"https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=640&q=80"}
 ];
 
 let REWARD_CATALOG_CACHE=null;
@@ -182,7 +166,7 @@ const buildRewardCatalog=()=>{
 
 const DAILY_REWARD_COUNT=6;
 const REWARD_ROTATION_START="2026-01-01";
-const DAILY_REWARD_CATEGORY_ORDER=["sneakers","clothing","beauty","toys","school","future","other"];
+const DAILY_REWARD_CATEGORY_ORDER=["sneakers","beauty","clothing","toys","sneakers","clothing"];
 
 const getRewardRotationInfo=(count=DAILY_REWARD_COUNT)=>{
   const catalog=buildRewardCatalog();
@@ -1285,9 +1269,9 @@ export default function ScarlettTracker(){
       </div>
 
       <div style={cs}>
-        <CH e="🔥" title="Daily Reward Ideas" sub={`Different items today · 5+ year idea rotation`}/>
+        <CH e="🔥" title="Daily Reward Ideas" sub={`Sneakers · beauty · teen clothing · viral toys`}/>
         <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:10}}>
-          Today’s ideas are intentionally mixed so she sees different reward types, different photos, and different items.
+          Today’s ideas rotate through the fun reward categories she actually cares about: sneakers, beauty/self-care, trendy teen clothing, and viral toys.
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
           {safeObjects(dailyRewardIdeas).map(item=>{const cat=cleanCat(item.category);return <div key={item.id} style={{display:"grid",gridTemplateColumns:"86px 1fr",gap:11,padding:11,borderRadius:18,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
