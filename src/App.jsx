@@ -1693,89 +1693,273 @@ export default function ScarlettTracker(){
 
 
   // ── PROGRESS ───────────────────────────────────────────────────────────
+
   const Progress=()=>{
     const badgeData={games,practices,skills,subjects,goals,dailyHist,sleepEntries,styleLog,shoeWish,routineHist,routineItems};
     const earned=BADGE_DEFS.filter(b=>{try{return b.check(badgeData);}catch{return false;}});
     const locked=BADGE_DEFS.filter(b=>{try{return !b.check(badgeData);}catch{return true;}});
     const tg=games.length,wins=games.filter(g=>g.result==="Win").length,winPct=tg?Math.round(wins/tg*100):0;
-    const last8=[...games].slice(0,8).reverse();const maxPts=Math.max(...last8.map(g=>g.pts||1),1);
+    const last8=[...games].slice(0,8).reverse();
+    const maxPts=Math.max(...last8.map(g=>g.pts||1),1);
     const habitDays=Object.keys(dailyHist).sort((a,b)=>b.localeCompare(a)).slice(0,14);
-    const hScores=habitDays.map(day=>({pct:allH.length?Math.round(allH.filter(h=>(dailyHist[day]&&dailyHist[day].c||{})[h.id]).length/allH.length*100):0})).reverse();
+    const hScores=habitDays.map(day=>({day,pct:allH.length?Math.round(allH.filter(h=>(dailyHist[day]&&dailyHist[day].c||{})[h.id]).length/allH.length*100):0})).reverse();
     const weekMins=practices.filter(p=>daysAgo(p.dateISO||todayISO())<=7).reduce((a,p)=>a+(parseInt(p.duration)||0),0);
     const glowReport=getGlowReport();
+
+    const skillEntries=Object.entries(skills).sort((a,b)=>b[1]-a[1]);
+    const lowSkillEntries=[...Object.entries(skills)].sort((a,b)=>a[1]-b[1]);
+    const strongSkill=skillEntries[0]||null;
+    const nextSkill=lowSkillEntries[0]||null;
+    const avgSkill=Math.round(avgArr(Object.values(skills)))||0;
+
+    const subjectEntries=Object.entries(subjects).sort((a,b)=>(gradeValue(b[1])||0)-(gradeValue(a[1])||0));
+    const bestSubject=subjectEntries[0]||null;
+    const lowestSubject=[...subjectEntries].sort((a,b)=>(gradeValue(a[1])||0)-(gradeValue(b[1])||0))[0]||null;
+    const gpa=parseFloat(gpaCalc(subjects))||0;
+    const schoolPct=Math.round((gpa/4)*100);
+
+    const goalDone=goals.filter(g=>g.done).length;
+    const goalScore=goals.length?Math.round(goalDone/goals.length*100):0;
+    const styleScore=styleLog.length||shoeWish.length?Math.min(100,styleLog.length*12+shoeWish.length*10):0;
+    const avgSleepH=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours||0)):0;
+    const sleepScore=sleepEntries.length?Math.max(0,Math.min(100,Math.round(avgSleepH/10*100))):0;
+    const habitAvg=hScores.length?Math.round(avgArr(hScores.map(h=>h.pct))):0;
+    const activeGoals=goals.filter(g=>!g.done).length;
+    const routineDoneDays=Object.values(routineHist||{}).filter(e=>Object.values((e&&e.c)||{}).some(Boolean)).length;
+
+    const hasHabitOn=iso=>{const e=dailyHist[iso];if(!e)return false;return Object.values(e.c||{}).some(Boolean)||(e.w||0)>0;};
+    const habitStreak=(()=>{let n=0;for(let i=0;i<30;i++){const d=shiftISO(todayISO(),-i);if(hasHabitOn(d))n++;else break;}return n;})();
+    const winStreak=(()=>{let n=0;for(const g of games){if(g.result==="Win")n++;else break;}return n;})();
+
+    const overallParts=[avgSkill,schoolPct];
+    if(habitAvg>0)overallParts.push(habitAvg);
+    if(sleepScore>0)overallParts.push(sleepScore);
+    if(goalScore>0||goals.length>0)overallParts.push(goalScore);
+    if(styleScore>0)overallParts.push(styleScore);
+    const overallGlow=Math.round(avgArr(overallParts.length?overallParts:[0]));
+    const glowTier=overallGlow>=80?{label:"Electric",col:C.green,blurb:"She is stacking elite habits and real momentum."}:overallGlow>=65?{label:"Rising",col:C.teal,blurb:"The glow-up is real — confidence and consistency are climbing."}:overallGlow>=50?{label:"Building",col:C.gold,blurb:"A strong base is forming. Keep stacking clean reps."}:{label:"Starter",col:C.pink,blurb:"Every champion starts somewhere. Small wins count."};
+
+    const coreAreas=[
+      {id:"skills",e:"💪",title:"Skill Stack",val:avgSkill,col:SKILL_COL(avgSkill),sub:strongSkill?`${strongSkill[0]} leads at ${strongSkill[1]}%`:"Start building skills"},
+      {id:"school",e:"📚",title:"School Power",val:schoolPct,col:GRADE_COL[String(Math.max(1,Math.round(gpa)||1))]||C.teal,sub:bestSubject?`${bestSubject[0]} is strongest`:"Track grades"},
+      {id:"habits",e:"✨",title:"Habit Engine",val:habitAvg,col:habitAvg>=70?C.green:habitAvg>=45?C.purple:C.pink,sub:habitDays.length?`${habitStreak} day streak`:`Log habits to start a streak`},
+      {id:"recovery",e:"🌙",title:"Recovery",val:sleepScore,col:sleepScore>=80?C.green:sleepScore>=60?C.teal:C.purple,sub:sleepEntries.length?`${avgSleepH.toFixed(1)}h avg sleep`:"Sleep log not started"},
+      {id:"goals",e:"🎯",title:"Goal Drive",val:goalScore,col:goalScore>=70?C.green:goalScore>=40?C.gold:C.coral,sub:goals.length?`${goalDone}/${goals.length} complete`:`Set your first goal`},
+      {id:"style",e:"👟",title:"Confidence Style",val:styleScore,col:styleScore>=70?C.teal:styleScore>=35?C.pink:C.muted,sub:styleLog.length?`${styleLog.length} fit${styleLog.length===1?"":"s"} logged`:`${shoeWish.length} shoes saved`}
+    ];
+
+    const badgeProgress=b=>{
+      const ftm=games.reduce((a,g)=>a+(g.ftm||0),0),fta=games.reduce((a,g)=>a+(g.fta||0),0),avgAst=avgArr(games.map(g=>g.ast||0));
+      switch(b.id){
+        case "game_tracker": return Math.min(100,Math.round((games.length/3)*100));
+        case "practice_beast": return Math.min(100,Math.round((practices.length/5)*100));
+        case "scorer": return Math.min(100,Math.round((Math.max(...games.map(g=>g.pts||0),0)/10)*100));
+        case "win_streak": return Math.min(100,Math.round((winStreak/3)*100));
+        case "sharp_shooter": return fta?Math.min(100,Math.round(((ftm/fta)*0.7 + Math.min(1,fta/10)*0.3)*100)):0;
+        case "assist_queen": return Math.min(100,Math.round((Math.min(1,games.length/5)*0.5 + Math.min(1,avgAst/4)*0.5)*100));
+        case "scholar": return Math.min(100,Math.round((gpa/3.5)*100));
+        case "goal_crusher": return Math.min(100,Math.round((goalDone/3)*100));
+        case "consistent": return Math.min(100,Math.round((Object.keys(dailyHist).length/7)*100));
+        case "well_rested": return Math.min(100,Math.round((sleepEntries.length/7)*100));
+        case "level_up": return Math.min(100,Math.round((Math.max(...Object.values(skills),0)/70)*100));
+        case "hydrated": return Math.min(100,Math.round((Object.values(dailyHist).filter(e=>(e.w||0)>=8).length/5)*100));
+        case "iron_will": return Math.min(100,Math.round((practices.length/10)*100));
+        case "comeback": return games.length?35:0;
+        case "sneaker_star": return Math.min(100,Math.round(((shoeWish||[]).length/3)*100));
+        case "style_confidence": return Math.min(100,Math.round(((styleLog||[]).length/5)*100));
+        case "routine_queen": return Math.min(100,Math.round((Object.values(routineHist||{}).filter(e=>{const c=e.c||{};const total=(routineItems||[]).length||1;return Object.values(c).filter(Boolean).length>=total;}).length/5)*100));
+        default: return 0;
+      }
+    };
+    const badgeHint=b=>{
+      switch(b.id){
+        case "game_tracker": return `${games.length}/3 games logged`;
+        case "practice_beast": return `${practices.length}/5 practices logged`;
+        case "scorer": return `${Math.max(...games.map(g=>g.pts||0),0)} pts best game`;
+        case "win_streak": return `${winStreak}/3 current win streak`;
+        case "sharp_shooter": { const ftm=games.reduce((a,g)=>a+(g.ftm||0),0),fta=games.reduce((a,g)=>a+(g.fta||0),0); return `${ftm}/${fta} free throws tracked`; }
+        case "assist_queen": return `${games.length} games logged`;
+        case "scholar": return `GPA ${gpa.toFixed(1)} / 3.5 target`;
+        case "goal_crusher": return `${goalDone}/3 completed goals`;
+        case "consistent": return `${Object.keys(dailyHist).length}/7 tracked days`;
+        case "well_rested": return `${sleepEntries.length}/7 nights logged`;
+        case "level_up": return `${Math.max(...Object.values(skills),0)}% highest skill`;
+        case "hydrated": return `${Object.values(dailyHist).filter(e=>(e.w||0)>=8).length}/5 water-goal days`;
+        case "iron_will": return `${practices.length}/10 practices logged`;
+        case "comeback": return `Log games to unlock comeback moments`;
+        case "sneaker_star": return `${(shoeWish||[]).length}/3 shoes saved`;
+        case "style_confidence": return `${(styleLog||[]).length}/5 fits logged`;
+        case "routine_queen": return `${routineDoneDays} routine days logged`;
+        default: return b.desc;
+      }
+    };
+    const nextBadge=(locked.map(b=>({...b,p:badgeProgress(b)})).sort((a,b)=>b.p-a.p)[0])||null;
+
+    const spotlightCards=[
+      strongSkill?{e:"⚡",title:"Strongest weapon",main:strongSkill[0],sub:`${strongSkill[1]}% · use it with confidence`,col:SKILL_COL(strongSkill[1])}:null,
+      nextSkill?{e:"🎯",title:"Fastest level-up",main:nextSkill[0],sub:`${nextSkill[1]}% · 15 focused minutes can move this`,col:SKILL_COL(nextSkill[1])}:null,
+      bestSubject?{e:"🌟",title:"School flex",main:bestSubject[0],sub:`${bestSubject[1]} · discipline transfers everywhere`,col:GRADE_COL[normGrade(bestSubject[1])]||C.teal}:null,
+      nextBadge?{e:nextBadge.icon,title:"Next badge",main:nextBadge.name,sub:badgeHint(nextBadge),col:C.gold}:null
+    ].filter(Boolean);
+
+    const topFocus=lowSkillEntries.slice(0,3);
+    const powerWins=[
+      strongSkill?`${strongSkill[0]} is currently your strongest skill at ${strongSkill[1]}%.`:null,
+      bestSubject?`${bestSubject[0]} is looking sharp with a ${bestSubject[1]}.`:null,
+      earned.length?`You have already unlocked ${earned.length} badge${earned.length===1?"":"s"}.`:null,
+      habitStreak?`You are on a ${habitStreak}-day habit streak.`:null,
+      weekMins?`${weekMins} minutes of practice logged this week.`:null
+    ].filter(Boolean).slice(0,3);
+
     return<div>
-      <GlamHero style={{textAlign:"center"}}>
-        <div style={{fontSize:12,color:C.gold,fontWeight:900,letterSpacing:"1.5px",textTransform:"uppercase"}}>My Glow-Up Report ✨</div>
-        <div style={{fontWeight:900,fontSize:64,color:C.gold,lineHeight:1,textShadow:`0 0 26px ${C.gold}77`}}>{stars}</div>
-        <div style={{fontSize:15,fontWeight:900,color:C.text,marginTop:4}}>⭐ Stars Earned</div>
-        <div style={{fontSize:11,color:C.light,marginTop:5}}>Your progress. Your power. Your next move.</div>
-        <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:14}}>
-          {earned.slice(0,3).map(b=><div key={b.id} style={{...glass,borderRadius:16,padding:"9px 10px",minWidth:82}}>
-            <div style={{fontSize:24}}>{b.icon}</div><div style={{fontSize:8,fontWeight:900,color:C.light,marginTop:3}}>{b.name}</div>
-          </div>)}
-          {earned.length===0&&["Routine Queen","Sneaker Star","Goal Getter"].map((b,i)=><div key={b} style={{...glass,borderRadius:16,padding:"9px 10px",minWidth:82,opacity:.85}}>
-            <div style={{fontSize:24}}>{["👑","👟","🎯"][i]}</div><div style={{fontSize:8,fontWeight:900,color:C.light,marginTop:3}}>{b}</div>
-          </div>)}
+      <GlamHero style={{marginBottom:12}}>
+        <div style={{display:"flex",justifyContent:"space-between",gap:12,alignItems:"flex-start",marginBottom:12}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:11,color:C.gold,fontWeight:900,letterSpacing:"1.8px",textTransform:"uppercase",marginBottom:6}}>Glow Command Center ✨</div>
+            <div style={{fontSize:28,fontWeight:900,lineHeight:1.06,color:C.text,marginBottom:6}}>The <span style={{color:glowTier.col}}>best version</span> of Scarlett, tracked in one place.</div>
+            <div style={{fontSize:11,color:C.light,lineHeight:1.65,maxWidth:420}}>{glowTier.blurb}</div>
+          </div>
+          <div style={{minWidth:112,textAlign:"center",padding:"10px 12px",borderRadius:20,background:`linear-gradient(145deg,${glowTier.col}22,rgba(14,11,27,.72))`,border:`1px solid ${glowTier.col}55`,boxShadow:`0 0 24px ${glowTier.col}22,inset 0 1px 0 rgba(255,255,255,.12)`}}>
+            <div style={{fontSize:36,fontWeight:900,color:glowTier.col,lineHeight:1,textShadow:`0 0 18px ${glowTier.col}77`}}>{overallGlow}</div>
+            <div style={{fontSize:9,fontWeight:900,letterSpacing:"1.1px",color:C.light,marginTop:3}}>GLOW SCORE</div>
+            <div style={{marginTop:7,display:"inline-flex",padding:"5px 10px",borderRadius:999,background:`${glowTier.col}18`,border:`1px solid ${glowTier.col}44`,fontSize:10,fontWeight:900,color:glowTier.col}}>{glowTier.label}</div>
+          </div>
+        </div>
+        <div style={{height:10,background:"rgba(0,0,0,.35)",borderRadius:999,overflow:"hidden",marginBottom:10}}><div style={{height:"100%",width:`${overallGlow}%`,background:`linear-gradient(90deg,${C.gold},${C.pink} 55%,${C.teal})`,boxShadow:`0 0 24px ${C.pink}55`,borderRadius:999,transition:"width .35s ease"}}/></div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          <div style={{background:`${C.gold}18`,border:`1px solid ${C.gold}44`,borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.gold}}>⭐ {stars} stars</div>
+          <div style={{background:`${C.green}18`,border:`1px solid ${C.green}44`,borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.green}}>🏅 {earned.length}/{BADGE_DEFS.length} badges</div>
+          <div style={{background:`${C.purple}18`,border:`1px solid ${C.purple}44`,borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.purple}}>🔥 {habitStreak} day streak</div>
+          <div style={{background:`${C.teal}18`,border:`1px solid ${C.teal}44`,borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:C.teal}}>📚 GPA {gpa.toFixed(1)}</div>
         </div>
       </GlamHero>
+
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}>
-        <SBox value={tg} label="Games" color={C.coral}/><SBox value={`${winPct}%`} label="Win Rate" color={C.green}/>
-        <SBox value={practices.length} label="Practices" color={C.purple}/><SBox value={weekMins||"0"} label="Mins/Week" color={C.teal} sub="this week"/>
+        <SBox value={stars} label="Stars" color={C.gold}/>
+        <SBox value={earned.length} label="Badges" color={C.green} sub={`${locked.length} locked`}/>
+        <SBox value={weekMins||0} label="Mins/Week" color={C.teal} sub="practice"/>
+        <SBox value={`${winPct}%`} label="Win Rate" color={C.coral} sub={`${tg} games`}/>
       </div>
+
       <div style={cs}>
-        <CH e="✨" title="Glow-Up Report" sub="All areas organized into next moves"/>
-        {glowReport.map((x,i)=><div key={x.area} style={{display:"flex",gap:9,padding:"9px 0",borderBottom:i<glowReport.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
-          <div style={{fontSize:18,width:24,textAlign:"center",flexShrink:0}}>{x.e}</div>
-          <div style={{flex:1}}>
-            <div style={{display:"flex",justifyContent:"space-between",gap:8,marginBottom:2}}><div style={{fontWeight:900,fontSize:12,color:x.col}}>{x.area}</div><div style={{fontSize:9,color:C.muted,fontWeight:800}}>{x.stat}</div></div>
-            <div style={{fontSize:11,color:C.text,lineHeight:1.45}}>✅ {x.doing}</div>
-            <div style={{fontSize:11,color:C.muted,lineHeight:1.45}}>🔎 {x.needs}</div>
-            <div style={{fontSize:11,color:x.col,fontWeight:800,lineHeight:1.45}}>➡️ {x.next}</div>
+        <CH e="🧬" title="Glow DNA" sub="The six engines driving the overall glow-up"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          {coreAreas.map(a=><div key={a.id} style={{background:`linear-gradient(145deg,${a.col}12,rgba(255,255,255,.03))`,border:`1px solid ${a.col}33`,borderRadius:16,padding:12,boxShadow:"inset 0 1px 0 rgba(255,255,255,.05)"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:7}}>
+              <div style={{display:"flex",alignItems:"center",gap:7}}><div style={{fontSize:16}}>{a.e}</div><div style={{fontSize:11,fontWeight:900,color:C.text}}>{a.title}</div></div>
+              <div style={{fontSize:14,fontWeight:900,color:a.col}}>{a.val}%</div>
+            </div>
+            <div style={{height:8,background:"rgba(0,0,0,.35)",borderRadius:999,overflow:"hidden",marginBottom:7}}><div style={{height:"100%",width:`${a.val}%`,background:`linear-gradient(90deg,${a.col}cc,${a.col})`,boxShadow:`0 0 18px ${a.col}66`,borderRadius:999}}/></div>
+            <div style={{fontSize:9,color:C.muted,lineHeight:1.55}}>{a.sub}</div>
+          </div>)}
+        </div>
+      </div>
+
+      <div style={cs}>
+        <CH e="🔦" title="Coach Spotlight" sub="The biggest wins and the clearest next steps"/>
+        <div style={{display:"grid",gap:8}}>
+          {spotlightCards.map((c,i)=><div key={i} style={{background:`linear-gradient(145deg,${c.col}14,rgba(255,255,255,.03))`,border:`1px solid ${c.col}33`,borderRadius:16,padding:12,display:"flex",gap:10,alignItems:"center"}}>
+            <div style={{width:34,height:34,borderRadius:12,background:`${c.col}16`,border:`1px solid ${c.col}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{c.e}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:9,fontWeight:900,color:c.col,letterSpacing:"1.2px",textTransform:"uppercase",marginBottom:3}}>{c.title}</div>
+              <div style={{fontSize:14,fontWeight:900,color:C.text,lineHeight:1.3}}>{c.main}</div>
+              <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginTop:2}}>{c.sub}</div>
+            </div>
+          </div>)}
+        </div>
+        {powerWins.length>0&&<div style={{marginTop:12,display:"grid",gap:7}}>
+          {powerWins.map((w,i)=><div key={i} style={{fontSize:10,color:C.light,lineHeight:1.6,background:"rgba(255,255,255,.03)",border:`1px solid ${C.border}`,borderRadius:12,padding:"8px 10px"}}>✨ {w}</div>)}
+        </div>}
+      </div>
+
+      <div style={cs}>
+        <CH e="✨" title="Glow-Up Report" sub="Every area translated into what is working and what to do next"/>
+        <div style={{display:"grid",gap:8}}>
+          {glowReport.map((x,i)=><div key={x.area} style={{background:`linear-gradient(145deg,${x.col}14,rgba(255,255,255,.02))`,border:`1px solid ${x.col}30`,borderRadius:16,padding:12}}>
+            <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
+              <div style={{width:34,height:34,borderRadius:12,background:`${x.col}16`,border:`1px solid ${x.col}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{x.e}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"center",marginBottom:4}}><div style={{fontWeight:900,fontSize:13,color:x.col}}>{x.area}</div><div style={{fontSize:9,color:C.muted,fontWeight:900}}>{x.stat}</div></div>
+                <div style={{fontSize:10,color:C.text,lineHeight:1.55,marginBottom:3}}>✅ {x.doing}</div>
+                <div style={{fontSize:10,color:C.muted,lineHeight:1.55,marginBottom:3}}>🔎 {x.needs}</div>
+                <div style={{fontSize:10,color:x.col,fontWeight:900,lineHeight:1.55}}>➡️ {x.next}</div>
+              </div>
+            </div>
+          </div>)}
+        </div>
+      </div>
+
+      <div style={cs}>
+        <CH e="🏅" title="Badge Vault" sub={`Earned ${earned.length} of ${BADGE_DEFS.length} badges`}/>
+        {nextBadge&&<div style={{background:`linear-gradient(145deg,${C.gold}18,rgba(255,255,255,.03))`,border:`1px solid ${C.gold}44`,borderRadius:18,padding:14,marginBottom:12}}>
+          <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"center",marginBottom:6}}>
+            <div style={{display:"flex",gap:10,alignItems:"center"}}><div style={{fontSize:28,filter:`drop-shadow(0 0 10px ${C.gold}66)`}}>{nextBadge.icon}</div><div><div style={{fontSize:10,fontWeight:900,color:C.gold,letterSpacing:"1.4px",textTransform:"uppercase"}}>Closest unlock</div><div style={{fontSize:16,fontWeight:900,color:C.text}}>{nextBadge.name}</div></div></div>
+            <div style={{fontSize:18,fontWeight:900,color:C.gold}}>{nextBadge.p}%</div>
           </div>
-        </div>)}
+          <div style={{height:9,background:"rgba(0,0,0,.35)",borderRadius:999,overflow:"hidden",marginBottom:7}}><div style={{height:"100%",width:`${nextBadge.p}%`,background:`linear-gradient(90deg,${C.gold},${C.orange})`,boxShadow:`0 0 16px ${C.gold}55`,borderRadius:999}}/></div>
+          <div style={{fontSize:10,color:C.light,lineHeight:1.6}}>{nextBadge.desc}</div>
+          <div style={{fontSize:10,color:C.muted,marginTop:4}}>{badgeHint(nextBadge)}</div>
+        </div>}
+        {earned.length>0&&<div style={{marginBottom:12}}>
+          <div style={{fontSize:9,color:C.green,fontWeight:900,marginBottom:8,textTransform:"uppercase",letterSpacing:"2px",display:"flex",alignItems:"center",gap:6}}><span style={{display:"inline-block",width:18,height:1.5,background:C.green}}/>Earned<span style={{display:"inline-block",width:18,height:1.5,background:C.green}}/></div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:7}}>{earned.map(b=><div key={b.id} style={{background:`linear-gradient(145deg,${C.green}18,rgba(255,255,255,.04))`,border:`1px solid ${C.green}44`,borderRadius:14,padding:"9px 10px",display:"flex",alignItems:"center",gap:8,boxShadow:`inset 0 1px 0 rgba(255,255,255,.08)`}}><div style={{fontSize:18}}>{b.icon}</div><div><div style={{fontSize:10,fontWeight:900,color:C.green}}>{b.name}</div><div style={{fontSize:8,color:C.muted}}>{b.desc}</div></div></div>)}</div>
+        </div>}
+        {locked.length>0&&<div>
+          <div style={{fontSize:9,color:C.muted,fontWeight:900,marginBottom:8,textTransform:"uppercase",letterSpacing:"2px",display:"flex",alignItems:"center",gap:6}}><span style={{display:"inline-block",width:18,height:1.5,background:C.muted}}/>Locked</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>{locked.slice(0,8).map(b=><div key={b.id} style={{background:"rgba(255,255,255,.035)",border:`1px solid ${C.border}`,borderRadius:14,padding:"10px 10px",opacity:.78}}><div style={{display:"flex",alignItems:"center",gap:7,marginBottom:6}}><div style={{fontSize:16,filter:"grayscale(1)"}}>{b.icon}</div><div style={{fontSize:10,fontWeight:800,color:C.muted}}>{b.name}</div></div><div style={{fontSize:8,color:C.muted,lineHeight:1.55}}>{b.desc}</div></div>)}</div>
+        </div>}
       </div>
+
       <div style={cs}>
-        <CH e="🏅" title={`Badges — ${earned.length}/${BADGE_DEFS.length} Earned`}/>
-        {earned.length>0&&<><div style={{fontSize:9,color:C.green,fontWeight:900,marginBottom:10,textTransform:"uppercase",letterSpacing:"2px",display:"flex",alignItems:"center",gap:6}}><span style={{display:"inline-block",width:20,height:1.5,background:C.green}}/>EARNED ✓<span style={{display:"inline-block",width:20,height:1.5,background:C.green}}/></div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:12}}>
-            {earned.map(b=><div key={b.id} style={{background:"linear-gradient(145deg,rgba(34,217,122,.22),rgba(34,217,122,.08))",border:"1px solid rgba(34,217,122,.45)",borderRadius:14,padding:"9px 13px",display:"flex",alignItems:"center",gap:9,boxShadow:"0 8px 24px rgba(34,217,122,.15),inset 0 1px 0 rgba(255,255,255,.15)"}}>
-              <div style={{fontSize:22,filter:`drop-shadow(0 0 8px ${C.green}88)`}}>{b.icon}</div><div><div style={{fontWeight:900,fontSize:11,color:C.green,textShadow:`0 0 14px ${C.green}88`}}>{b.name}</div><div style={{fontSize:9,color:C.muted}}>{b.desc}</div></div>
-            </div>)}
-          </div></>}
-        {locked.length>0&&<><div style={{fontSize:9,color:C.muted,fontWeight:900,marginBottom:10,textTransform:"uppercase",letterSpacing:"2px",display:"flex",alignItems:"center",gap:6}}><span style={{display:"inline-block",width:20,height:1.5,background:C.muted}}/>LOCKED</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-            {locked.map(b=><div key={b.id} style={{background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.09)",borderRadius:14,padding:"8px 12px",display:"flex",alignItems:"center",gap:8,opacity:.5}}>
-              <div style={{fontSize:16,filter:"grayscale(1)"}}>{b.icon}</div><div><div style={{fontWeight:700,fontSize:10,color:C.muted}}>{b.name}</div><div style={{fontSize:8,color:C.muted}}>{b.desc}</div></div>
-            </div>)}
-          </div></>}
+        <CH e="🎯" title="Focus Ladder" sub="The next 3 skills to attack for the biggest glow-up jump"/>
+        <div style={{display:"grid",gap:10}}>
+          {topFocus.map(([sk,val],i)=><div key={sk} style={{display:"flex",gap:10,alignItems:"center"}}>
+            <div style={{width:28,height:28,borderRadius:"50%",background:`${C.pink}18`,border:`1px solid ${C.pink}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:C.pink,flexShrink:0}}>{i+1}</div>
+            <div style={{flex:1}}>
+              <div style={{display:"flex",justifyContent:"space-between",gap:8,marginBottom:4}}><div style={{fontSize:12,fontWeight:900,color:C.text}}>{sk}</div><div style={{fontSize:12,fontWeight:900,color:SKILL_COL(val)}}>{val}%</div></div>
+              <div style={{height:8,background:"rgba(0,0,0,.35)",borderRadius:999,overflow:"hidden"}}><div style={{height:"100%",width:`${val}%`,background:`linear-gradient(90deg,${SKILL_COL(val)}cc,${SKILL_COL(val)})`,borderRadius:999,boxShadow:`0 0 14px ${SKILL_COL(val)}55`}}/></div>
+              <div style={{fontSize:9,color:C.muted,marginTop:4}}>Next move: 15 minutes of focused reps and one logged practice.</div>
+            </div>
+          </div>)}
+        </div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:12}}>
+          {skillEntries.slice(0,3).map(([sk,val])=><div key={sk} style={{background:`${SKILL_COL(val)}18`,border:`1px solid ${SKILL_COL(val)}44`,borderRadius:999,padding:"6px 10px",fontSize:10,fontWeight:900,color:SKILL_COL(val)}}>{sk} · {val}%</div>)}
+        </div>
       </div>
-      {last8.length>1&&<div style={cs}><CH e="📊" title={`Points — Last ${last8.length} Games`}/>
-        <div style={{display:"flex",alignItems:"flex-end",gap:4,height:68}}>
-          {last8.map((g,i)=>{const h=Math.max(4,Math.round((g.pts||0)/maxPts*60));return<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-            <div style={{fontSize:8,color:C.coral,fontWeight:800}}>{g.pts}</div>
-            <div style={{width:"100%",height:h,background:g.result==="Win"?C.coral:`${C.coral}44`,borderRadius:"3px 3px 0 0",minHeight:4}}/>
-            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,4):""||(g.date?g.date.slice(0,5):"")}</div>
+
+      <div style={cs}>
+        <CH e="📚" title="School + Consistency" sub="Strong academics and daily habits power the full glow-up"/>
+        <div style={{display:"grid",gap:8,marginBottom:12}}>
+          {Object.entries(subjects).map(([s,grade])=><div key={s} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:`${GRADE_COL[normGrade(grade)]}12`,border:`1px solid ${GRADE_COL[normGrade(grade)]}24`,borderRadius:14}}>
+            <div style={{background:`${GRADE_COL[normGrade(grade)]}22`,color:GRADE_COL[normGrade(grade)],fontWeight:900,fontSize:13,width:30,height:30,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{grade}</div>
+            <div style={{flex:1,fontSize:12,fontWeight:800,color:C.text}}>{s}</div>
+            <div style={{fontSize:9,color:C.muted}}>{normGrade(grade)==="4"?"Excellent":normGrade(grade)==="3"?"Solid":normGrade(grade)==="2"?"Building":"Focus"}</div>
+          </div>)}
+        </div>
+        <div style={{marginBottom:8}}>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,marginBottom:6}}><span>Last 14 days</span><span>{habitAvg}% average</span></div>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${Math.max(hScores.length,1)},1fr)`,gap:4,alignItems:"end",height:58}}>
+            {(hScores.length?hScores:[{pct:0}]).map((hs,i)=><div key={i} style={{height:Math.max(6,Math.round((hs.pct||0)/100*54)),borderRadius:"8px 8px 3px 3px",background:(hs.pct||0)>=80?`linear-gradient(180deg,${C.green},${C.teal})`:(hs.pct||0)>=50?`linear-gradient(180deg,${C.purple},${C.pink})`:`linear-gradient(180deg,${C.border},rgba(255,255,255,.08))`,boxShadow:(hs.pct||0)>=50?"0 0 12px rgba(255,26,140,.18)":"none"}}/>) }
+          </div>
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between",gap:8,flexWrap:"wrap"}}>
+          <div style={{fontSize:10,color:C.light}}>🔥 Current streak: <span style={{color:C.purple,fontWeight:900}}>{habitStreak} day{habitStreak===1?"":"s"}</span></div>
+          <div style={{fontSize:10,color:C.light}}>🛏️ Recovery: <span style={{color:C.teal,fontWeight:900}}>{sleepEntries.length?`${avgSleepH.toFixed(1)}h avg`:"Start logging sleep"}</span></div>
+        </div>
+      </div>
+
+      {last8.length>1&&<div style={cs}><CH e="📊" title={`Scoring Trend — Last ${last8.length} Games`} sub="Quick visual of points output"/>
+        <div style={{display:"flex",alignItems:"flex-end",gap:4,height:76}}>
+          {last8.map((g,i)=>{const h=Math.max(6,Math.round((g.pts||0)/maxPts*66));return<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+            <div style={{fontSize:8,color:g.result==="Win"?C.green:C.coral,fontWeight:900}}>{g.pts||0}</div>
+            <div style={{width:"100%",height:h,background:g.result==="Win"?`linear-gradient(180deg,${C.green},${C.teal})`:`linear-gradient(180deg,${C.coral},${C.pink})`,borderRadius:"6px 6px 0 0",minHeight:6,boxShadow:g.result==="Win"?`0 0 16px ${C.green}22`:`0 0 16px ${C.pink}22`}}/>
+            <div style={{fontSize:7,color:C.muted}}>{g.opponent?g.opponent.slice(0,4):(g.date?g.date.slice(0,5):"")}</div>
           </div>;})}
         </div>
       </div>}
-      <div style={cs}><CH e="💪" title="Skill Levels" sub="Sorted by current level"/>
-        {Object.entries(skills).sort((a,b)=>b[1]-a[1]).map(([sk,val])=><SkBar key={sk} skill={sk} val={val}/>)}
-      </div>
-      <div style={cs}><CH e="📚" title="Grades" sub={`GPA: ${gpaCalc(subjects)}`}/>
-        {Object.entries(subjects).map(([s,grade])=><div key={s} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:`1px solid ${C.border}`}}>
-          <div style={{background:`${GRADE_COL[normGrade(grade)]}22`,color:GRADE_COL[normGrade(grade)],fontWeight:900,fontSize:13,width:28,height:28,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{grade}</div>
-          <div style={{flex:1,fontSize:12,fontWeight:700,color:C.text}}>{s}</div>
-          <div style={{fontSize:10,color:C.muted}}>{normGrade(grade)==="4"?"Excellent! 🌟":normGrade(grade)==="3"?"Good work":normGrade(grade)==="2"?"Room to grow":"Needs focus"}</div>
-        </div>)}
-      </div>
-      {hScores.length>1&&<div style={cs}><CH e="📋" title="Habit Consistency" sub="Last 14 days"/>
-        <div style={{display:"flex",gap:3,alignItems:"flex-end",height:50,marginBottom:4}}>
-          {hScores.map((hs,i)=><div key={i} style={{flex:1,height:Math.max(4,Math.round(hs.pct/100*46)),background:hs.pct>=80?C.purple:hs.pct>=50?`${C.purple}77`:`${C.purple}33`,borderRadius:"3px 3px 0 0",minHeight:4}}/>)}
-        </div>
-        <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:C.muted}}><span>14 days ago</span><span>Today</span></div>
-      </div>}
     </div>;
   };
+
 
   // ── SETTINGS ───────────────────────────────────────────────────────────
   const Settings=()=>{
