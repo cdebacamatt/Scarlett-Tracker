@@ -251,20 +251,74 @@ function getDailyHoroscope(profile){
   return {sign,...h};
 }
 
-// Daily coaching prompts inspired by real WNBA players.
-// These are not direct quotes. They are kid-friendly coaching lessons based on each player's public playing identity.
+// Real daily coaching quotes from WNBA players, paired with public player photos.
+// Each entry includes a real quote plus a short kid-friendly takeaway.
 const WNBA_DAILY_COACH=[
-  {player:"A'ja Wilson",tag:"MVP mindset",focus:"Do the work before anyone is watching.",advice:"Great players do the boring reps with pride. Pick one skill today and give it clean, focused effort for 15 minutes.",move:"15 focused reps",tab:"hoops",button:"Train Hoops"},
-  {player:"Sabrina Ionescu",tag:"shooter confidence",focus:"Your routine builds your confidence.",advice:"Shooters trust their routine. Before you worry about making every shot, repeat the same form, balance, and follow-through.",move:"Form before makes",tab:"hoops",button:"Work Shooting"},
-  {player:"Caitlin Clark",tag:"court vision",focus:"See the next play early.",advice:"A smart player is not just looking at the ball. Today, practice noticing spacing, open teammates, and the next simple pass.",move:"Eyes up",tab:"hoops",button:"Build IQ"},
-  {player:"Breanna Stewart",tag:"all-around excellence",focus:"Stack small wins everywhere.",advice:"Being all-around means doing a little of everything well. Score, defend, rebound, encourage, and keep learning.",move:"One win in each area",tab:"goals",button:"Set a Goal"},
-  {player:"Diana Taurasi",tag:"competitive fire",focus:"Compete without quitting.",advice:"Confidence grows when you keep showing up after hard moments. If today feels tough, finish one promise anyway.",move:"Finish one promise",tab:"today",button:"Daily Quests"},
-  {player:"Napheesa Collier",tag:"quiet consistency",focus:"Let your habits speak.",advice:"You do not need to be loud to be powerful. A calm routine, steady practice, and good choices add up.",move:"Complete the routine",tab:"glow",button:"Start Glow"},
-  {player:"Jewell Loyd",tag:"scorer's focus",focus:"Create good shots, not rushed shots.",advice:"Good scorers stay patient. Work on footwork, balance, and choosing the shot you practiced.",move:"Balance first",tab:"hoops",button:"Log Practice"},
-  {player:"Chelsea Gray",tag:"point guard poise",focus:"Slow down to make the right play.",advice:"The best pass is often the simple pass. Today, focus on control: dribble with purpose and make the easy read.",move:"Simple reads",tab:"hoops",button:"Practice Handles"},
-  {player:"Kelsey Plum",tag:"work-rate energy",focus:"Bring energy to the next rep.",advice:"Energy changes everything. Pick one drill and attack it with strong body language, even if you are tired.",move:"Strong body language",tab:"hoops",button:"Train Today"},
-  {player:"Alyssa Thomas",tag:"toughness",focus:"Do the helpful things.",advice:"Winning players help in ways that do not always show up first: defense, rebounds, communication, and effort.",move:"One hustle play",tab:"goals",button:"Make It a Goal"},
-  {player:"Angel Reese",tag:"rebound confidence",focus:"Own your space.",advice:"Confidence is taking up space with effort and purpose. Today, go after rebounds, loose balls, and second chances.",move:"Rebound mindset",tab:"hoops",button:"Hoops Work"}
+  {
+    player:"A'ja Wilson",
+    tag:"MVP mindset",
+    team:"Las Vegas Aces",
+    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/A%27ja_Wilson_%2853756794398%29_%28cropped%29.jpg/330px-A%27ja_Wilson_%2853756794398%29_%28cropped%29.jpg",
+    quote:"That's the beauty of losses, you learn from them.",
+    quoteSource:"WNBA — Sky-Aces Postgame Notes & Quotes",
+    quoteUrl:"https://www.wnba.com/news/sky-aces-postgame-notes-quotes",
+    takeaway:"If today doesn't go perfectly, learn one thing and come back stronger tomorrow.",
+    move:"Write 1 lesson from today",
+    tab:"goals",
+    button:"Track My Goal"
+  },
+  {
+    player:"Breanna Stewart",
+    tag:"stay present",
+    team:"New York Liberty",
+    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Breanna_Stewart_WNBA_Finals_2024_%28cropped%29.jpg/330px-Breanna_Stewart_WNBA_Finals_2024_%28cropped%29.jpg",
+    quote:"I've been trying to make sure I stay in the moment.",
+    quoteSource:"WNBA — Welcome To The WNBA: Draft-Day Interview Transcripts",
+    quoteUrl:"https://www.wnba.com/news/welcome-wnba-draft-day-interview-transcripts/amp",
+    takeaway:"Don't get overwhelmed by everything at once. Focus on the next right thing.",
+    move:"Do the next right thing",
+    tab:"today",
+    button:"Start Today"
+  },
+  {
+    player:"Jewell Loyd",
+    tag:"prepared and ready",
+    team:"Las Vegas Aces",
+    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Jewell_Loyd_2024_%28cropped%29.jpg/330px-Jewell_Loyd_2024_%28cropped%29.jpg",
+    quote:"I've prepared for all different kinds of coverages and I'm just trying to see where the space is and go to that.",
+    quoteSource:"WNBA — Jewell Loyd Takes Center Stage",
+    quoteUrl:"https://www.wnba.com/news/jewell-loyd-takes-center-stage",
+    takeaway:"Practice helps you stay calm. Look for the opening and make the smart move.",
+    move:"Find the opening",
+    tab:"hoops",
+    button:"Train Hoops"
+  },
+  {
+    player:"Caitlin Clark",
+    tag:"dream big",
+    team:"Indiana Fever",
+    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Caitlin_Clark_Fever_2_%28cropped%29.jpg/330px-Caitlin_Clark_Fever_2_%28cropped%29.jpg",
+    quote:"Never stop dreaming, because you can achieve more than you ever thought.",
+    quoteSource:"Interview quote highlighted by Indiana Fever / The GIST",
+    quoteUrl:"https://www.thegistsports.com/newsletter/college/3cbdc8ef-9832-4f8a-96b0-4d9eefc80a0c/",
+    takeaway:"Your goals can be big. Keep believing in yourself and keep working for them.",
+    move:"Write your biggest dream",
+    tab:"wishlist",
+    button:"Open Wishlist"
+  },
+  {
+    player:"Kelsey Plum",
+    tag:"patient killer",
+    team:"Los Angeles Sparks",
+    photo:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Kelsey_Plum_2023_%28cropped%29.jpg/330px-Kelsey_Plum_2023_%28cropped%29.jpg",
+    quote:"I was just trying to be patient and trust that it's going to come, and then just try to be like an assassin and strike.",
+    quoteSource:"Los Angeles Sparks — Game Recap July 13 vs. Connecticut Sun",
+    quoteUrl:"https://sparks.wnba.com/news/game-recap-july-13-vs-connecticut-sun",
+    takeaway:"Be patient, trust your work, and attack when your moment comes.",
+    move:"Be patient, then strike",
+    tab:"hoops",
+    button:"Practice Now"
+  }
 ];
 function getDailyWnbaCoach(){
   const day=Math.floor(new Date(todayISO()+"T12:00:00").getTime()/86400000);
@@ -519,23 +573,38 @@ export default function ScarlettTracker(){
 
       <div style={{...cs,borderTop:`3px solid ${C.teal}`,background:"radial-gradient(ellipse at 12% 0%,rgba(106,216,207,.14),transparent 42%),radial-gradient(ellipse at 90% 0%,rgba(217,120,185,.12),transparent 42%),linear-gradient(145deg,rgba(25,18,54,.98),rgba(8,5,20,.99))"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
-          <CH e="🏀" title="WNBA Daily Coach" sub="Inspired by a real WNBA player — not a direct quote"/>
-          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.teal}16`,border:`1px solid ${C.teal}44`,color:C.teal,fontSize:10,fontWeight:950,whiteSpace:"nowrap"}}>new daily</div>
+          <CH e="🏀" title="WNBA Daily Coach" sub="Real player photo + real quote"/>
+          <div style={{padding:"6px 10px",borderRadius:999,background:`${C.teal}16`,border:`1px solid ${C.teal}44`,color:C.teal,fontSize:10,fontWeight:950,whiteSpace:"nowrap"}}>real quote</div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"58px 1fr",gap:12,alignItems:"center",marginBottom:12}}>
-          <div style={{width:58,height:58,borderRadius:20,background:`linear-gradient(135deg,${C.purple}28,${C.teal}18)`,border:`1px solid ${C.teal}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,boxShadow:`0 0 22px ${C.teal}22`}}>🏆</div>
+        <div style={{display:"grid",gridTemplateColumns:"72px 1fr",gap:12,alignItems:"center",marginBottom:12}}>
+          <div style={{position:"relative",width:72,height:72}}>
+            <img
+              src={wnbaCoach.photo}
+              alt={wnbaCoach.player}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              onError={(e)=>{e.currentTarget.style.display="none";}}
+              style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:22,border:`2px solid ${C.teal}55`,boxShadow:`0 0 24px ${C.teal}22`,background:"rgba(255,255,255,.06)"}}
+            />
+          </div>
           <div>
             <div style={{fontSize:18,fontWeight:950,color:C.white,lineHeight:1.1}}>{wnbaCoach.player}</div>
             <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase",marginTop:3}}>{wnbaCoach.tag}</div>
+            <div style={{fontSize:12,color:C.muted,marginTop:4}}>{wnbaCoach.team}</div>
           </div>
         </div>
-        <div style={{fontSize:15,fontWeight:950,color:C.teal,marginBottom:6}}>{wnbaCoach.focus}</div>
-        <div style={{fontSize:13,lineHeight:1.55,color:C.light,marginBottom:12}}>{wnbaCoach.advice}</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:10,alignItems:"center"}}>
+        <div style={{padding:12,borderRadius:16,background:`${C.white}08`,border:`1px solid rgba(255,255,255,.10)`,marginBottom:12}}>
+          <div style={{fontSize:26,lineHeight:1,color:C.gold,marginBottom:6}}>“</div>
+          <div style={{fontSize:14,lineHeight:1.6,color:C.white,fontWeight:700,marginBottom:8}}>{wnbaCoach.quote}</div>
+          <div style={{fontSize:11,lineHeight:1.4,color:C.muted}}>Source: {wnbaCoach.quoteSource}</div>
+        </div>
+        <div style={{fontSize:13,lineHeight:1.55,color:C.light,marginBottom:12}}>{wnbaCoach.takeaway}</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:10,alignItems:"center"}}>
           <div style={{padding:10,borderRadius:14,background:`${C.teal}10`,border:`1px solid ${C.teal}30`}}>
             <div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:"1px"}}>TODAY'S COACH MOVE</div>
             <div style={{fontSize:12,fontWeight:950,color:C.teal,marginTop:2}}>{wnbaCoach.move}</div>
           </div>
+          <button onClick={()=>{try{window.open(wnbaCoach.quoteUrl,"_blank","noopener,noreferrer");}catch{}}} style={{padding:"11px 13px",borderRadius:14,border:`1px solid ${C.gold}55`,background:"transparent",color:C.gold,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:12,whiteSpace:"nowrap"}}>Read Source</button>
           <button onClick={()=>setTab(wnbaCoach.tab)} style={{padding:"11px 13px",borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.teal},${C.purple})`,color:C.bg,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:12,whiteSpace:"nowrap"}}>{wnbaCoach.button}</button>
         </div>
       </div>
