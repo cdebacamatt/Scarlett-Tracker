@@ -1180,29 +1180,167 @@ export default function ScarlettTracker(){
   // ── SKILLS ─────────────────────────────────────────────────────────────
   const Skills=()=>{
     const avgSk=Object.values(skills).length?Math.round(avgArr(Object.values(skills))):0;
-    const adjSkill=async(skill,delta)=>{const nsk={...skills,[skill]:Math.min(100,Math.max(0,(skills[skill]||0)+delta))};await saveBball(games,nsk);if(delta>0){const ns=stars+1;await saveGoals(goals,ns);}};
+    const strongest=Object.entries(skills).sort((a,b)=>b[1]-a[1])[0]||["Confidence",45];
     const weakest=Object.entries(skills).sort((a,b)=>a[1]-b[1]).slice(0,3);
-    const GROUPS={offense:["Ball Handling","Shooting Form","Layups","Free Throws","Passing","Court Vision"],defense:["Defense","Rebounding","Footwork","Speed & Agility","Conditioning"],mental:["Basketball IQ","Confidence","Leadership"]};
-    return<div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-        <SBox value={`${avgSk}%`} label="Overall" color={SKILL_COL(avgSk)} sub={SKILL_LEVEL(avgSk)}/>
-        <SBox value={Object.values(skills).filter(v=>v>=70).length} label="Elite Skills" color={C.green}/>
-        <SBox value={Object.values(skills).filter(v=>v>=50).length} label="Strong Skills" color={C.teal}/>
-      </div>
-      {weakest.length>0&&<div style={{background:`${C.coral}12`,border:`1px solid ${C.coral}33`,borderRadius:10,padding:12,marginBottom:12}}>
-        <div style={{fontSize:10,fontWeight:800,color:C.coral,textTransform:"uppercase",letterSpacing:"1px",marginBottom:6}}>🎯 NEXT LEVEL-UP SKILLS</div>
-        {weakest.map(([sk,val])=><div key={sk} style={{fontSize:12,color:C.text,marginBottom:3}}>→ <strong style={{color:C.coral}}>{sk}</strong> is at {val}% — {SKILL_LEVEL(val)} level. Daily practice moves this up fast.</div>)}
-      </div>}
-      {Object.entries(GROUPS).map(([group,skillNames])=>{const relevant=skillNames.filter(s=>skills[s]!==undefined);if(!relevant.length)return null;return<div key={group} style={cs}>
-        <CH e={group==="offense"?"⚡":group==="defense"?"🛡️":"🧠"} title={group==="offense"?"Offense & Ball Skills":group==="defense"?"Defense & Athleticism":"Mental Game"} sub="Tap +/− to update · +1⭐ per +10%"/>
-        {relevant.map(sk=>{const val=skills[sk]||0;return<div key={sk} style={{marginBottom:14}}>
-          <SkBar skill={sk} val={val}/>
-          <div style={{display:"flex",gap:6,alignItems:"center"}}>
-            <button onClick={()=>adjSkill(sk,-10)} style={{width:28,height:28,borderRadius:7,border:"none",background:"#2A0A0A",color:C.red,cursor:"pointer",fontWeight:900,fontSize:14,fontFamily:"system-ui"}}>−</button>
-            <button onClick={()=>adjSkill(sk,+10)} style={{width:28,height:28,borderRadius:7,border:"none",background:val>=70?"#0A2A15":"#1A1500",color:val>=70?C.green:C.gold,cursor:"pointer",fontWeight:900,fontSize:14,fontFamily:"system-ui"}}>+</button>
+    const focusSkill=weakest[0]||["Shooting Form",30];
+    const [levelBurst,setLevelBurst]=useState(null);
+    const GROUPS={
+      offense:{title:"Handles + Shooting",e:"⚡",col:C.coral,sub:"score, pass, create",items:["Ball Handling","Shooting Form","Layups","Free Throws","Passing","Court Vision"]},
+      defense:{title:"Defense + Hustle",e:"🛡️",col:C.teal,sub:"stops, boards, footwork",items:["Defense","Rebounding","Footwork","Speed & Agility","Conditioning"]},
+      mental:{title:"Mindset + Leadership",e:"🧠",col:C.purple,sub:"IQ, confidence, voice",items:["Basketball IQ","Confidence","Leadership"]}
+    };
+    const drillBank={
+      "Ball Handling":["Pound dribbles x50 each hand","Cone weave 5 rounds","Weak-hand only for 3 minutes"],
+      "Shooting Form":["One-hand form shots close to rim","Hold follow-through 3 seconds","Make 20 clean form shots"],
+      "Layups":["Right-hand layups x10","Left-hand layups x10","Mikan drill x20"],
+      "Free Throws":["Shoot 20 free throws","Same routine every shot","Track makes out of 20"],
+      "Passing":["Wall passes x50","Chest + bounce passes","Pass fake then pass"],
+      "Court Vision":["Call out open teammate","Watch 5 minutes of game film","Scan before dribbling"],
+      "Defense":["Defensive slides 5 rounds","Closeout + chop steps","Stay low for 30 seconds"],
+      "Rebounding":["Box-out reps x15","Jump and grab high point","Find body then ball"],
+      "Footwork":["Jump stops x20","Pivot series both feet","Ladder or line steps"],
+      "Speed & Agility":["Suicides or short sprints","Jump rope 3 minutes","Lateral shuffle rounds"],
+      "Conditioning":["10-minute steady work","Sprint/rest intervals","Full-court hustle reps"],
+      "Basketball IQ":["Learn one play","Watch spacing in a game","Name 3 smart choices"],
+      "Confidence":["Say one strong affirmation","Take 5 brave shots","Write one thing you did well"],
+      "Leadership":["Encourage a teammate","Talk on defense","Be first in line for a drill"]
+    };
+    const adjSkill=async(skill,delta)=>{
+      const old=skills[skill]||0;
+      const nv=Math.min(100,Math.max(0,old+delta));
+      const nsk={...skills,[skill]:nv};
+      await saveBball(games,nsk);
+      if(delta>0){
+        const ns=stars+(delta>=10?1:0);
+        await saveGoals(goals,ns);
+        setLevelBurst(`${skill} +${delta} 🔥`);
+        setTimeout(()=>setLevelBurst(null),1500);
+      }
+    };
+    const boostPractice=async(skill)=>{
+      const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),type:"Skill Boost",duration:"15",effort:4,focus:4,whatWorked:`Worked on ${skill}`,whatWasHard:"",drillsDone:(drillBank[skill]||[]).slice(0,2).join(", "),coachNote:"Added from Skill Lab"};
+      await savePrax([entry,...practices].slice(0,100));
+      await adjSkill(skill,5);
+    };
+    const groupStats=(items)=>{
+      const vals=items.filter(s=>skills[s]!==undefined).map(s=>skills[s]||0);
+      return vals.length?Math.round(avgArr(vals)):0;
+    };
+    const SkillCard=({sk,groupCol})=>{
+      const val=skills[sk]||0;
+      const col=SKILL_COL(val);
+      const drills=drillBank[sk]||["Practice this skill for 15 minutes"];
+      return <div style={{background:"rgba(255,255,255,.045)",border:`1px solid ${col}33`,borderRadius:16,padding:12,marginBottom:10,boxShadow:`0 12px 24px rgba(0,0,0,.16)`}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:9}}>
+          <div style={{minWidth:0}}>
+            <div style={{fontSize:14,fontWeight:950,color:C.white,lineHeight:1.15}}>{sk}</div>
+            <div style={{fontSize:9,color:C.muted,marginTop:4}}>{SKILL_LEVEL(val)} · next boost available</div>
           </div>
-        </div>;})}
-      </div>;})}
+          <div style={{display:"flex",alignItems:"center",gap:7}}>
+            <div style={{background:`${col}22`,border:`1px solid ${col}55`,color:col,borderRadius:10,padding:"6px 9px",fontSize:10,fontWeight:950}}>{SKILL_LEVEL(val)}</div>
+            <div style={{fontSize:18,fontWeight:950,color:col,minWidth:42,textAlign:"right"}}>{val}%</div>
+          </div>
+        </div>
+        <div style={{height:10,background:"rgba(0,0,0,.38)",borderRadius:99,overflow:"hidden",marginBottom:10}}>
+          <div style={{height:"100%",width:`${val}%`,background:`linear-gradient(90deg,${col},${groupCol})`,borderRadius:99,boxShadow:`0 0 18px ${col}55`,transition:"width .35s ease"}}/>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"52px 52px 1fr",gap:8,marginBottom:10}}>
+          <button onClick={()=>adjSkill(sk,-5)} style={{height:40,borderRadius:13,border:`1px solid ${C.red}33`,background:`${C.red}16`,color:C.red,fontSize:20,fontWeight:950,fontFamily:"system-ui",cursor:"pointer"}}>−5</button>
+          <button onClick={()=>adjSkill(sk,5)} style={{height:40,borderRadius:13,border:`1px solid ${C.gold}44`,background:`${C.gold}18`,color:C.gold,fontSize:18,fontWeight:950,fontFamily:"system-ui",cursor:"pointer"}}>+5</button>
+          <button onClick={()=>boostPractice(sk)} style={{height:40,borderRadius:13,border:"none",background:`linear-gradient(135deg,${groupCol},${C.pink})`,color:C.white,fontSize:11,fontWeight:950,fontFamily:"system-ui",cursor:"pointer",boxShadow:`0 0 18px ${groupCol}33`}}>Practice Done ⭐</button>
+        </div>
+        {val<55&&<div style={{padding:10,borderRadius:14,background:`${groupCol}12`,border:`1px solid ${groupCol}33`}}>
+          <div style={{fontSize:8,color:groupCol,fontWeight:950,letterSpacing:"1.3px",textTransform:"uppercase",marginBottom:5}}>Focus Drills</div>
+          <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:1}}>
+            {drills.slice(0,3).map(d=><button key={d} onClick={()=>setPracticeForm(p=>({...p,type:"Skill Boost",duration:"15",drillsDone:d,whatWorked:`Worked on ${sk}`}))||setTab("practice")} style={{flexShrink:0,background:"rgba(255,255,255,.07)",border:`1px solid ${C.border}`,borderRadius:999,padding:"6px 9px",fontSize:9,color:C.light,fontWeight:850,fontFamily:"system-ui",cursor:"pointer"}}>{d}</button>)}
+          </div>
+        </div>}
+      </div>;
+    };
+    return <div>
+      {levelBurst&&<div style={{position:"fixed",top:94,left:"50%",transform:"translateX(-50%)",zIndex:999,background:`linear-gradient(135deg,${C.pink},${C.gold})`,color:C.bg,borderRadius:999,padding:"10px 16px",fontWeight:950,fontSize:13,boxShadow:"0 16px 40px rgba(0,0,0,.35)",pointerEvents:"none"}}>{levelBurst}</div>}
+
+      <GlamHero style={{padding:16}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:12,alignItems:"center",marginBottom:12}}>
+          <div>
+            <div style={{fontSize:30,fontWeight:950,lineHeight:1,background:`linear-gradient(135deg,${C.coral},${C.gold} 45%,${C.teal})`,WebkitBackgroundClip:"text",color:"transparent",letterSpacing:"-.8px"}}>Skill Lab</div>
+            <div style={{fontSize:10,color:C.light,letterSpacing:"1.2px",fontWeight:900,marginTop:6}}>BUILD HER PLAYER · ONE BOOST AT A TIME</div>
+          </div>
+          <div style={{width:62,height:62,borderRadius:22,background:"linear-gradient(145deg,rgba(255,215,0,.22),rgba(44,230,209,.16))",border:"1px solid rgba(255,255,255,.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,boxShadow:`0 0 26px ${C.gold}33`}}>📊</div>
+        </div>
+
+        <div style={{display:"grid",gridTemplateColumns:"1.1fr .9fr",gap:10,marginBottom:10}}>
+          <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(255,26,140,.18),rgba(255,255,255,.04))"}}>
+            <div style={{fontSize:8,color:C.pink,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:7}}>Player Rating</div>
+            <div style={{display:"flex",alignItems:"baseline",gap:7}}>
+              <div style={{fontSize:42,fontWeight:950,color:SKILL_COL(avgSk),lineHeight:1,textShadow:`0 0 24px ${SKILL_COL(avgSk)}55`}}>{avgSk}%</div>
+              <div style={{fontSize:12,fontWeight:950,color:C.light}}>{SKILL_LEVEL(avgSk)}</div>
+            </div>
+            <div style={{height:9,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden",marginTop:10}}>
+              <div style={{height:"100%",width:`${avgSk}%`,background:glamGrad,borderRadius:99,boxShadow:`0 0 18px ${C.pink}66`}}/>
+            </div>
+          </div>
+          <div style={{...glass,borderRadius:20,padding:14,background:"linear-gradient(145deg,rgba(255,215,0,.16),rgba(255,255,255,.04))"}}>
+            <div style={{fontSize:8,color:C.gold,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:7}}>Best Weapon</div>
+            <div style={{fontSize:18,fontWeight:950,color:C.white,lineHeight:1.1}}>{strongest[0]}</div>
+            <div style={{fontSize:26,fontWeight:950,color:SKILL_COL(strongest[1]),marginTop:8}}>{strongest[1]}%</div>
+          </div>
+        </div>
+
+        <div style={{padding:13,borderRadius:18,background:`linear-gradient(145deg,${C.coral}18,rgba(255,255,255,.045))`,border:`1px solid ${C.coral}44`}}>
+          <div style={{display:"flex",alignItems:"center",gap:11}}>
+            <RingChart val={focusSkill[1]} col={SKILL_COL(focusSkill[1])} label={focusSkill[1]+"%"} size={62}/>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:8,color:C.coral,fontWeight:950,letterSpacing:"1.5px",textTransform:"uppercase",marginBottom:5}}>Next Level-Up</div>
+              <div style={{fontSize:16,fontWeight:950,color:C.white,lineHeight:1.1}}>{focusSkill[0]}</div>
+              <div style={{fontSize:10,color:C.muted,lineHeight:1.35,marginTop:5}}>15 focused minutes today can move this skill up.</div>
+            </div>
+            <button onClick={()=>boostPractice(focusSkill[0])} style={{border:"none",borderRadius:14,background:`linear-gradient(135deg,${C.coral},${C.pink})`,color:C.white,fontWeight:950,fontFamily:"system-ui",padding:"10px 11px",fontSize:10,cursor:"pointer",boxShadow:`0 0 18px ${C.coral}44`}}>Boost ⭐</button>
+          </div>
+        </div>
+      </GlamHero>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+        {Object.entries(GROUPS).map(([id,g])=>{
+          const avg=groupStats(g.items), col=SKILL_COL(avg);
+          return <button key={id} onClick={()=>document.getElementById(`skill-${id}`)?.scrollIntoView({behavior:"smooth",block:"start"})} style={{...glass,borderRadius:18,padding:11,textAlign:"left",background:`linear-gradient(145deg,${g.col}18,rgba(255,255,255,.04))`,border:`1px solid ${g.col}44`,fontFamily:"system-ui",color:C.text,cursor:"pointer"}}>
+            <div style={{fontSize:22,marginBottom:6}}>{g.e}</div>
+            <div style={{fontSize:10,fontWeight:950,color:C.white,lineHeight:1.1,minHeight:23}}>{g.title}</div>
+            <div style={{fontSize:18,fontWeight:950,color:col,marginTop:6}}>{avg}%</div>
+          </button>;
+        })}
+      </div>
+
+      {weakest.length>0&&<div style={{...cs,background:`linear-gradient(145deg,${C.coral}14,rgba(18,7,35,.96))`}}>
+        <CH e="🎯" title="Top 3 Level-Ups" sub="These are the fastest places to grow"/>
+        <div style={{display:"grid",gap:8}}>
+          {weakest.map(([sk,val],i)=><button key={sk} onClick={()=>boostPractice(sk)} style={{display:"flex",alignItems:"center",gap:10,padding:11,borderRadius:14,background:"rgba(255,255,255,.045)",border:`1px solid ${SKILL_COL(val)}33`,fontFamily:"system-ui",cursor:"pointer",textAlign:"left",color:C.text}}>
+            <div style={{width:30,height:30,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:950,color:C.bg,background:SKILL_COL(val)}}>{i+1}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:950,color:C.white}}>{sk}</div>
+              <div style={{fontSize:9,color:C.muted,marginTop:2}}>{SKILL_LEVEL(val)} · tap to log a 15-min boost</div>
+            </div>
+            <div style={{fontSize:14,fontWeight:950,color:SKILL_COL(val)}}>{val}%</div>
+          </button>)}
+        </div>
+      </div>}
+
+      {Object.entries(GROUPS).map(([id,g])=>{
+        const relevant=g.items.filter(s=>skills[s]!==undefined);
+        if(!relevant.length)return null;
+        return <div id={`skill-${id}`} key={id} style={{...cs,background:`linear-gradient(145deg,${g.col}10,rgba(18,7,35,.96))`,scrollMarginTop:110}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+            <div style={{width:42,height:42,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:23,background:`${g.col}18`,border:`1px solid ${g.col}44`,boxShadow:`0 0 18px ${g.col}20`}}>{g.e}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:11,fontWeight:950,letterSpacing:"1.6px",color:g.col,textTransform:"uppercase"}}>{g.title}</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:3}}>{g.sub} · Practice Done gives +5%</div>
+            </div>
+            <div style={{fontSize:18,fontWeight:950,color:SKILL_COL(groupStats(relevant))}}>{groupStats(relevant)}%</div>
+          </div>
+          {relevant.map(sk=><SkillCard key={sk} sk={sk} groupCol={g.col}/>)}
+        </div>;
+      })}
+      <SubmitSpacer/>
     </div>;
   };
 
