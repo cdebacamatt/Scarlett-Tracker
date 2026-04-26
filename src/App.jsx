@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+\import React, { useState, useEffect, useRef, useCallback } from "react";
 
 const C={bg:"#0B0C14",nav:"#12121F",navy:"#171827",navy2:"#1F2033",card:"#242436",card2:"#2A2A3D",border:"rgba(255,255,255,.10)",coral:"#E86F8F",teal:"#6AD8CF",purple:"#A78BFA",gold:"#EBCB6A",green:"#7DDB9C",blue:"#7DAAF2",pink:"#D978B9",orange:"#E8A35D",red:"#E66B76",white:"#FFFFFF",text:"#F7F2FB",muted:"#B9B2C8",light:"#E7DEEF"};
 
@@ -366,8 +366,9 @@ const DAILY_HOROSCOPE=[
   {vibe:"Friendship and focus",message:"Be fun, be kind, and still stay on track. The right friends will respect your goals.",power:"Good energy only",lucky:"Group chat joy"},
   {vibe:"Virgo victory",message:"Today is a good day to prove to yourself that you can start, finish, and feel proud.",power:"Finish strong",lucky:"Victory star"},
 ];
+const HOROSCOPE_ROTATION_OFFSET=1; // Moves today's Virgo Daily Vibe forward while still rotating at local 12:00 AM.
 function getDailyHoroscope(profile){
-  const day=localDayKey();
+  const day=localDayKey()+HOROSCOPE_ROTATION_OFFSET;
   const h=DAILY_HOROSCOPE[day%DAILY_HOROSCOPE.length];
   const sign=profile?.zodiac||"Virgo";
   return {sign,...h};
