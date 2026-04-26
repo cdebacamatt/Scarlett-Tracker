@@ -980,23 +980,23 @@ export default function ScarlettTracker(){
         ]}
       />
 
-      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.text,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
+      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
         <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
           <div style={{width:92,height:92,borderRadius:32,display:"flex",alignItems:"center",justifyContent:"center",fontSize:54,background:`linear-gradient(135deg,${C.mauve}26,rgba(255,255,255,.56))`,border:`3px solid ${C.mauve}`,boxShadow:"0 14px 35px rgba(0,0,0,.18)"}}>♍</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:11,letterSpacing:"2.6px",fontWeight:950,color:C.mauve,marginBottom:8}}>{horoscope.sign||"Virgo"} ENERGY</div>
-            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.text}}>{horoscope.vibe}</div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.darkText}}>{horoscope.vibe}</div>
             <div style={{marginTop:8,fontSize:12,color:"rgba(33,31,33,.62)",fontWeight:800}}>{horoscope.theme||"Daily focus"} · {horoscope.element||"Earth"}</div>
           </div>
         </div>
 
         <div style={{padding:15,borderRadius:20,background:"rgba(255,255,255,.62)",border:"1px solid rgba(0,0,0,.06)",marginBottom:14}}>
           <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>TODAY'S HOROSCOPE</div>
-          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.text}}>“{horoscope.message}”</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.darkText}}>“{horoscope.message}”</div>
         </div>
 
         <div style={{fontSize:12,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>VIRGO READ</div>
-        <div style={{fontFamily:"Georgia,serif",fontSize:24,lineHeight:1.08,fontWeight:850,marginBottom:10}}>{horoscope.theme||horoscope.vibe}</div>
+        <div style={{fontFamily:"Georgia,serif",fontSize:24,lineHeight:1.08,fontWeight:850,marginBottom:10,color:C.darkText}}>{horoscope.theme||horoscope.vibe}</div>
         <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{horoscope.longVibe||horoscope.message}</div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
@@ -1020,15 +1020,15 @@ export default function ScarlettTracker(){
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9,marginBottom:12}}>
           <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.12)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.blush,marginBottom:5}}>LUCKY VIBE</div>
-            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.cream}}>{horoscope.lucky}</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.darkText}}>{horoscope.lucky}</div>
           </div>
           <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.12)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.gold,marginBottom:5}}>GLOW TIP</div>
-            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.cream}}>{horoscope.glowTip||"Keep it simple and finish one thing."}</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.darkText}}>{horoscope.glowTip||"Keep it simple and finish one thing."}</div>
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9}}>
-          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.cream,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.darkText,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
             <span style={{display:"flex",alignItems:"center",gap:10,fontWeight:900}}><span style={{fontSize:20}}>{a.icon}</span>{a.label}</span>
             <span style={{color:C.blush,fontWeight:950}}>→</span>
           </button>)}
@@ -1061,25 +1061,25 @@ export default function ScarlettTracker(){
         ]}
       />
 
-      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.text,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
+      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
         <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
           <div style={{width:96,height:120,borderRadius:32,overflow:"hidden",background:`linear-gradient(135deg,${C.mauve}44,rgba(255,255,255,.38))`,border:`3px solid ${C.mauve}`,boxShadow:"0 14px 35px rgba(0,0,0,.25)"}}>
             <img src={coach.photo} alt={coach.player} referrerPolicy="no-referrer" onError={e=>{e.currentTarget.style.display="none";}} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top"}}/>
           </div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:11,letterSpacing:"2.6px",fontWeight:950,color:C.mauve,marginBottom:8}}>WNBA DAILY COACH</div>
-            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.text}}>Tip from<br/>{coach.player}</div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.darkText}}>Tip from<br/>{coach.player}</div>
             <div style={{marginTop:8,fontSize:12,color:"rgba(33,31,33,.62)",fontWeight:800}}>{coach.team} · {coach.tag}</div>
           </div>
         </div>
 
         <div style={{padding:15,borderRadius:20,background:"rgba(255,255,255,.62)",border:"1px solid rgba(0,0,0,.06)",marginBottom:14}}>
           <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>REAL QUOTE</div>
-          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.text}}>“{coach.quote}”</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.darkText}}>“{coach.quote}”</div>
         </div>
 
         <div style={{fontSize:12,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>TODAY'S LESSON</div>
-        <div style={{fontFamily:"Georgia,serif",fontSize:24,lineHeight:1.08,fontWeight:850,marginBottom:10}}>{coach.headline||coach.takeaway}</div>
+        <div style={{fontFamily:"Georgia,serif",fontSize:24,lineHeight:1.08,fontWeight:850,marginBottom:10,color:C.darkText}}>{coach.headline||coach.takeaway}</div>
         <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{coach.longTip||coach.takeaway}</div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
@@ -1097,7 +1097,7 @@ export default function ScarlettTracker(){
       <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",border:"1px solid rgba(255,255,255,.12)"}}>
         <CH e="✨" title="Use the tip" sub="Turn the coach message into action"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9}}>
-          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.cream,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.darkText,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
             <span style={{display:"flex",alignItems:"center",gap:10,fontWeight:900}}><span style={{fontSize:20}}>{a.icon}</span>{a.label}</span>
             <span style={{color:C.blush,fontWeight:950}}>→</span>
           </button>)}
