@@ -1185,6 +1185,35 @@ export default function ScarlettTracker(){
       </div>
     </div>;
     const universalPct=(made,att)=>att?Math.round((made/att)*100)+"%":"—";
+    const ratingScale=(label,emoji,key,val,col)=>(
+      <div style={{...glass,borderRadius:18,padding:12,overflow:"hidden"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7,fontSize:10,color:C.muted,fontWeight:950,letterSpacing:"1.4px",textTransform:"uppercase",marginBottom:10,whiteSpace:"nowrap"}}>
+          <span>{label}</span><span style={{fontSize:16,lineHeight:1}}>{emoji}</span>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,minmax(0,1fr))",gap:7,width:"100%"}}>
+          {Array.from({length:5},(_,i)=>{
+            const n=i+1;
+            const active=val===n;
+            return <button key={n} onClick={()=>setGf(p=>({...p,[key]:active?0:n}))} style={{
+              minWidth:0,
+              height:42,
+              borderRadius:13,
+              border:`1.5px solid ${active?col:C.border}`,
+              background:active?`linear-gradient(145deg,${col},${C.blush})`:"rgba(255,255,255,.045)",
+              color:active?C.white:"rgba(247,241,234,.54)",
+              fontWeight:950,
+              fontSize:14,
+              cursor:"pointer",
+              boxShadow:active?`0 0 16px ${col}35`:"none",
+              fontFamily:"system-ui",
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center"
+            }}>{n}</button>;
+          })}
+        </div>
+      </div>
+    );
 
 
     return<div>
@@ -1292,9 +1321,9 @@ export default function ScarlettTracker(){
             {[ ["Steals","stl"], ["Blocks","blk"], ["Turnovers","tov"], ["Fouls","fouls"] ].map(([l,k])=>numInput(l,k,false))}
           </div>
           <input value={gf.opp} onChange={e=>setGf(p=>({...p,opp:e.target.value}))} placeholder="Opponent (optional)" style={{...INP,marginBottom:12}}/>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
-            <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:8}}>EFFORT ⚡</div><RD val={gf.effort} max={5} col={C.orange} onSet={v=>setGf(p=>({...p,effort:v}))}/></div>
-            <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:8}}>CONFIDENCE 💜</div><RD val={gf.confidence} max={5} col={C.purple} onSet={v=>setGf(p=>({...p,confidence:v}))}/></div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10,marginBottom:14}}>
+            {ratingScale("Effort","⚡","effort",gf.effort,C.orange)}
+            {ratingScale("Confidence","💜","confidence",gf.confidence,C.blush)}
           </div>
           <div style={{display:"flex",gap:8}}>
             {editGameId&&<button onClick={resetGameForm} style={{flex:1,padding:14,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Cancel</button>}
