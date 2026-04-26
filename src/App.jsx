@@ -66,9 +66,75 @@ const SPORT_TEMPLATES={
     skills:["Serve","Return","Footwork","Forehand","Backhand","Consistency","Focus","Confidence"],
     practiceTypes:["Serve Practice","Rally Work","Footwork","Match Play","Conditioning"],
     insights:["Serve consistency is the first pressure point to track.","Winners and errors together show decision quality.","Court confidence grows when improvement is visible."]
+  },
+  volleyball:{
+    id:"volleyball",label:"Volleyball",short:"Volley",icon:"🏐",accent:C.purple,hero:"Court impact",tagline:"Serves, aces, kills, digs, assists, blocks, and errors.",
+    statFields:[{key:"servesMade",label:"Serves Made",group:"Serve"},{key:"servesAttempted",label:"Serves Attempted",group:"Serve"},{key:"aces",label:"Aces",group:"Serve"},{key:"kills",label:"Kills",group:"Attack"},{key:"attackAttempts",label:"Attack Attempts",group:"Attack"},{key:"digs",label:"Digs",group:"Defense"},{key:"assists",label:"Assists",group:"Team Play"},{key:"blocks",label:"Blocks",group:"Defense"},{key:"errors",label:"Errors",group:"Discipline"}],
+    skills:["Serving","Passing","Setting","Hitting","Blocking","Communication","Court Awareness","Confidence"],
+    practiceTypes:["Team Practice","Serving","Passing","Setting","Hitting","Defense"],
+    insights:["Serving accuracy is a great first stat to track.","Digs and communication show team value beyond scoring.","Errors are not failure; they show where practice should focus."]
+  },
+  softball:{
+    id:"softball",label:"Softball / Baseball",short:"Diamond",icon:"🥎",accent:C.orange,hero:"Diamond stats",tagline:"At-bats, hits, runs, RBIs, walks, strikeouts, steals, and fielding.",
+    statFields:[{key:"atBats",label:"At Bats",group:"Hitting"},{key:"hits",label:"Hits",group:"Hitting"},{key:"runs",label:"Runs",group:"Offense"},{key:"rbi",label:"RBIs",group:"Offense"},{key:"walks",label:"Walks",group:"Plate Discipline"},{key:"strikeouts",label:"Strikeouts",group:"Plate Discipline"},{key:"stolenBases",label:"Stolen Bases",group:"Base Running"},{key:"fieldingPlays",label:"Fielding Plays",group:"Defense"},{key:"errors",label:"Errors",group:"Defense"}],
+    skills:["Hitting","Fielding","Throwing","Catching","Base Running","Situational Awareness","Confidence"],
+    practiceTypes:["Batting Practice","Fielding","Throwing","Base Running","Team Practice"],
+    insights:["Hits and walks together show plate progress.","Fielding plays help track defensive confidence.","Base running is a skill, not just speed."]
+  },
+  football:{
+    id:"football",label:"Football",short:"Football",icon:"🏈",accent:C.green,hero:"Position stats",tagline:"Flexible tracking for offense, defense, effort, and position-specific progress.",
+    statFields:[{key:"snaps",label:"Snaps Played",group:"Playing Time"},{key:"touchdowns",label:"Touchdowns",group:"Scoring"},{key:"yards",label:"Total Yards",group:"Offense"},{key:"receptions",label:"Receptions",group:"Offense"},{key:"tackles",label:"Tackles",group:"Defense"},{key:"sacks",label:"Sacks",group:"Defense"},{key:"interceptions",label:"Interceptions",group:"Defense"},{key:"forcedFumbles",label:"Forced Fumbles",group:"Defense"},{key:"flags",label:"Flags",group:"Discipline"}],
+    skills:["Speed","Agility","Catching","Blocking","Tackling","Field Awareness","Conditioning","Confidence"],
+    practiceTypes:["Team Practice","Conditioning","Routes","Defense","Footwork","Film Study"],
+    insights:["Football stats should match the child’s position.","Snaps and effort show growth even before big plays.","Discipline stats help build a smarter player."]
+  },
+  track:{
+    id:"track",label:"Track & Field",short:"Track",icon:"👟",accent:C.blue,hero:"PR tracking",tagline:"Times, distances, attempts, personal records, and event progress.",
+    statFields:[{key:"eventCount",label:"Events Logged",group:"Events"},{key:"bestTime",label:"Best Time",group:"Track"},{key:"practiceMinutes",label:"Practice Minutes",group:"Training"},{key:"sprints",label:"Sprints",group:"Speed"},{key:"distance",label:"Distance",group:"Endurance"},{key:"jumps",label:"Jump Attempts",group:"Field"},{key:"throws",label:"Throw Attempts",group:"Field"},{key:"personalRecords",label:"PRs",group:"Growth"}],
+    skills:["Speed","Start Technique","Endurance","Form","Explosiveness","Focus","Confidence"],
+    practiceTypes:["Sprint Work","Distance Work","Starts","Jumps","Throws","Conditioning"],
+    insights:["PRs are the clearest way to see progress.","Technique matters as much as speed.","Small time drops are big wins."]
+  },
+  cheer:{
+    id:"cheer",label:"Cheerleading",short:"Cheer",icon:"📣",accent:C.pink,hero:"Routine energy",tagline:"Jumps, stunts, tumbling, timing, teamwork, and confidence.",
+    statFields:[{key:"routineRuns",label:"Routine Runs",group:"Routine"},{key:"jumps",label:"Jumps Completed",group:"Skills"},{key:"stuntAttempts",label:"Stunt Attempts",group:"Stunts"},{key:"stuntHits",label:"Stunt Hits",group:"Stunts"},{key:"tumblingAttempts",label:"Tumbling Attempts",group:"Tumbling"},{key:"tumblingLanded",label:"Tumbling Landed",group:"Tumbling"},{key:"energy",label:"Energy Rating",group:"Performance"},{key:"teamwork",label:"Teamwork Rating",group:"Team"}],
+    skills:["Jumps","Tumbling","Stunts","Dance","Timing","Flexibility","Confidence","Teamwork"],
+    practiceTypes:["Routine Practice","Jumps","Tumbling","Stunts","Dance","Conditioning"],
+    insights:["Cheer progress is skill plus confidence.","Stunt hits and attempts both matter.","Teamwork is a real performance stat."]
+  },
+  gymnastics:{
+    id:"gymnastics",label:"Gymnastics",short:"Gym",icon:"🤸",accent:C.teal,hero:"Skill landing",tagline:"Events, attempts, landings, form, confidence, strength, and flexibility.",
+    statFields:[{key:"skillsAttempted",label:"Skills Attempted",group:"Training"},{key:"skillsLanded",label:"Skills Landed",group:"Training"},{key:"floor",label:"Floor Work",group:"Events"},{key:"beam",label:"Beam Work",group:"Events"},{key:"bars",label:"Bars Work",group:"Events"},{key:"vault",label:"Vault Work",group:"Events"},{key:"form",label:"Form Rating",group:"Technique"},{key:"confidence",label:"Confidence",group:"Mindset"}],
+    skills:["Balance","Power","Flexibility","Form","Strength","Consistency","Confidence"],
+    practiceTypes:["Floor","Beam","Bars","Vault","Strength","Flexibility"],
+    insights:["Attempts build courage even before a skill is landed.","Form and consistency matter more than rushing levels.","Confidence is a skill to track."]
+  },
+  karate:{
+    id:"karate",label:"Karate / Martial Arts",short:"Karate",icon:"🥋",accent:C.red,hero:"Discipline tracking",tagline:"Classes, forms, techniques, sparring, focus, respect, and belt progress.",
+    statFields:[{key:"classes",label:"Classes Attended",group:"Training"},{key:"forms",label:"Forms Practiced",group:"Technique"},{key:"techniques",label:"Techniques Practiced",group:"Technique"},{key:"sparringRounds",label:"Sparring Rounds",group:"Sparring"},{key:"focus",label:"Focus Rating",group:"Mindset"},{key:"discipline",label:"Discipline Rating",group:"Mindset"},{key:"beltProgress",label:"Belt Progress",group:"Growth"}],
+    skills:["Stance","Balance","Discipline","Technique","Flexibility","Respect","Confidence"],
+    practiceTypes:["Class","Forms","Technique","Sparring","Conditioning","Flexibility"],
+    insights:["Martial arts progress is discipline plus technique.","Focus and respect are trackable growth areas.","Belt progress should be earned step by step."]
+  },
+  dance:{
+    id:"dance",label:"Dance",short:"Dance",icon:"💃",accent:C.blush,hero:"Performance flow",tagline:"Routines, timing, flexibility, expression, confidence, and practice minutes.",
+    statFields:[{key:"routineRuns",label:"Routine Runs",group:"Routine"},{key:"practiceMinutes",label:"Practice Minutes",group:"Training"},{key:"timing",label:"Timing Rating",group:"Technique"},{key:"flexibility",label:"Flexibility Rating",group:"Body"},{key:"expression",label:"Expression Rating",group:"Performance"},{key:"confidence",label:"Confidence",group:"Mindset"}],
+    skills:["Timing","Flexibility","Expression","Memory","Strength","Confidence","Stage Presence"],
+    practiceTypes:["Routine Practice","Technique","Flexibility","Conditioning","Performance Practice"],
+    insights:["Dance growth is confidence, repetition, and expression.","Timing and memory improve with short daily practice.","Performance confidence deserves to be celebrated."]
+  },
+  custom:{
+    id:"custom",label:"Custom Sport",short:"Custom",icon:"➕",accent:C.gold,hero:"Create later",tagline:"A parent can eventually create any activity with custom stats, skills, and goals.",
+    statFields:[{key:"sessions",label:"Sessions",group:"Activity"},{key:"minutes",label:"Minutes",group:"Training"},{key:"effort",label:"Effort Rating",group:"Mindset"},{key:"confidence",label:"Confidence",group:"Mindset"}],
+    skills:["Effort","Consistency","Confidence","Focus"],
+    practiceTypes:["Practice","Training","Lesson","At Home"],
+    insights:["A custom sport lets the family decide what progress means.","Stats should match the activity, not the other way around.","This keeps the platform flexible."]
   }
 };
 const DEFAULT_SPORT_ID="basketball";
+const ACTIVE_SPORT_IDS=["basketball"];
+const FUTURE_SPORT_IDS=["volleyball","softball","football","track","cheer","gymnastics","karate","dance","soccer","tennis","custom"];
+
 const DEF_SUBJECTS={Math:3,Reading:4,Science:3,"Social Studies":3,Writing:3};
 const DEF_PROFILE={name:"Scarlett",grade:"5th",teamName:"",emoji:"⭐",primaryGoal:"All-around player",birthDate:"2015-08-28",zodiac:"Virgo"};
 const ROUTINE_ITEMS=[
@@ -1074,13 +1140,26 @@ export default function ScarlettTracker(){
         ]}
       />
       <div style={cs}>
-        <CH e="🏟️" title="Sport Profile" sub="Basketball is active now; other sports are ready as modular templates."/>
+        <CH e="🏟️" title="Athlete Sport Profile" sub="Scarlett’s current tracker stays focused on basketball. Future sports can be previewed or activated later without changing her saved basketball data."/>
+        <div style={{fontSize:10,color:C.muted,fontWeight:950,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:8}}>Current Active Sport</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:8,marginBottom:14}}>
+          {ACTIVE_SPORT_IDS.map(id=>{const sport=SPORT_TEMPLATES[id];return <button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{display:"flex",alignItems:"center",gap:12,padding:14,borderRadius:20,border:`1px solid ${selectedSportId===sport.id?sport.accent:C.border}`,background:selectedSportId===sport.id?`${sport.accent}20`:"rgba(255,255,255,.04)",color:C.cream,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+            <div style={{width:44,height:44,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:25,background:`${sport.accent}18`,border:`1px solid ${sport.accent}44`}}>{sport.icon}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:15,fontWeight:950,color:C.text}}>{sport.label}</div>
+              <div style={{fontSize:11,color:C.muted,marginTop:2}}>Active tracker · saved games · practices · skills</div>
+            </div>
+            <div style={{fontSize:9,fontWeight:950,color:sport.accent,background:`${sport.accent}18`,padding:"5px 8px",borderRadius:999}}>ACTIVE</div>
+          </button>;})}
+        </div>
+
+        <div style={{fontSize:10,color:C.muted,fontWeight:950,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:8}}>Future Sport Profiles</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-          {Object.values(SPORT_TEMPLATES).map(sport=><button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{padding:"12px 7px",borderRadius:18,border:`1px solid ${selectedSportId===sport.id?sport.accent:C.border}`,background:selectedSportId===sport.id?`${sport.accent}20`:"rgba(255,255,255,.04)",color:selectedSportId===sport.id?C.cream:C.muted,cursor:"pointer",fontFamily:"system-ui"}}>
+          {FUTURE_SPORT_IDS.map(id=>{const sport=SPORT_TEMPLATES[id];const selected=selectedSportId===sport.id;return <button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{padding:"12px 7px",borderRadius:18,border:`1px solid ${selected?sport.accent:C.border}`,background:selected?`${sport.accent}20`:"rgba(255,255,255,.04)",color:selected?C.cream:C.muted,cursor:"pointer",fontFamily:"system-ui"}}>
             <div style={{fontSize:24,marginBottom:5}}>{sport.icon}</div>
-            <div style={{fontSize:11,fontWeight:950}}>{sport.label}</div>
-            <div style={{fontSize:8,color:selectedSportId===sport.id?sport.accent:C.muted,fontWeight:850,marginTop:3}}>{sport.id==="basketball"?"Active":"Preview"}</div>
-          </button>)}
+            <div style={{fontSize:10,fontWeight:950,lineHeight:1.15,minHeight:24,display:"flex",alignItems:"center",justifyContent:"center"}}>{sport.label}</div>
+            <div style={{fontSize:8,color:selected?sport.accent:C.muted,fontWeight:850,marginTop:5}}>{sport.id==="custom"?"Create Later":"Preview / Add Later"}</div>
+          </button>;})}
         </div>
       </div>
       <div style={{display:"flex",gap:6,marginBottom:14,background:"rgba(255,255,255,.045)",borderRadius:18,padding:5,border:"1px solid rgba(255,255,255,.10)"}}>
@@ -1091,7 +1170,7 @@ export default function ScarlettTracker(){
 
       {section==="game"&&!isBasketball&&<>
         <div style={cs}>
-          <CH e={sportTemplate.icon} title={`${sportTemplate.label} Live Stat Template`} sub="This is the merged modular sport engine preview. Full save history can be activated next without rebuilding the app."/>
+          <CH e={sportTemplate.icon} title={`${sportTemplate.label} Live Stat Template`} sub="Preview only for now. Basketball is the only active saved sport; this shows how this sport would look if Scarlett adds it later."/>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
             {sportTemplate.statFields.map(field=>sportMetric(field))}
           </div>
@@ -1195,7 +1274,7 @@ export default function ScarlettTracker(){
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             {sportTemplate.practiceTypes.map(type=><div key={type} style={{padding:13,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
               <div style={{fontSize:14,fontWeight:950,color:C.text}}>{type}</div>
-              <div style={{fontSize:10,color:C.muted,marginTop:4}}>Ready for future logs</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:4}}>Preview / add later</div>
             </div>)}
           </div>
         </div>
@@ -1235,7 +1314,7 @@ export default function ScarlettTracker(){
           {sportTemplate.skills.map((skill,i)=><div key={skill} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:i<sportTemplate.skills.length-1?`1px solid ${C.border}`:"none"}}>
             <div style={{width:30,height:30,borderRadius:10,background:`${sportTemplate.accent}18`,border:`1px solid ${sportTemplate.accent}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:950,color:sportTemplate.accent}}>{i+1}</div>
             <div style={{flex:1,fontSize:13,fontWeight:900,color:C.text}}>{skill}</div>
-            <div style={{fontSize:10,color:C.muted,fontWeight:800}}>template</div>
+            <div style={{fontSize:10,color:C.muted,fontWeight:800}}>future skill</div>
           </div>)}
         </div>
       </>}
