@@ -971,7 +971,7 @@ export default function ScarlettTracker(){
       <TabHero
         eyebrow="Virgo Daily Vibe"
         title="A calm focus prompt for Scarlett."
-        sub="A daily Virgo-inspired mindset card to help Scarlett feel focused, confident, and ready to follow through."
+        sub="Use today’s Virgo-inspired focus to feel calmer, more confident, and ready to follow through."
         icon="♍"
         stats={[
           {value:"♍",label:"virgo",color:C.mauve},
