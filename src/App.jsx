@@ -1,32 +1,32 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
 const C={
-  bg:"#0A0A0C",
-  nav:"#111113",
-  navy:"#171618",
-  navy2:"#222024",
-  card:"#1E1D20",
-  card2:"#2A262B",
-  cream:"#F6F0E8",
-  cream2:"#EFE5DB",
-  mauve:"#A76583",
-  blush:"#D9A0BA",
-  rose:"#C47A9B",
-  dusty:"#B98AA1",
-  gold:"#DDBF86",
-  green:"#9CC7A5",
-  teal:"#8DBDB6",
-  blue:"#A9B8D6",
-  purple:"#A76583",
-  pink:"#D9A0BA",
-  orange:"#D8A46F",
-  coral:"#A76583",
+  bg:"#080B0C",
+  nav:"#0D1112",
+  navy:"#101516",
+  navy2:"#151A1B",
+  card:"#141819",
+  card2:"#1A2021",
+  cream:"#F4EFE6",
+  cream2:"#EDE4D8",
+  mauve:"#35CFC9",
+  blush:"#35CFC9",
+  rose:"#31BDB8",
+  dusty:"#6EDAD5",
+  gold:"#D8A85E",
+  green:"#8ECFA2",
+  teal:"#35CFC9",
+  blue:"#8BB8D8",
+  purple:"#35CFC9",
+  pink:"#35CFC9",
+  orange:"#D8A85E",
+  coral:"#35CFC9",
   red:"#D98484",
   white:"#FFFFFF",
-  text:"#F7F1EA",
-  darkText:"#211F21",
-  muted:"#BDB3B8",
-  light:"#EDE5E8",
+  text:"#F7F4EC",
+  darkText:"#111414",
+  muted:"#AEB6B4",
+  light:"#E6EEEC",
   border:"rgba(255,255,255,.12)"
 };
 
@@ -560,12 +560,12 @@ const genCode=()=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from(
 
 // ── UI ATOMS ──────────────────────────────────────────────────────────────
 const cs={
-  background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",
+  background:"linear-gradient(145deg,rgba(24,28,29,.94),rgba(12,15,16,.98))",
   borderRadius:22,
   border:"1px solid rgba(255,255,255,.12)",
   padding:16,
   marginBottom:14,
-  boxShadow:"0 20px 48px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07)",
+  boxShadow:"0 22px 54px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.06)",
   position:"relative",
   overflow:"hidden"
 };
@@ -583,45 +583,45 @@ const INP={
 };
 const TXT={...INP,minHeight:70,resize:"vertical"};
 const glass={
-  background:"rgba(255,255,255,.045)",
+  background:"linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.025))",
   border:"1px solid rgba(255,255,255,.12)",
-  boxShadow:"inset 0 1px 0 rgba(255,255,255,.07)"
+  boxShadow:"inset 0 1px 0 rgba(255,255,255,.06)"
 };
 
 function GlamHero({children,style={}}){
   return <div style={{
     ...cs,
     padding:18,
-    background:"radial-gradient(circle at 82% 4%,rgba(221,191,134,.10),transparent 32%),radial-gradient(circle at 16% 0%,rgba(167,101,131,.18),transparent 36%),linear-gradient(145deg,rgba(42,38,43,.97),rgba(15,15,17,.99))",
+    background:"radial-gradient(circle at 85% 4%,rgba(216,168,94,.14),transparent 32%),radial-gradient(circle at 14% 0%,rgba(53,207,201,.16),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.97),rgba(9,12,13,.99))",
     border:"1px solid rgba(255,255,255,.14)",
-    boxShadow:"0 22px 54px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.09)",
+    boxShadow:"0 22px 54px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)",
     ...style
   }}>
     <div style={{position:"absolute",top:12,right:18,color:C.gold,fontSize:13,opacity:.72}}>✦</div>
-    <div style={{position:"absolute",bottom:14,left:18,color:C.blush,fontSize:10,opacity:.64}}>✦</div>
+    <div style={{position:"absolute",bottom:14,left:18,color:C.teal,fontSize:10,opacity:.64}}>✦</div>
     <div style={{position:"relative",zIndex:1}}>{children}</div>
   </div>;
 }
 
-function CH({e,title,sub}){return<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{fontSize:18,filter:"drop-shadow(0 0 10px rgba(217,160,186,.34))"}}>{e}</div><div><div style={{fontWeight:950,fontSize:10,letterSpacing:"2.4px",color:C.blush,textTransform:"uppercase",marginBottom:2}}>{title}</div>{sub&&<div style={{fontSize:11,color:C.muted,lineHeight:1.35}}>{sub}</div>}</div></div>;}
-function SBox({value,label,color=C.blush,sub}){return<div style={{...glass,borderRadius:18,padding:12,textAlign:"center",borderTop:`2px solid ${color}`,background:"linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.025))"}}><div style={{fontWeight:950,fontSize:22,color,lineHeight:1,textShadow:`0 0 18px ${color}55`}}>{value}</div><div style={{fontSize:10,fontWeight:800,color:"rgba(247,241,234,.72)",marginTop:5}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,marginTop:4}}>{sub}</div>}</div>;}
+function CH({e,title,sub}){return<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{fontSize:18,filter:"drop-shadow(0 0 10px rgba(53,207,201,.35))"}}>{e}</div><div><div style={{fontWeight:950,fontSize:10,letterSpacing:"2.4px",color:C.teal,textTransform:"uppercase",marginBottom:2}}>{title}</div>{sub&&<div style={{fontSize:11,color:C.muted,lineHeight:1.35}}>{sub}</div>}</div></div>;}
+function SBox({value,label,color=C.teal,sub}){return<div style={{...glass,borderRadius:18,padding:12,textAlign:"center",borderTop:`2px solid ${color}`,background:"linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.025))"}}><div style={{fontWeight:950,fontSize:22,color,lineHeight:1,textShadow:`0 0 18px ${color}55`}}>{value}</div><div style={{fontSize:10,fontWeight:800,color:"rgba(247,244,236,.72)",marginTop:5}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,marginTop:4}}>{sub}</div>}</div>;}
 function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return<div style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}><span style={{fontSize:13,fontWeight:800,color:C.text}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}22`,color:col,fontSize:9,fontWeight:900,padding:"2px 8px",borderRadius:6}}>{level}</span><span style={{fontSize:14,fontWeight:950,color:col}}>{val}%</span></div></div><div style={{height:9,background:"rgba(255,255,255,.08)",borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:`linear-gradient(90deg,${col}cc,${C.blush})`,borderRadius:100,width:`${val}%`,transition:"width .4s ease"}}/></div></div>;}
 function RD({val,max=5,col=C.blush,onSet}){return<div style={{display:"flex",gap:7}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:34,height:34,borderRadius:10,background:i<val?`linear-gradient(145deg,${col},${C.blush})`:"rgba(255,255,255,.045)",border:`1.5px solid ${i<val?col:"rgba(255,255,255,.12)"}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 16px ${col}35`:"none",transition:"all .15s"}}><span style={{fontSize:10,fontWeight:900,color:i<val?C.white:"rgba(255,255,255,.32)"}}>{i+1}</span></div>)}</div>;}
 function EmojiPick({val,emojis,onSet,col=C.blush}){return<div style={{display:"grid",gridTemplateColumns:`repeat(${emojis.length},minmax(0,1fr))`,gap:7,width:"100%"}}>{emojis.map((e,i)=><button key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{height:48,minWidth:0,borderRadius:15,fontSize:22,border:`2px solid ${val===i+1?col:C.border}`,background:val===i+1?`${col}22`:"rgba(255,255,255,.045)",cursor:"pointer",boxShadow:val===i+1?`0 0 16px ${col}35`:"none",transition:"all .15s",display:"flex",alignItems:"center",justifyContent:"center",padding:0,lineHeight:1}}>{e}</button>)}</div>;}
-function Chip({label,active,col=C.blush,onClick}){return<button onClick={onClick} style={{flexShrink:0,padding:"9px 14px",borderRadius:999,border:`1px solid ${active?col:C.border}`,background:active?`${col}22`:"rgba(255,255,255,.045)",color:active?C.cream:C.muted,fontWeight:900,cursor:"pointer",fontSize:12,whiteSpace:"nowrap",fontFamily:"system-ui"}}>{label}</button>;}
+function Chip({label,active,col=C.teal,onClick}){return<button onClick={onClick} style={{flexShrink:0,padding:"9px 14px",borderRadius:999,border:`1px solid ${active?col:C.border}`,background:active?`${col}22`:"rgba(255,255,255,.045)",color:active?C.cream:C.muted,fontWeight:900,cursor:"pointer",fontSize:12,whiteSpace:"nowrap",fontFamily:"system-ui"}}>{label}</button>;}
 function RingChart({val,col,label,size=54}){const r=size/2-6,circ=2*Math.PI*r,d=circ-(val/100)*circ,cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}55)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.12)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
 
 function TabHero({eyebrow,title,sub,icon="✦",stats=[]}){
-  return <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.40)",marginBottom:14}}>
-    <div style={{position:"absolute",right:18,top:12,fontSize:72,opacity:.12,color:C.mauve,lineHeight:1}}>{icon}</div>
+  return <div style={{...cs,background:"radial-gradient(circle at 88% 8%,rgba(53,207,201,.18),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.97),rgba(9,12,13,.99))",color:C.text,border:"1px solid rgba(255,255,255,.16)",padding:22,boxShadow:"0 24px 64px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.08)",marginBottom:14}}>
+    <div style={{position:"absolute",right:16,top:12,fontSize:88,opacity:.20,color:C.teal,lineHeight:1,filter:"drop-shadow(0 0 18px rgba(53,207,201,.25))"}}>{icon}</div>
     <div style={{position:"relative",zIndex:1}}>
-      <div style={{fontSize:11,letterSpacing:"2.8px",fontWeight:950,color:C.mauve,textTransform:"uppercase",marginBottom:8}}>{eyebrow}</div>
-      <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.05,fontWeight:850,letterSpacing:"-.5px",maxWidth:305}}>{title}</div>
-      {sub&&<div style={{fontSize:13,lineHeight:1.55,color:"rgba(33,31,33,.70)",marginTop:8,maxWidth:330}}>{sub}</div>}
-      {stats.length>0&&<div style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(stats.length,3)},1fr)`,gap:8,marginTop:14}}>
-        {stats.slice(0,3).map((s,i)=><button key={`${s.label}_${i}`} onClick={s.onClick} style={{border:"1px solid rgba(0,0,0,.06)",background:"rgba(255,255,255,.50)",borderRadius:18,padding:"10px 8px",color:C.darkText,cursor:s.onClick?"pointer":"default",fontFamily:"system-ui",textAlign:"center"}}>
-          <div style={{fontSize:18,fontWeight:950,color:s.color||C.mauve,lineHeight:1}}>{s.value}</div>
-          <div style={{fontSize:9,fontWeight:900,color:"rgba(33,31,33,.55)",letterSpacing:".5px",marginTop:5,textTransform:"uppercase"}}>{s.label}</div>
+      <div style={{fontSize:11,letterSpacing:"3px",fontWeight:950,color:C.teal,textTransform:"uppercase",marginBottom:10}}>{eyebrow}</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:32,lineHeight:1.04,fontWeight:850,letterSpacing:"-.7px",maxWidth:310,color:C.cream}}>{title}</div>
+      {sub&&<div style={{fontSize:13,lineHeight:1.55,color:"rgba(247,244,236,.70)",marginTop:8,maxWidth:335}}>{sub}</div>}
+      {stats.length>0&&<div style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(stats.length,3)},1fr)`,gap:8,marginTop:16}}>
+        {stats.slice(0,3).map((s,i)=><button key={`${s.label}_${i}`} onClick={s.onClick} style={{border:"1px solid rgba(255,255,255,.10)",background:"rgba(255,255,255,.045)",borderRadius:18,padding:"11px 8px",color:C.text,cursor:s.onClick?"pointer":"default",fontFamily:"system-ui",textAlign:"center",boxShadow:"inset 0 1px 0 rgba(255,255,255,.06)"}}>
+          <div style={{fontSize:18,fontWeight:950,color:s.color||C.teal,lineHeight:1,textShadow:`0 0 16px ${(s.color||C.teal)}55`}}>{s.value}</div>
+          <div style={{fontSize:9,fontWeight:900,color:"rgba(247,244,236,.58)",letterSpacing:"1px",marginTop:6,textTransform:"uppercase"}}>{s.label}</div>
         </button>)}
       </div>}
     </div>
@@ -816,9 +816,9 @@ export default function ScarlettTracker(){
     };
     const toggleCheck=async id=>{const next={...checks,[id]:!checks[id]};setChecks(next);if(!checks[id]&&!starAwards[id]){setStarAwards(p=>({...p,[id]:true}));await addStars(1);}};
     const starterRewards=[
-      {name:"Basketball",cost:"300 pts",img:"🏀"},
-      {name:"WNBA Jersey",cost:"500 pts",img:"🏀"},
-      {name:"Backpack",cost:"400 pts",img:"🎒"}
+      {name:"New Basketball",cost:"300 pts",img:"🏀"},
+      {name:"WNBA Jersey",cost:"500 pts",img:"https://images.stockx.com/images/Nike-Sabrina-3-SE-What-The-GS.jpg?fit=fill&bg=FFFFFF&w=520&h=360&q=70&dpr=1"},
+      {name:"Nike Backpack",cost:"400 pts",img:"🎒"}
     ];
     const rewardTiles=previewRewards.length?previewRewards.map(x=>({name:x.name,cost:x.goalId?"Goal reward":`${rewardCost(x)} token${rewardCost(x)===1?"":"s"}`,img:x.image||x.photo||x.img||""})):starterRewards;
     const goalRows=todayGoals.length?todayGoals.map((g,i)=>({type:"goal",id:g.id,title:g.title||g.goal||"Goal",sub:g.category?`${String(g.category).replace(/^./,m=>m.toUpperCase())} goal`:"Goal",done:!!g.parentApproved,progress:g.done?100:g.submitted?75:35,e:g.category==="school"?"📖":g.category==="health"?"💗":g.category==="future"?"🚀":"👟"})):habits.slice(0,3).map(h=>({type:"habit",id:h.id,title:h.label,sub:"Daily quest",done:!!checks[h.id],progress:checks[h.id]?100:0,e:h.e||"⭐"}));
@@ -844,31 +844,31 @@ export default function ScarlettTracker(){
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10,marginLeft:78}}>
           <div style={{height:7,flex:1,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.rose},${C.blush})`,borderRadius:99,transition:"width .4s"}}/>
+            <div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.teal},${C.gold})`,borderRadius:99,transition:"width .4s"}}/>
           </div>
           <div style={{fontSize:12,color:C.muted,whiteSpace:"nowrap"}}>{xpInLevel} / {xpPerLevel} XP to Level {level+1}</div>
         </div>
       </div>
 
-      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:22,boxShadow:"0 24px 60px rgba(0,0,0,.42)",minHeight:166}}>
+      <div style={{...cs,background:"radial-gradient(circle at 85% 18%,rgba(53,207,201,.16),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.98),rgba(9,12,13,.99))",color:C.text,border:"1px solid rgba(255,255,255,.16)",padding:22,boxShadow:"0 24px 60px rgba(0,0,0,.48)",minHeight:166}}>
         <div style={{position:"absolute",right:22,top:18,fontSize:86,opacity:.18,color:C.mauve,lineHeight:1}}>♕</div>
         <div style={{position:"relative",zIndex:1}}>
           <div style={{fontSize:13,letterSpacing:"3px",fontWeight:950,color:C.mauve,marginBottom:12}}>I AM...</div>
           <div style={{fontFamily:"Georgia,serif",fontSize:34,lineHeight:1.08,fontWeight:800,letterSpacing:"-.7px",maxWidth:280}}>Smart. Strong.<br/>Focused. Unstoppable.</div>
           <div style={{width:178,height:10,borderBottom:`4px solid ${C.mauve}`,borderRadius:"50%",margin:"-2px 0 16px 104px",transform:"rotate(-2deg)",opacity:.85}}/>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            <button onClick={()=>setTab("goals")} style={{border:"none",borderRadius:999,padding:"11px 18px",background:C.mauve,color:C.white,fontWeight:850,fontSize:15,cursor:"pointer",fontFamily:"system-ui"}}>★ {stars} Stars</button>
-            <button onClick={()=>setShowAffirm(!showAffirm)} style={{border:"none",borderRadius:999,padding:"11px 18px",background:"rgba(33,31,33,.09)",color:C.darkText,fontWeight:800,fontSize:15,cursor:"pointer",fontFamily:"system-ui"}}>View Affirmations</button>
+            <button onClick={()=>setTab("goals")} style={{border:"none",borderRadius:999,padding:"11px 18px",background:C.teal,color:C.darkText,fontWeight:850,fontSize:15,cursor:"pointer",fontFamily:"system-ui"}}>★ {stars} Stars</button>
+            <button onClick={()=>setShowAffirm(!showAffirm)} style={{border:"none",borderRadius:999,padding:"11px 18px",background:"rgba(33,31,33,.09)",color:C.text,fontWeight:800,fontSize:15,cursor:"pointer",fontFamily:"system-ui"}}>View Affirmations</button>
           </div>
-          {showAffirm&&<div style={{marginTop:14,padding:12,borderRadius:16,background:"rgba(255,255,255,.55)",border:"1px solid rgba(0,0,0,.06)"}}>
+          {showAffirm&&<div style={{marginTop:14,padding:12,borderRadius:16,background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.12)"}}>
             <div style={{fontSize:12,color:C.mauve,fontWeight:950,letterSpacing:"1px",marginBottom:6}}>MY AFFIRMATION</div>
-            <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="I am..." style={{...INP,background:"rgba(255,255,255,.72)",border:"1px solid rgba(0,0,0,.08)",color:C.darkText,fontWeight:850}}/>
+            <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="I am..." style={{...INP,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.13)",color:C.text,fontWeight:850}}/>
           </div>}
         </div>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
-        <button onClick={()=>setTab("virgo")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(45,43,47,.92),rgba(25,24,27,.98))",border:"1px solid rgba(255,255,255,.13)"}}>
+        <button onClick={()=>setTab("virgo")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(20,25,26,.96),rgba(10,13,14,.99))",border:"1px solid rgba(255,255,255,.13)"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
             <div style={{width:38,height:38,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:C.mauve,color:C.cream,fontSize:21}}>♍</div>
             <div style={{fontSize:10,letterSpacing:"2.5px",fontWeight:950,color:C.blush}}>VIRGO DAILY VIBE</div>
@@ -881,7 +881,7 @@ export default function ScarlettTracker(){
           <div style={{fontSize:13,color:C.blush,fontWeight:900,marginTop:12}}>See More →</div>
         </button>
 
-        <button onClick={()=>setTab("coach")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(45,43,47,.92),rgba(25,24,27,.98))",border:"1px solid rgba(255,255,255,.13)"}}>
+        <button onClick={()=>setTab("coach")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(20,25,26,.96),rgba(10,13,14,.99))",border:"1px solid rgba(255,255,255,.13)"}}>
           <div style={{fontSize:10,letterSpacing:"2.5px",fontWeight:950,color:C.blush,marginBottom:10,textAlign:"right"}}>WNBA DAILY COACH</div>
           <div style={{display:"grid",gridTemplateColumns:"70px 1fr",gap:10,alignItems:"center",marginBottom:10}}>
             <div style={{width:70,height:86,borderRadius:999,overflow:"hidden",background:`linear-gradient(135deg,${C.mauve}55,rgba(255,255,255,.08))`,border:`2px solid ${C.mauve}`}}>
@@ -897,7 +897,7 @@ export default function ScarlettTracker(){
         </button>
       </div>
 
-      <div style={{...cs,background:"linear-gradient(145deg,rgba(40,39,42,.94),rgba(22,21,24,.98))",border:"1px solid rgba(255,255,255,.13)",padding:14}}>
+      <div style={{...cs,background:"linear-gradient(145deg,rgba(20,25,26,.96),rgba(10,13,14,.99))",border:"1px solid rgba(255,255,255,.13)",padding:14}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:11}}>
           <CH e="◎" title="Today's Goals" sub={goalRows.length?null:"Set one clear goal for today"}/>
           <div style={{fontSize:12,color:C.muted}}>{goalRows.filter(g=>g.done).length} of {Math.max(goalRows.length,habits.length||todayGoals.length||1)} done</div>
@@ -924,30 +924,30 @@ export default function ScarlettTracker(){
 
         <div style={{display:"flex",gap:8,marginTop:10}}>
           <input value={newQuest} onChange={e=>setNewQuest(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")addQuest();}} placeholder="Quick daily quest..." style={{...INP,flex:1,background:"rgba(255,255,255,.045)"}}/>
-          <button onClick={addQuest} style={{width:70,borderRadius:16,border:"none",background:C.gold,color:C.darkText,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Add</button>
+          <button onClick={addQuest} style={{width:70,borderRadius:16,border:"none",background:C.gold,color:C.text,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Add</button>
         </div>
         <button onClick={()=>setTab("goals")} style={{width:"100%",border:"none",borderRadius:14,padding:13,marginTop:9,background:`linear-gradient(135deg,${C.mauve},${C.rose})`,color:C.white,fontWeight:850,fontSize:15,cursor:"pointer",fontFamily:"system-ui"}}>＋ Add a Goal</button>
       </div>
 
-      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.25)",padding:14}}>
+      <div style={{...cs,background:"linear-gradient(145deg,rgba(20,25,26,.96),rgba(10,13,14,.99))",color:C.text,border:"1px solid rgba(255,255,255,.12)",padding:14}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <div style={{fontSize:12,letterSpacing:"3px",fontWeight:950,color:C.mauve}}>REWARDS & WISHLIST</div>
-          <button onClick={()=>setTab("wishlist")} style={{border:"none",background:"transparent",color:C.darkText,fontWeight:700,cursor:"pointer",fontFamily:"system-ui"}}>View all →</button>
+          <div style={{fontSize:12,letterSpacing:"3px",fontWeight:950,color:C.teal}}>REWARDS & WISHLIST</div>
+          <button onClick={()=>setTab("wishlist")} style={{border:"none",background:"transparent",color:C.teal,fontWeight:700,cursor:"pointer",fontFamily:"system-ui"}}>View all →</button>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"82px repeat(3,1fr) 74px",gap:8,alignItems:"stretch"}}>
-          <button onClick={()=>setTab("progress")} style={{border:"none",background:"rgba(255,255,255,.35)",borderRadius:18,cursor:"pointer",fontFamily:"system-ui",padding:8,color:C.darkText}}>
-            <div style={{width:58,height:58,borderRadius:"50%",border:`6px solid rgba(167,101,131,.22)`,borderTopColor:C.mauve,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 6px",fontWeight:900,color:C.mauve,fontSize:18}}>{stars}</div>
+          <button onClick={()=>setTab("progress")} style={{border:"none",background:"rgba(255,255,255,.045)",borderRadius:18,cursor:"pointer",fontFamily:"system-ui",padding:8,color:C.text,border:"1px solid rgba(255,255,255,.08)"}}>
+            <div style={{width:58,height:58,borderRadius:"50%",border:`6px solid rgba(53,207,201,.18)`,borderTopColor:C.teal,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 6px",fontWeight:900,color:C.teal,fontSize:18}}>{stars}</div>
             <div style={{fontSize:10}}>Points</div>
           </button>
-          {rewardTiles.slice(0,3).map((it,i)=><button key={`${it.name}_${i}`} onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(0,0,0,.07)",background:"rgba(255,255,255,.45)",borderRadius:16,padding:7,cursor:"pointer",fontFamily:"system-ui",color:C.darkText,minWidth:0}}>
-            <div style={{height:44,borderRadius:12,background:"rgba(255,255,255,.55)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:6,overflow:"hidden"}}>
+          {rewardTiles.slice(0,3).map((it,i)=><button key={`${it.name}_${i}`} onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(255,255,255,.10)",background:"rgba(255,255,255,.045)",borderRadius:16,padding:7,cursor:"pointer",fontFamily:"system-ui",color:C.text,minWidth:0}}>
+            <div style={{height:44,borderRadius:12,background:"rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:6,overflow:"hidden"}}>
               {it.img&&String(it.img).startsWith("http")?<img src={it.img} alt={it.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:28}}>{it.img||"🎁"}</span>}
             </div>
             <div style={{fontSize:10,fontWeight:800,lineHeight:1.15,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{it.name}</div>
-            <div style={{fontSize:9,color:C.mauve,marginTop:2}}>{it.cost}</div>
+            <div style={{fontSize:9,color:C.teal,marginTop:2}}>{it.cost}</div>
           </button>)}
-          <button onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(0,0,0,.07)",background:"rgba(255,255,255,.45)",borderRadius:16,padding:7,cursor:"pointer",fontFamily:"system-ui",color:C.darkText}}>
-            <div style={{width:42,height:42,borderRadius:"50%",border:"2px dashed rgba(33,31,33,.36)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,margin:"3px auto 8px"}}>＋</div>
+          <button onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(255,255,255,.10)",background:"rgba(255,255,255,.045)",borderRadius:16,padding:7,cursor:"pointer",fontFamily:"system-ui",color:C.text}}>
+            <div style={{width:42,height:42,borderRadius:"50%",border:"2px dashed rgba(53,207,201,.50)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,margin:"3px auto 8px"}}>＋</div>
             <div style={{fontSize:10,lineHeight:1.15}}>Add to<br/>Wishlist</div>
           </button>
         </div>
@@ -980,19 +980,19 @@ export default function ScarlettTracker(){
         ]}
       />
 
-      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
+      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.text,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
         <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
           <div style={{width:92,height:92,borderRadius:32,display:"flex",alignItems:"center",justifyContent:"center",fontSize:54,background:`linear-gradient(135deg,${C.mauve}26,rgba(255,255,255,.56))`,border:`3px solid ${C.mauve}`,boxShadow:"0 14px 35px rgba(0,0,0,.18)"}}>♍</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:11,letterSpacing:"2.6px",fontWeight:950,color:C.mauve,marginBottom:8}}>{horoscope.sign||"Virgo"} ENERGY</div>
-            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.darkText}}>{horoscope.vibe}</div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.text}}>{horoscope.vibe}</div>
             <div style={{marginTop:8,fontSize:12,color:"rgba(33,31,33,.62)",fontWeight:800}}>{horoscope.theme||"Daily focus"} · {horoscope.element||"Earth"}</div>
           </div>
         </div>
 
         <div style={{padding:15,borderRadius:20,background:"rgba(255,255,255,.62)",border:"1px solid rgba(0,0,0,.06)",marginBottom:14}}>
           <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>TODAY'S HOROSCOPE</div>
-          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.darkText}}>“{horoscope.message}”</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.text}}>“{horoscope.message}”</div>
         </div>
 
         <div style={{fontSize:12,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>VIRGO READ</div>
@@ -1000,7 +1000,7 @@ export default function ScarlettTracker(){
         <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{horoscope.longVibe||horoscope.message}</div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
-          <div style={{padding:13,borderRadius:18,background:"rgba(167,101,131,.10)",border:"1px solid rgba(167,101,131,.22)"}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(53,207,201,.08)",border:"1px solid rgba(167,101,131,.22)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:5}}>POWER MOVE</div>
             <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{horoscope.tryThis||horoscope.power}</div>
           </div>
@@ -1061,21 +1061,21 @@ export default function ScarlettTracker(){
         ]}
       />
 
-      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
+      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.text,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
         <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
           <div style={{width:96,height:120,borderRadius:32,overflow:"hidden",background:`linear-gradient(135deg,${C.mauve}44,rgba(255,255,255,.38))`,border:`3px solid ${C.mauve}`,boxShadow:"0 14px 35px rgba(0,0,0,.25)"}}>
             <img src={coach.photo} alt={coach.player} referrerPolicy="no-referrer" onError={e=>{e.currentTarget.style.display="none";}} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top"}}/>
           </div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:11,letterSpacing:"2.6px",fontWeight:950,color:C.mauve,marginBottom:8}}>WNBA DAILY COACH</div>
-            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.darkText}}>Tip from<br/>{coach.player}</div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.text}}>Tip from<br/>{coach.player}</div>
             <div style={{marginTop:8,fontSize:12,color:"rgba(33,31,33,.62)",fontWeight:800}}>{coach.team} · {coach.tag}</div>
           </div>
         </div>
 
         <div style={{padding:15,borderRadius:20,background:"rgba(255,255,255,.62)",border:"1px solid rgba(0,0,0,.06)",marginBottom:14}}>
           <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>REAL QUOTE</div>
-          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.darkText}}>“{coach.quote}”</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.text}}>“{coach.quote}”</div>
         </div>
 
         <div style={{fontSize:12,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>TODAY'S LESSON</div>
@@ -1083,7 +1083,7 @@ export default function ScarlettTracker(){
         <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{coach.longTip||coach.takeaway}</div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
-          <div style={{padding:13,borderRadius:18,background:"rgba(167,101,131,.10)",border:"1px solid rgba(167,101,131,.22)"}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(53,207,201,.08)",border:"1px solid rgba(167,101,131,.22)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:5}}>TRY THIS TODAY</div>
             <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{coach.tryThis||"Choose one small action and finish it today."}</div>
           </div>
@@ -1538,7 +1538,7 @@ export default function ScarlettTracker(){
             <input value={routineForm.label} onChange={e=>setRoutineForm(p=>({...p,label:e.target.value}))} placeholder="Example: Pack basketball bag" style={INP}/>
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button onClick={saveRoutineItem} style={{flex:1,minWidth:150,padding:12,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.blush},${C.mauve})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>{editRoutine?"Save Changes":"Add Item"}</button>
+            <button onClick={saveRoutineItem} style={{flex:1,minWidth:150,padding:12,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.teal},${C.gold})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>{editRoutine?"Save Changes":"Add Item"}</button>
             {(editRoutine||routineForm.label)&&<button onClick={()=>{setEditRoutine(null);setRoutineForm({e:"✨",label:"",id:""});}} style={{padding:"12px 14px",borderRadius:12,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.04)",color:C.muted,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button>}
           </div>
           <button onClick={resetRoutineDefaults} style={{width:"100%",marginTop:10,padding:10,borderRadius:12,border:`1px solid ${C.gold}44`,background:`${C.gold}10`,color:C.gold,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Reset to Starter Routine</button>
@@ -1609,7 +1609,7 @@ export default function ScarlettTracker(){
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:8}}>CONFIDENCE VIBE</div>
           <EmojiPick val={stf.vibe} emojis={["😐","🙂","😊","😍","💅"]} onSet={v=>setStf(p=>({...p,vibe:v}))} col={C.blush}/>
           <textarea value={stf.notes} onChange={e=>setStf(p=>({...p,notes:e.target.value}))} placeholder="Optional notes: what felt good, what to try next..." style={{...TXT,marginTop:12,marginBottom:12}}/>
-          <button onClick={logFit} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.blush},${C.mauve})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Style Log 💅</button>
+          <button onClick={logFit} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.teal},${C.gold})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Style Log 💅</button>
           <button onClick={()=>setTab("wishlist")} style={{width:"100%",marginTop:8,padding:12,borderRadius:14,border:`1px solid ${C.gold}44`,background:`${C.gold}10`,color:C.gold,fontWeight:900,cursor:"pointer",fontFamily:"system-ui",fontSize:13}}>Open Wishlist for shoes, clothes, beauty, and toys 🛍️</button>
         </div>
         {styleLog.length>0&&<div style={cs}>
@@ -2051,7 +2051,7 @@ export default function ScarlettTracker(){
         }
       </div>
 
-      <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(167,101,131,.18),transparent 50%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",textAlign:"center",padding:20}}>
+      <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(53,207,201,.13),transparent 50%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",textAlign:"center",padding:20}}>
         <div style={{fontSize:44,marginBottom:6}}>⭐</div>
         <div style={{fontSize:28,fontWeight:950,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</div>
         <div style={{display:"inline-block",marginTop:8,padding:"6px 16px",borderRadius:999,background:`${C.purple}25`,border:`1px solid ${C.purple}55`,fontSize:13,fontWeight:900,color:C.purple}}>Level {level} · {levelTitle}</div>
@@ -2110,20 +2110,20 @@ export default function ScarlettTracker(){
 
   const CONTENT={today:Today,virgo:VirgoVibe,coach:Coach,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
 
-  return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(217,160,186,.12),transparent 30%),radial-gradient(circle at 92% 0%,rgba(221,191,134,.08),transparent 24%),linear-gradient(180deg,#0A0A0C,#111113 54%,#09090B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
-    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden;background:#0A0A0C} input::placeholder,textarea::placeholder{color:rgba(247,241,234,.45)}`}</style>
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(217,120,185,.10)"}}>
+  return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(53,207,201,.13),transparent 30%),radial-gradient(circle at 92% 0%,rgba(216,168,94,.10),transparent 24%),linear-gradient(180deg,#080B0C,#101516 54%,#070909)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
+    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden;background:#080B0C} input::placeholder,textarea::placeholder{color:rgba(247,244,236,.42)} .app-card-img{object-fit:contain!important;background:#F7F4EC}`}</style>
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(53,207,201,.08)"}}>
 
-      <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 10px",background:"linear-gradient(180deg,rgba(10,10,12,.96),rgba(10,10,12,.86))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+      <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 10px",background:"linear-gradient(180deg,rgba(8,11,12,.96),rgba(8,11,12,.86))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
           <button onClick={()=>setTab("today")} style={{display:"flex",alignItems:"center",gap:10,minWidth:0,border:"none",background:"transparent",padding:0,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
-            <div style={{width:42,height:42,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.blush},${C.mauve})`,flexShrink:0}}>
+            <div style={{width:42,height:42,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.teal},${C.gold})`,flexShrink:0}}>
               <div style={{width:"100%",height:"100%",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:"#171618",color:C.cream,fontWeight:950,fontFamily:"Georgia,serif",fontSize:19}}>{(profile.name||"S").slice(0,1)}</div>
             </div>
             <div style={{minWidth:0}}>
               <div style={{fontWeight:850,fontSize:23,letterSpacing:"-.5px",lineHeight:1,color:C.cream,fontFamily:"Georgia,serif"}}>{profile.name}</div>
               <div style={{display:"flex",alignItems:"center",gap:7,marginTop:5}}>
-                <div style={{width:76,height:6,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden"}}><div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.rose},${C.blush})`,borderRadius:99,transition:"width .4s"}}/></div>
+                <div style={{width:76,height:6,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden"}}><div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.teal},${C.gold})`,borderRadius:99,transition:"width .4s"}}/></div>
                 <span style={{fontSize:10,color:C.blush,fontWeight:850,whiteSpace:"nowrap"}}>LV {level} {levelTitle}</span>
               </div>
             </div>
@@ -2177,8 +2177,11 @@ export default function ScarlettTracker(){
         <TabErrorBoundary key={`err_${tab}`}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></TabErrorBoundary>
       </div>
 
-      <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(404px,calc(100% - 22px))",display:"grid",gridTemplateColumns:`repeat(${TABS.length},1fr)`,gap:4,background:"rgba(18,17,19,.92)",backdropFilter:"blur(22px)",border:"1px solid rgba(255,255,255,.14)",borderRadius:24,padding:"7px 6px calc(7px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 55px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.08)",zIndex:60}}>
-        {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?`rgba(217,160,186,.16)`:"transparent",border:tab===t.id?`1px solid rgba(217,160,186,.34)`:"1px solid transparent",borderRadius:18,color:tab===t.id?C.blush:C.muted,padding:"7px 2px",fontFamily:"system-ui",fontWeight:850,cursor:"pointer"}}><div style={{fontSize:tab===t.id?20:18,lineHeight:1}}>{t.e}</div><div style={{fontSize:7.5,marginTop:3,letterSpacing:".2px"}}>{t.label}</div></button>)}
+      <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(404px,calc(100% - 22px))",display:"grid",gridTemplateColumns:`repeat(${TABS.length},1fr)`,gap:2,background:"rgba(13,17,18,.94)",backdropFilter:"blur(24px)",border:"1px solid rgba(255,255,255,.11)",borderRadius:24,padding:"8px 7px calc(8px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 55px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.06)",zIndex:60}}>
+        {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{background:"transparent",border:"none",borderRadius:18,color:tab===t.id?C.teal:"rgba(247,244,236,.62)",padding:"7px 2px",fontFamily:"system-ui",fontWeight:850,cursor:"pointer"}}>
+          <div style={{fontSize:tab===t.id?21:19,lineHeight:1,filter:tab===t.id?`drop-shadow(0 0 12px ${C.teal}66)`:"none"}}>{t.e}</div>
+          <div style={{fontSize:8.5,marginTop:4,letterSpacing:".1px",color:tab===t.id?C.teal:"rgba(247,244,236,.58)"}}>{t.label}</div>
+        </button>)}
       </div>
     </div>
   </div>;
