@@ -17,10 +17,10 @@ const C={
   green:"#9CC7A5",
   teal:"#8DBDB6",
   blue:"#A9B8D6",
-  purple:"#A58AC8",
+  purple:"#A76583",
   pink:"#D9A0BA",
   orange:"#D8A46F",
-  coral:"#C9828E",
+  coral:"#A76583",
   red:"#D98484",
   white:"#FFFFFF",
   text:"#F7F1EA",
@@ -1475,7 +1475,7 @@ export default function ScarlettTracker(){
       />
       <div style={{display:"flex",gap:6,marginBottom:14,overflowX:"auto",padding:5,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.10)"}}>
         {[["routine","✨ Routine"],["sleep","🌙 Sleep"],["style","💅 Style"]].map(([id,label])=>(
-          <button key={id} onClick={()=>setSection(id)} style={{flexShrink:0,padding:"10px 14px",borderRadius:12,border:`1px solid ${section===id?C.pink:C.border}`,background:section===id?`${C.pink}22`:"rgba(255,255,255,.05)",color:section===id?C.light:C.muted,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>{label}</button>
+          <button key={id} onClick={()=>setSection(id)} style={{flexShrink:0,padding:"10px 14px",borderRadius:12,border:`1px solid ${section===id?C.blush:C.border}`,background:section===id?`${C.blush}22`:"rgba(255,255,255,.05)",color:section===id?C.light:C.muted,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>{label}</button>
         ))}
         <button onClick={()=>setTab("wishlist")} style={{flexShrink:0,padding:"10px 14px",borderRadius:12,border:`1px solid ${C.gold}44`,background:`${C.gold}12`,color:C.gold,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>🛍️ Wishlist</button>
       </div>
@@ -1486,7 +1486,7 @@ export default function ScarlettTracker(){
             <CH e="✨" title={`Glow Routine (${rDone}/${routineItems.length})`} sub="Tap items to complete. Edit the routine any time."/>
             <div style={{fontSize:14,fontWeight:950,color:rPct>=100?C.green:C.gold}}>{rPct}%</div>
           </div>
-          <div style={{height:10,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden",marginBottom:14}}><div style={{height:"100%",width:`${rPct}%`,background:rPct>=100?C.green:glamGrad,borderRadius:99,transition:"width .3s",boxShadow:`0 0 16px ${rPct>=100?C.green:C.pink}55`}}/></div>
+          <div style={{height:10,background:"rgba(0,0,0,.35)",borderRadius:99,overflow:"hidden",marginBottom:14}}><div style={{height:"100%",width:`${rPct}%`,background:rPct>=100?C.green:glamGrad,borderRadius:99,transition:"width .3s",boxShadow:`0 0 16px ${rPct>=100?C.green:C.blush}55`}}/></div>
           {routineItems.length===0&&<div style={{textAlign:"center",padding:"24px 12px",color:C.muted}}><div style={{fontSize:34,marginBottom:8}}>✨</div><div style={{fontSize:13}}>No routine items yet. Add one below.</div></div>}
           {routineItems.map(item=>{const ok=!!checked[item.id];return<div key={item.id} style={{display:"grid",gridTemplateColumns:"1fr auto",gap:8,alignItems:"center",marginBottom:7}}>
             <button onClick={()=>toggleR(item.id)} style={{display:"flex",alignItems:"center",gap:12,width:"100%",padding:"12px 10px",borderRadius:14,cursor:"pointer",background:ok?`${C.green}14`:"rgba(255,255,255,.04)",border:`1px solid ${ok?C.green+"44":C.border}`,fontFamily:"system-ui",textAlign:"left"}}>
@@ -1507,7 +1507,7 @@ export default function ScarlettTracker(){
             <input value={routineForm.label} onChange={e=>setRoutineForm(p=>({...p,label:e.target.value}))} placeholder="Example: Pack basketball bag" style={INP}/>
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button onClick={saveRoutineItem} style={{flex:1,minWidth:150,padding:12,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.pink},${C.purple})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>{editRoutine?"Save Changes":"Add Item"}</button>
+            <button onClick={saveRoutineItem} style={{flex:1,minWidth:150,padding:12,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.blush},${C.mauve})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>{editRoutine?"Save Changes":"Add Item"}</button>
             {(editRoutine||routineForm.label)&&<button onClick={()=>{setEditRoutine(null);setRoutineForm({e:"✨",label:"",id:""});}} style={{padding:"12px 14px",borderRadius:12,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.04)",color:C.muted,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button>}
           </div>
           <button onClick={resetRoutineDefaults} style={{width:"100%",marginTop:10,padding:10,borderRadius:12,border:`1px solid ${C.gold}44`,background:`${C.gold}10`,color:C.gold,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Reset to Starter Routine</button>
@@ -1518,7 +1518,7 @@ export default function ScarlettTracker(){
         <div style={cs}>
           <CH e="🌙" title="Sleep Studio" sub="Recovery helps mood, focus, and basketball."/>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-            <SBox value={avgSleep} label="Avg Hours" color={C.purple}/>
+            <SBox value={avgSleep} label="Avg Hours" color={C.mauve}/>
             <SBox value={sleepEntries.length} label="Nights" color={C.teal}/>
             <SBox value={sleepEntries[0]?.quality||"—"} label="Last Quality" color={C.gold}/>
           </div>
@@ -1526,10 +1526,10 @@ export default function ScarlettTracker(){
             <input type="time" value={sf.bed} onChange={e=>setSf(p=>({...p,bed:e.target.value}))} style={INP}/>
             <input type="time" value={sf.wake} onChange={e=>setSf(p=>({...p,wake:e.target.value}))} style={INP}/>
           </div>
-          <div style={{textAlign:"center",padding:12,borderRadius:14,background:`${C.purple}10`,border:`1px solid ${C.purple}33`,marginBottom:12}}><div style={{fontSize:22,fontWeight:950,color:C.purple}}>{hoursNow} hours</div><div style={{fontSize:10,color:C.muted}}>planned sleep</div></div>
+          <div style={{textAlign:"center",padding:12,borderRadius:14,background:`${C.mauve}10`,border:`1px solid ${C.mauve}33`,marginBottom:12}}><div style={{fontSize:22,fontWeight:950,color:C.mauve}}>{hoursNow} hours</div><div style={{fontSize:10,color:C.muted}}>planned sleep</div></div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>QUALITY</div>
-          <EmojiPick val={sf.quality} emojis={["😴","🙂","😊","😎","👑"]} onSet={v=>setSf(p=>({...p,quality:v}))} col={C.purple}/>
-          <button onClick={addSleep} style={{width:"100%",marginTop:14,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.purple},${C.blue})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Sleep 🌙</button>
+          <EmojiPick val={sf.quality} emojis={["😴","🙂","😊","😎","👑"]} onSet={v=>setSf(p=>({...p,quality:v}))} col={C.mauve}/>
+          <button onClick={addSleep} style={{width:"100%",marginTop:14,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blue})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Sleep 🌙</button>
         </div>
         {sleepEntries.length>0&&<div style={cs}>
           <CH e="📊" title="Sleep Trend"/>
@@ -1543,17 +1543,17 @@ export default function ScarlettTracker(){
         <div style={{...cs,background:"linear-gradient(145deg,rgba(42,37,58,.98),rgba(20,18,33,.99))"}}>
           <CH e="💅" title="Style Studio" sub="Modern, simple, confidence-building — not too busy."/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
-            <SBox value={styleLog.length} label="Fits" color={C.pink}/>
+            <SBox value={styleLog.length} label="Fits" color={C.blush}/>
             <SBox value={styleLog.filter(f=>(f.vibe||0)>=4).length} label="High Vibe" color={C.gold}/>
             <SBox value={shoeWish.length} label="Wishlist" color={C.teal}/>
           </div>
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:7}}>STYLE MODE</div>
           <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4,marginBottom:12}}>
-            {STYLE_MOODS.map(m=><Chip key={m.id} label={`${m.e} ${m.label}`} active={stf.styleMood===m.id} col={C.pink} onClick={()=>setStf(p=>({...p,styleMood:p.styleMood===m.id?"":m.id}))}/>)}
+            {STYLE_MOODS.map(m=><Chip key={m.id} label={`${m.e} ${m.label}`} active={stf.styleMood===m.id} col={C.blush} onClick={()=>setStf(p=>({...p,styleMood:p.styleMood===m.id?"":m.id}))}/>)}
           </div>
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:7}}>FIT TYPE</div>
           <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4,marginBottom:12}}>
-            {STYLE_TYPES.map(t=><Chip key={t} label={t} active={stf.type===t} col={C.pink} onClick={()=>setStf(p=>({...p,type:t}))}/>)}
+            {STYLE_TYPES.map(t=><Chip key={t} label={t} active={stf.type===t} col={C.blush} onClick={()=>setStf(p=>({...p,type:t}))}/>)}
           </div>
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:7}}>OUTFIT IDEAS</div>
           <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,marginBottom:8}}>
@@ -1562,7 +1562,7 @@ export default function ScarlettTracker(){
           <input value={stf.outfit} onChange={e=>setStf(p=>({...p,outfit:e.target.value}))} placeholder="Type outfit details..." style={{...INP,marginBottom:12}}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:7}}>HAIR</div>
           <div style={{display:"flex",gap:6,overflowX:"auto",paddingBottom:4,marginBottom:8}}>
-            {HAIR_IDEAS.map(h=><Chip key={h} label={h} active={stf.hair===h} col={C.purple} onClick={()=>setStf(p=>({...p,hair:p.hair===h?"":h}))}/>)}
+            {HAIR_IDEAS.map(h=><Chip key={h} label={h} active={stf.hair===h} col={C.mauve} onClick={()=>setStf(p=>({...p,hair:p.hair===h?"":h}))}/>)}
           </div>
           <input value={stf.hair} onChange={e=>setStf(p=>({...p,hair:e.target.value}))} placeholder="Or type hair style..." style={{...INP,marginBottom:12}}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:7}}>ACCESSORIES</div>
@@ -1576,9 +1576,9 @@ export default function ScarlettTracker(){
           </div>
           <input value={stf.trend} onChange={e=>setStf(p=>({...p,trend:e.target.value}))} placeholder="Trend, color, or vibe..." style={{...INP,marginBottom:12}}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:8}}>CONFIDENCE VIBE</div>
-          <EmojiPick val={stf.vibe} emojis={["😐","🙂","😊","😍","💅"]} onSet={v=>setStf(p=>({...p,vibe:v}))} col={C.pink}/>
+          <EmojiPick val={stf.vibe} emojis={["😐","🙂","😊","😍","💅"]} onSet={v=>setStf(p=>({...p,vibe:v}))} col={C.blush}/>
           <textarea value={stf.notes} onChange={e=>setStf(p=>({...p,notes:e.target.value}))} placeholder="Optional notes: what felt good, what to try next..." style={{...TXT,marginTop:12,marginBottom:12}}/>
-          <button onClick={logFit} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.pink},${C.purple})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Style Log 💅</button>
+          <button onClick={logFit} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.blush},${C.mauve})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Style Log 💅</button>
           <button onClick={()=>setTab("wishlist")} style={{width:"100%",marginTop:8,padding:12,borderRadius:14,border:`1px solid ${C.gold}44`,background:`${C.gold}10`,color:C.gold,fontWeight:900,cursor:"pointer",fontFamily:"system-ui",fontSize:13}}>Open Wishlist for shoes, clothes, beauty, and toys 🛍️</button>
         </div>
         {styleLog.length>0&&<div style={cs}>
@@ -1586,13 +1586,13 @@ export default function ScarlettTracker(){
           {styleLog.slice(0,8).map(f=>{const mode=STYLE_MOODS.find(m=>m.id===f.styleMood);return<div key={f.id} style={{padding:"11px 0",borderBottom:`1px solid ${C.border}`}}>
             <div style={{display:"flex",justifyContent:"space-between",gap:10}}>
               <div style={{minWidth:0}}>
-                <div style={{fontSize:12,fontWeight:950,color:C.pink,marginBottom:4}}>{mode?`${mode.e} ${mode.label} · `:""}{f.type} · {f.date}</div>
+                <div style={{fontSize:12,fontWeight:950,color:C.blush,marginBottom:4}}>{mode?`${mode.e} ${mode.label} · `:""}{f.type} · {f.date}</div>
                 {f.outfit&&<div style={{fontSize:12,color:C.text,marginBottom:2}}>👚 {f.outfit}</div>}
                 {f.hair&&<div style={{fontSize:11,color:C.muted}}>💇‍♀️ {f.hair}</div>}
                 {f.accessories&&<div style={{fontSize:11,color:C.teal,marginTop:2}}>✨ {f.accessories}</div>}
                 {f.trend&&<div style={{fontSize:11,color:C.blue,marginTop:2}}>🔥 {f.trend}</div>}
                 {f.shoes&&<div style={{fontSize:11,color:C.gold,marginTop:2}}>👟 {f.shoes}</div>}
-                {f.vibe>0&&<div style={{fontSize:10,color:C.pink,marginTop:3}}>Vibe: {"⭐".repeat(f.vibe)}</div>}
+                {f.vibe>0&&<div style={{fontSize:10,color:C.blush,marginTop:3}}>Vibe: {"⭐".repeat(f.vibe)}</div>}
                 {f.notes&&<div style={{fontSize:10,color:C.muted,marginTop:3,lineHeight:1.4}}>{f.notes}</div>}
               </div>
               <button onClick={()=>saveStyle(styleLog.filter(x=>x.id!==f.id),shoeWish)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18,padding:4}}>×</button>
@@ -1823,7 +1823,7 @@ export default function ScarlettTracker(){
 
   // ── GOALS ──────────────────────────────────────────────────────────────
   const Goals=()=>{
-    const CAT={basketball:{col:C.coral,icon:"🏀",label:"Basketball",help:"skill, practice, games"},school:{col:C.teal,icon:"📚",label:"School",help:"homework, grades, studying"},health:{col:C.green,icon:"💚",label:"Health",help:"sleep, routine, energy"},character:{col:C.purple,icon:"⭐",label:"Character",help:"confidence, attitude, leadership"},future:{col:C.blue,icon:"🚀",label:"Future",help:"saving, camps, big dreams"}};
+    const CAT={basketball:{col:C.mauve,icon:"🏀",label:"Basketball",help:"skill, practice, games"},school:{col:C.teal,icon:"📚",label:"School",help:"homework, grades, studying"},health:{col:C.green,icon:"💚",label:"Health",help:"sleep, routine, energy"},character:{col:C.blush,icon:"⭐",label:"Character",help:"confidence, attitude, leadership"},future:{col:C.gold,icon:"🚀",label:"Future",help:"saving, camps, big dreams"}};
     const emptyGoal=()=>({text:"",category:"basketball",targetDate:addDays(7),why:"",steps:""});
     const[gf,setGf]=useState(emptyGoal());
     const[burst,setBurst]=useState(null);
@@ -1881,7 +1881,7 @@ export default function ScarlettTracker(){
         </div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:g.done&&!g.parentApproved?"1fr 1fr 1fr":"1fr 1fr 1fr",gap:7,marginTop:11}}>
-        {!g.done&&<button onClick={()=>toggleGoal(g.id)} style={{padding:"10px 8px",borderRadius:12,border:"none",background:`linear-gradient(135deg,${cat.col},${C.purple})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>I did it ✓</button>}
+        {!g.done&&<button onClick={()=>toggleGoal(g.id)} style={{padding:"10px 8px",borderRadius:12,border:"none",background:`linear-gradient(135deg,${cat.col},${C.mauve})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>I did it ✓</button>}
         {g.done&&!g.parentApproved&&<button onClick={()=>approveGoal(g.id)} style={{padding:"10px 8px",borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.green},${C.teal})`,color:C.bg,fontWeight:950,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Parent OK</button>}
         {g.parentApproved&&<button disabled style={{padding:"10px 8px",borderRadius:12,border:`1px solid ${C.green}44`,background:`${C.green}14`,color:C.green,fontWeight:950,fontSize:11,fontFamily:"system-ui"}}>Token earned 🎟️</button>}
         <button onClick={()=>startEdit(g)} style={{padding:"10px 8px",borderRadius:12,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:11,fontFamily:"system-ui"}}>Edit</button>
@@ -1915,9 +1915,9 @@ export default function ScarlettTracker(){
             <div style={{fontSize:8,color:C.light,fontWeight:950,letterSpacing:"1px",marginTop:4}}>TOKENS</div>
           </div>
         </div>
-        <div style={{height:10,borderRadius:99,background:"rgba(0,0,0,.32)",overflow:"hidden",border:`1px solid ${C.border}`,marginBottom:10}}><div style={{height:"100%",width:`${progressPct}%`,background:`linear-gradient(90deg,${C.pink},${C.gold},${C.teal})`,borderRadius:99,transition:"width .4s"}}/></div>
+        <div style={{height:10,borderRadius:99,background:"rgba(0,0,0,.32)",overflow:"hidden",border:`1px solid ${C.border}`,marginBottom:10}}><div style={{height:"100%",width:`${progressPct}%`,background:`linear-gradient(90deg,${C.blush},${C.gold},${C.teal})`,borderRadius:99,transition:"width .4s"}}/></div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7}}>
-          <SBox value={active.length} label="Active" color={C.purple}/>
+          <SBox value={active.length} label="Active" color={C.mauve}/>
           <SBox value={waiting.length} label="Needs OK" color={C.gold}/>
           <SBox value={approved.length} label="Approved" color={C.green}/>
           <SBox value={`${progressPct}%`} label="Progress" color={C.teal}/>
