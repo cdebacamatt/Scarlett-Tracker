@@ -20,6 +20,7 @@ const C={
   purple:"#A58AC8",
   pink:"#D9A0BA",
   orange:"#D8A46F",
+  coral:"#C9828E",
   red:"#D98484",
   white:"#FFFFFF",
   text:"#F7F1EA",
@@ -360,7 +361,7 @@ const gradeValue=g=>({4:4,3:3,2:2,1:1}[normGrade(g)]||0);
 const gpaCalc=subs=>{const v=Object.values(subs).map(g=>gradeValue(g)||0);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):"—";};
 const addDays=(n=7)=>{const d=new Date();d.setDate(d.getDate()+n);return dateToLocalISO(d);};
 const daysAgo=d=>{try{return Math.round((Date.now()-new Date(d+"T12:00:00"))/86400000);}catch{return 999;}};
-const glamGrad=`linear-gradient(135deg,${C.blush},${C.rose},${C.gold})`;
+const glamGrad=`linear-gradient(135deg,${C.blush},${C.mauve},${C.gold})`;
 const DAILY_HOROSCOPE=[
   {vibe:"Virgo focus queen",message:"Your superpower today is noticing the little details others miss. Pick one tiny promise and finish it all the way.",power:"Finish one thing fully",lucky:"Gold stars"},
   {vibe:"Clean routine energy",message:"A Virgo glow-up starts with order. Clear one small mess, prep one thing early, and your whole day feels lighter.",power:"Prep before pressure",lucky:"Clean outfit"},
@@ -413,7 +414,11 @@ const WNBA_DAILY_COACH=[
     team:"Las Vegas Aces",
     photo:"https://commons.wikimedia.org/wiki/Special:FilePath/A%27ja%20Wilson%20%2853756794398%29%20%28cropped%29.jpg",
     quote:"That's the beauty of losses, you learn from them.",
-    takeaway:"Lesson: one hard moment can still help you grow."
+    takeaway:"Lesson: one hard moment can still help you grow.",
+    headline:"Turn a hard moment into information.",
+    longTip:"A'ja's mindset is powerful because she does not treat a bad game, a missed shot, or a loss like proof that she failed. She treats it like feedback. For Scarlett, that means every practice and every game can teach her something specific: what to repeat, what to adjust, and what to try again tomorrow.",
+    tryThis:"After your next practice, write down one thing that worked, one thing that was hard, and one thing you will try again.",
+    focus:"Growth mindset · leadership · confidence"
   },
   {
     player:"Breanna Stewart",
@@ -422,7 +427,11 @@ const WNBA_DAILY_COACH=[
     team:"New York Liberty",
     photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Breanna%20Stewart%20WNBA%20Finals%202024%20%28cropped%29.jpg",
     quote:"I've been trying to make sure I stay in the moment.",
-    takeaway:"Lesson: focus on the next right thing."
+    takeaway:"Lesson: focus on the next right thing.",
+    headline:"Win the next small moment.",
+    longTip:"Breanna Stewart's advice is perfect for a goal app because big goals can feel huge until you break them into the next small action. Scarlett does not have to fix everything at once. She just needs to choose the next right rep, the next homework block, the next routine step, or the next brave question.",
+    tryThis:"Pick one goal today and ask: what is the next 10-minute action I can actually finish?",
+    focus:"Focus · patience · consistency"
   },
   {
     player:"Jewell Loyd",
@@ -431,7 +440,11 @@ const WNBA_DAILY_COACH=[
     team:"Las Vegas Aces",
     photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Jewell%20Loyd%202024%20%28cropped%29.jpg",
     quote:"I've prepared for all different kinds of coverages and I'm just trying to see where the space is and go to that.",
-    takeaway:"Lesson: preparation helps you stay calm."
+    takeaway:"Lesson: preparation helps you stay calm.",
+    headline:"Preparation makes confidence easier.",
+    longTip:"Jewell Loyd's message is about being ready before the moment gets loud. The more Scarlett prepares, the less she has to panic. Studying, practicing, packing her bag, sleeping well, and logging her goals are all quiet preparation that shows up later when it matters.",
+    tryThis:"Choose one thing to prepare before tomorrow: shoes, backpack, water, homework, or 15 focused minutes of skill work.",
+    focus:"Preparation · calm under pressure · awareness"
   },
   {
     player:"Caitlin Clark",
@@ -440,7 +453,11 @@ const WNBA_DAILY_COACH=[
     team:"Indiana Fever",
     photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Caitlin%20Clark%20Fever%202%20%28cropped%29.jpg",
     quote:"Never stop dreaming, because you can achieve more than you ever thought.",
-    takeaway:"Lesson: big goals are allowed."
+    takeaway:"Lesson: big goals are allowed.",
+    headline:"Big dreams still need daily reps.",
+    longTip:"Caitlin Clark's message fits Scarlett's app perfectly: it is good to want something big, but the dream becomes real through daily choices. A dream sneaker, a better grade, a stronger shot, or more confidence all start with one goal that gets finished.",
+    tryThis:"Write one future goal, then add one small action you can do this week to move toward it.",
+    focus:"Dreams · courage · daily work"
   },
   {
     player:"Kelsey Plum",
@@ -449,7 +466,11 @@ const WNBA_DAILY_COACH=[
     team:"Los Angeles Sparks",
     photo:"https://commons.wikimedia.org/wiki/Special:FilePath/Kelsey%20Plum%202023%20%28cropped%29.jpg",
     quote:"I was just trying to be patient and trust that it's going to come.",
-    takeaway:"Lesson: trust your work and stay ready."
+    takeaway:"Lesson: trust your work and stay ready.",
+    headline:"Trust the work before the result shows up.",
+    longTip:"Kelsey Plum's message is about patience with a purpose. Results do not always show up the same day you practice, study, or make a good choice. But the work still counts. Scarlett's job is to keep showing up, track the effort, and trust that steady work builds confidence.",
+    tryThis:"Pick one skill and give it 15 focused minutes today, even if nobody is watching.",
+    focus:"Patience · work ethic · confidence"
   }
 ];
 const WNBA_COACH_ROTATION_OFFSET=1; // Moves today's coach forward while still rotating at local 12:00 AM.
@@ -468,33 +489,57 @@ async function ss(k,v){try{const p=JSON.stringify(v);const sk=fKey(k);if(sk&&win
 const genCode=()=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join("");};
 
 // ── UI ATOMS ──────────────────────────────────────────────────────────────
-const cs={background:"linear-gradient(145deg,rgba(34,32,35,.94),rgba(17,16,19,.98))",borderRadius:22,border:`1px solid rgba(255,255,255,.12)`,padding:16,marginBottom:14,boxShadow:"0 20px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07)",position:"relative",overflow:"hidden"};
-const INP={width:"100%",background:"rgba(6,6,8,.74)",border:"1px solid rgba(255,255,255,.13)",borderRadius:16,padding:"12px 14px",color:C.text,fontSize:16,outline:"none",fontFamily:"system-ui",boxSizing:"border-box"};
+const cs={
+  background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",
+  borderRadius:22,
+  border:"1px solid rgba(255,255,255,.12)",
+  padding:16,
+  marginBottom:14,
+  boxShadow:"0 20px 48px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07)",
+  position:"relative",
+  overflow:"hidden"
+};
+const INP={
+  width:"100%",
+  background:"rgba(255,255,255,.045)",
+  border:"1px solid rgba(255,255,255,.13)",
+  borderRadius:16,
+  padding:"12px 14px",
+  color:C.text,
+  fontSize:16,
+  outline:"none",
+  fontFamily:"system-ui",
+  boxSizing:"border-box"
+};
 const TXT={...INP,minHeight:70,resize:"vertical"};
-const glass={background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.12)",boxShadow:"inset 0 1px 0 rgba(255,255,255,.08)"};
+const glass={
+  background:"rgba(255,255,255,.045)",
+  border:"1px solid rgba(255,255,255,.12)",
+  boxShadow:"inset 0 1px 0 rgba(255,255,255,.07)"
+};
 
 function GlamHero({children,style={}}){
   return <div style={{
     ...cs,
     padding:18,
-    background:"radial-gradient(circle at 82% 4%,rgba(44,230,209,.13),transparent 32%),radial-gradient(circle at 16% 0%,rgba(248,95,200,.18),transparent 36%),linear-gradient(145deg,rgba(38,18,70,.97),rgba(9,5,22,.99))",
+    background:"radial-gradient(circle at 82% 4%,rgba(221,191,134,.10),transparent 32%),radial-gradient(circle at 16% 0%,rgba(167,101,131,.18),transparent 36%),linear-gradient(145deg,rgba(42,38,43,.97),rgba(15,15,17,.99))",
     border:"1px solid rgba(255,255,255,.14)",
-    boxShadow:"0 22px 58px rgba(0,0,0,.62),0 0 34px rgba(248,95,200,.08),inset 0 1px 0 rgba(255,255,255,.10)",
+    boxShadow:"0 22px 54px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.09)",
     ...style
   }}>
-    <div style={{position:"absolute",top:12,right:18,color:C.gold,fontSize:13,opacity:.85}}>✦</div>
-    <div style={{position:"absolute",bottom:14,left:18,color:C.teal,fontSize:10,opacity:.7}}>✦</div>
+    <div style={{position:"absolute",top:12,right:18,color:C.gold,fontSize:13,opacity:.72}}>✦</div>
+    <div style={{position:"absolute",bottom:14,left:18,color:C.blush,fontSize:10,opacity:.64}}>✦</div>
     <div style={{position:"relative",zIndex:1}}>{children}</div>
   </div>;
 }
 
-function CH({e,title,sub}){return<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{fontSize:18,filter:"drop-shadow(0 0 14px rgba(255,26,140,.55))"}}>{e}</div><div><div style={{fontWeight:900,fontSize:10,letterSpacing:"2px",color:"rgba(255,255,255,.65)",textTransform:"uppercase",marginBottom:2}}>{title}</div>{sub&&<div style={{fontSize:11,color:C.muted}}>{sub}</div>}</div></div>;}
-function SBox({value,label,color,sub}){return<div style={{...glass,borderRadius:18,padding:12,textAlign:"center",borderTop:`2px solid ${color}`}}><div style={{fontWeight:900,fontSize:22,color,lineHeight:1,textShadow:`0 0 24px ${color}88`}}>{value}</div><div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,.65)",marginTop:5}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,marginTop:4}}>{sub}</div>}</div>;}
-function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return<div style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}><span style={{fontSize:13,fontWeight:700,color:C.text}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}25`,color:col,fontSize:9,fontWeight:800,padding:"2px 8px",borderRadius:6}}>{level}</span><span style={{fontSize:14,fontWeight:900,color:col}}>{val}%</span></div></div><div style={{height:10,background:"rgba(0,0,0,.4)",borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:`linear-gradient(90deg,${col}cc,${col})`,borderRadius:100,width:`${val}%`,transition:"width .4s ease",boxShadow:`0 0 18px ${col}66`}}/></div></div>;}
-function RD({val,max=5,col,onSet}){return<div style={{display:"flex",gap:7}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:34,height:34,borderRadius:10,background:i<val?`linear-gradient(145deg,${col},${C.pink})`:"rgba(255,255,255,.05)",border:`1.5px solid ${i<val?col:"rgba(255,255,255,.12)"}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 20px ${col}55`:"none",transition:"all .15s"}}><span style={{fontSize:10,fontWeight:900,color:i<val?C.white:"rgba(255,255,255,.3)"}}>{i+1}</span></div>)}</div>;}
-function EmojiPick({val,emojis,onSet,col}){return<div style={{display:"grid",gridTemplateColumns:`repeat(${emojis.length},minmax(0,1fr))`,gap:7,width:"100%"}}>{emojis.map((e,i)=><button key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{height:48,minWidth:0,borderRadius:15,fontSize:22,border:`2px solid ${val===i+1?col:C.border}`,background:val===i+1?`${col}22`:"rgba(255,255,255,.05)",cursor:"pointer",boxShadow:val===i+1?`0 0 18px ${col}44`:"none",transition:"all .15s",display:"flex",alignItems:"center",justifyContent:"center",padding:0,lineHeight:1}}>{e}</button>)}</div>;}
-function Chip({label,active,col,onClick}){return<button onClick={onClick} style={{flexShrink:0,padding:"9px 14px",borderRadius:999,border:`1px solid ${active?col:C.border}`,background:active?`${col}22`:"rgba(255,255,255,.05)",color:active?C.light:C.muted,fontWeight:900,cursor:"pointer",fontSize:12,whiteSpace:"nowrap",fontFamily:"system-ui"}}>{label}</button>;}
-function RingChart({val,col,label,size=54}){const r=size/2-6,circ=2*Math.PI*r,d=circ-(val/100)*circ,cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}88)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(0,0,0,.3)" stroke="rgba(255,255,255,.1)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
+function CH({e,title,sub}){return<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{fontSize:18,filter:"drop-shadow(0 0 10px rgba(217,160,186,.34))"}}>{e}</div><div><div style={{fontWeight:950,fontSize:10,letterSpacing:"2.4px",color:C.blush,textTransform:"uppercase",marginBottom:2}}>{title}</div>{sub&&<div style={{fontSize:11,color:C.muted,lineHeight:1.35}}>{sub}</div>}</div></div>;}
+function SBox({value,label,color=C.blush,sub}){return<div style={{...glass,borderRadius:18,padding:12,textAlign:"center",borderTop:`2px solid ${color}`,background:"linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.025))"}}><div style={{fontWeight:950,fontSize:22,color,lineHeight:1,textShadow:`0 0 18px ${color}55`}}>{value}</div><div style={{fontSize:10,fontWeight:800,color:"rgba(247,241,234,.72)",marginTop:5}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,marginTop:4}}>{sub}</div>}</div>;}
+function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return<div style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}><span style={{fontSize:13,fontWeight:800,color:C.text}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}22`,color:col,fontSize:9,fontWeight:900,padding:"2px 8px",borderRadius:6}}>{level}</span><span style={{fontSize:14,fontWeight:950,color:col}}>{val}%</span></div></div><div style={{height:9,background:"rgba(255,255,255,.08)",borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:`linear-gradient(90deg,${col}cc,${C.blush})`,borderRadius:100,width:`${val}%`,transition:"width .4s ease"}}/></div></div>;}
+function RD({val,max=5,col=C.blush,onSet}){return<div style={{display:"flex",gap:7}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:34,height:34,borderRadius:10,background:i<val?`linear-gradient(145deg,${col},${C.blush})`:"rgba(255,255,255,.045)",border:`1.5px solid ${i<val?col:"rgba(255,255,255,.12)"}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 16px ${col}35`:"none",transition:"all .15s"}}><span style={{fontSize:10,fontWeight:900,color:i<val?C.white:"rgba(255,255,255,.32)"}}>{i+1}</span></div>)}</div>;}
+function EmojiPick({val,emojis,onSet,col=C.blush}){return<div style={{display:"grid",gridTemplateColumns:`repeat(${emojis.length},minmax(0,1fr))`,gap:7,width:"100%"}}>{emojis.map((e,i)=><button key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{height:48,minWidth:0,borderRadius:15,fontSize:22,border:`2px solid ${val===i+1?col:C.border}`,background:val===i+1?`${col}22`:"rgba(255,255,255,.045)",cursor:"pointer",boxShadow:val===i+1?`0 0 16px ${col}35`:"none",transition:"all .15s",display:"flex",alignItems:"center",justifyContent:"center",padding:0,lineHeight:1}}>{e}</button>)}</div>;}
+function Chip({label,active,col=C.blush,onClick}){return<button onClick={onClick} style={{flexShrink:0,padding:"9px 14px",borderRadius:999,border:`1px solid ${active?col:C.border}`,background:active?`${col}22`:"rgba(255,255,255,.045)",color:active?C.cream:C.muted,fontWeight:900,cursor:"pointer",fontSize:12,whiteSpace:"nowrap",fontFamily:"system-ui"}}>{label}</button>;}
+function RingChart({val,col,label,size=54}){const r=size/2-6,circ=2*Math.PI*r,d=circ-(val/100)*circ,cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}55)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.12)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
 
 // ── FIX: StableRenderer so tabs with their own useState hooks work correctly ──
 function StableRenderer({render}){return render();}
@@ -748,7 +793,7 @@ export default function ScarlettTracker(){
           <div style={{fontSize:13,color:C.blush,fontWeight:900,marginTop:12}}>{showVirgo?"Show Less":"See More"} →</div>
         </button>
 
-        <button onClick={()=>setTab("hoops")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(45,43,47,.92),rgba(25,24,27,.98))",border:"1px solid rgba(255,255,255,.13)"}}>
+        <button onClick={()=>setTab("coach")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(45,43,47,.92),rgba(25,24,27,.98))",border:"1px solid rgba(255,255,255,.13)"}}>
           <div style={{fontSize:10,letterSpacing:"2.5px",fontWeight:950,color:C.blush,marginBottom:10,textAlign:"right"}}>WNBA DAILY COACH</div>
           <div style={{display:"grid",gridTemplateColumns:"70px 1fr",gap:10,alignItems:"center",marginBottom:10}}>
             <div style={{width:70,height:86,borderRadius:999,overflow:"hidden",background:`linear-gradient(135deg,${C.mauve}55,rgba(255,255,255,.08))`,border:`2px solid ${C.mauve}`}}>
@@ -821,6 +866,64 @@ export default function ScarlettTracker(){
       </div>
     </div>;
   };
+
+
+  // ── WNBA COACH SPOTLIGHT ───────────────────────────────────────────────
+  const Coach=()=>{
+    const coach=getDailyWnbaCoach();
+    const quickActions=[
+      {label:"Log hoops work",icon:"🏀",go:"hoops"},
+      {label:"Set a goal from this",icon:"🎯",go:"goals"},
+      {label:"Open rewards",icon:"🎁",go:"progress"}
+    ];
+    return <div>
+      <button onClick={()=>setTab("today")} style={{marginBottom:12,border:"none",background:"rgba(255,255,255,.06)",color:C.blush,borderRadius:999,padding:"10px 14px",fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>← Back to Today</button>
+
+      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
+        <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
+          <div style={{width:96,height:120,borderRadius:32,overflow:"hidden",background:`linear-gradient(135deg,${C.mauve}44,rgba(255,255,255,.38))`,border:`3px solid ${C.mauve}`,boxShadow:"0 14px 35px rgba(0,0,0,.25)"}}>
+            <img src={coach.photo} alt={coach.player} referrerPolicy="no-referrer" onError={e=>{e.currentTarget.style.display="none";}} style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top"}}/>
+          </div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:11,letterSpacing:"2.6px",fontWeight:950,color:C.mauve,marginBottom:8}}>WNBA DAILY COACH</div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.darkText}}>Tip from<br/>{coach.player}</div>
+            <div style={{marginTop:8,fontSize:12,color:"rgba(33,31,33,.62)",fontWeight:800}}>{coach.team} · {coach.tag}</div>
+          </div>
+        </div>
+
+        <div style={{padding:15,borderRadius:20,background:"rgba(255,255,255,.62)",border:"1px solid rgba(0,0,0,.06)",marginBottom:14}}>
+          <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>REAL QUOTE</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.darkText}}>“{coach.quote}”</div>
+        </div>
+
+        <div style={{fontSize:12,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>TODAY'S LESSON</div>
+        <div style={{fontFamily:"Georgia,serif",fontSize:24,lineHeight:1.08,fontWeight:850,marginBottom:10}}>{coach.headline||coach.takeaway}</div>
+        <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{coach.longTip||coach.takeaway}</div>
+
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(167,101,131,.10)",border:"1px solid rgba(167,101,131,.22)"}}>
+            <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:5}}>TRY THIS TODAY</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{coach.tryThis||"Choose one small action and finish it today."}</div>
+          </div>
+          <div style={{padding:13,borderRadius:18,background:"rgba(221,191,134,.13)",border:"1px solid rgba(221,191,134,.25)"}}>
+            <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:"#9C7A3C",marginBottom:5}}>FOCUS</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{coach.focus||"Confidence · effort · consistency"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",border:"1px solid rgba(255,255,255,.12)"}}>
+        <CH e="✨" title="Use the tip" sub="Turn the coach message into action"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9}}>
+          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.cream,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+            <span style={{display:"flex",alignItems:"center",gap:10,fontWeight:900}}><span style={{fontSize:20}}>{a.icon}</span>{a.label}</span>
+            <span style={{color:C.blush,fontWeight:950}}>→</span>
+          </button>)}
+        </div>
+      </div>
+    </div>;
+  };
+
 
   // ── HOOPS ──────────────────────────────────────────────────────────────
   const Hoops=()=>{
@@ -977,7 +1080,7 @@ export default function ScarlettTracker(){
           <EmojiPick val={pf.effort} emojis={["😴","🙂","😊","💪","🔥"]} onSet={v=>setPf(p=>({...p,effort:v}))} col={C.purple}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6,marginTop:14}}>WHAT DID YOU WORK ON? (optional)</div>
           <textarea value={pf.note} onChange={e=>setPf(p=>({...p,note:e.target.value}))} placeholder="Free throws, left-hand layups, defensive slides..." style={{...TXT,minHeight:60,marginBottom:12}}/>
-          <button onClick={logPractice} style={{width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.purple},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.purple}33`}}>Save Practice ⭐</button>
+          <button onClick={logPractice} style={{width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.purple}33`}}>Save Practice ⭐</button>
         </div>
         {practices.length>0&&<div style={cs}>
           <CH e="📋" title="Practice History" sub={`${practices.length} sessions`}/>
@@ -1561,7 +1664,7 @@ export default function ScarlettTracker(){
     const overallGlow=Math.round(avgArr([avgSk,Math.round(gpa/4*100),games.length?winPct:0].filter(v=>v>0)))||0;
 
     return<div>
-      <div style={{...cs,background:"radial-gradient(ellipse at 80% 0%,rgba(255,215,0,.22),transparent 45%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",borderTop:`3px solid ${C.gold}`}}>
+      <div style={{...cs,background:"radial-gradient(ellipse at 80% 0%,rgba(255,215,0,.22),transparent 45%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",borderTop:`3px solid ${C.gold}`}}>
         <CH e="🎁" title="Reward Shop" sub="Wishlist rewards unlock only after real goals are approved."/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
           <SBox value={approvedGoalCount} label="Approved Goals" color={C.green}/>
@@ -1590,7 +1693,7 @@ export default function ScarlettTracker(){
         }
       </div>
 
-      <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,26,140,.24),transparent 50%),linear-gradient(145deg,rgba(40,15,75,.98),rgba(10,5,22,.99))",textAlign:"center",padding:20}}>
+      <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(167,101,131,.18),transparent 50%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",textAlign:"center",padding:20}}>
         <div style={{fontSize:44,marginBottom:6}}>⭐</div>
         <div style={{fontSize:28,fontWeight:950,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</div>
         <div style={{display:"inline-block",marginTop:8,padding:"6px 16px",borderRadius:999,background:`${C.purple}25`,border:`1px solid ${C.purple}55`,fontSize:13,fontWeight:900,color:C.purple}}>Level {level} · {levelTitle}</div>
@@ -1647,10 +1750,10 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  const CONTENT={today:Today,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
+  const CONTENT={today:Today,coach:Coach,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
 
   return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(217,160,186,.12),transparent 30%),radial-gradient(circle at 92% 0%,rgba(221,191,134,.08),transparent 24%),linear-gradient(180deg,#0A0A0C,#111113 54%,#09090B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
-    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden}`}</style>
+    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden;background:#0A0A0C} input::placeholder,textarea::placeholder{color:rgba(247,241,234,.45)}`}</style>
     <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(217,120,185,.10)"}}>
 
       <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 10px",background:"linear-gradient(180deg,rgba(10,10,12,.96),rgba(10,10,12,.86))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
@@ -1705,7 +1808,7 @@ export default function ScarlettTracker(){
             </div>
           </>:<>
             <input value={codeInput} onChange={e=>setCodeInput(e.target.value.toUpperCase())} placeholder="Enter code (e.g. SC7X2K)" maxLength={6} style={{...INP,letterSpacing:"6px",fontWeight:950,fontSize:20,textAlign:"center",marginBottom:8}}/>
-            <button onClick={()=>activateCode(codeInput)} style={{width:"100%",padding:13,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.purple},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14,marginBottom:8}}>Connect ☁</button>
+            <button onClick={()=>activateCode(codeInput)} style={{width:"100%",padding:13,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14,marginBottom:8}}>Connect ☁</button>
             <button onClick={()=>activateCode(genCode())} style={{width:"100%",padding:13,borderRadius:12,border:`1px solid ${C.teal}44`,background:`${C.teal}12`,color:C.teal,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Create New Family Code ✨</button>
           </>}
         </div>
