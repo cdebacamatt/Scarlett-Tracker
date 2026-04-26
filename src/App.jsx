@@ -166,6 +166,7 @@ const buildRewardCatalog=()=>{
 
 const DAILY_REWARD_COUNT=6;
 const REWARD_ROTATION_START="2026-01-01";
+const REWARD_ROTATION_OFFSET=11; // Forces a visibly new reward idea set today while still rotating at local 12:00 AM.
 const DAILY_REWARD_CATEGORY_ORDER=["sneakers","beauty","clothing","toys","sneakers","clothing"];
 
 const getRewardRotationInfo=(count=DAILY_REWARD_COUNT)=>{
@@ -173,7 +174,7 @@ const getRewardRotationInfo=(count=DAILY_REWARD_COUNT)=>{
   // Uses local calendar days, so reward ideas officially rotate at 12:00 AM on her device.
   const start=new Date(`${REWARD_ROTATION_START}T00:00:00`);
   const now=new Date(`${todayISO()}T00:00:00`);
-  const rawDay=Math.max(0,Math.floor((now-start)/86400000));
+  const rawDay=Math.max(0,Math.floor((now-start)/86400000))+REWARD_ROTATION_OFFSET;
   const byCategory=DAILY_REWARD_CATEGORY_ORDER.reduce((acc,c)=>({...acc,[c]:catalog.filter(x=>x.category===c)}),{});
   const minCatDays=Math.min(...DAILY_REWARD_CATEGORY_ORDER.map(c=>Math.max(1,byCategory[c].length)));
   return {catalog,byCategory,day:rawDay,daysAvailable:minCatDays,count};
@@ -1320,7 +1321,7 @@ export default function ScarlettTracker(){
       </div>
 
       <div style={cs}>
-        <CH e="🔥" title="Daily Reward Ideas" sub={`Sneakers · beauty · teen clothing · viral toys`}/>
+        <CH e="🔥" title="Daily Reward Ideas" sub={`New set today · sneakers · beauty · teen clothing · viral toys`}/>
         <div style={{fontSize:10,color:C.muted,lineHeight:1.5,marginBottom:10}}>
           Today’s ideas rotate through the fun reward categories she actually cares about: sneakers, beauty/self-care, trendy teen clothing, and viral toys.
         </div>
