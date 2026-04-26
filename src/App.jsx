@@ -44,6 +44,31 @@ const DEF_VITALS={energy:0,mood:0};
 // No preset daily quests. Scarlett creates these herself.
 const DEF_HABITS=[];
 const DEF_SKILLS={"Ball Handling":35,"Shooting Form":30,"Layups":35,"Free Throws":30,"Passing":35,"Court Vision":30,"Defense":30,"Rebounding":30,"Footwork":30,"Speed & Agility":35,"Conditioning":35,"Basketball IQ":30,"Confidence":45,"Leadership":40};
+
+const SPORT_TEMPLATES={
+  basketball:{
+    id:"basketball",label:"Basketball",short:"Hoops",icon:"🏀",accent:C.mauve,hero:"Hoop section",tagline:"Shots, assists, rebounds, defense, and confidence.",
+    statFields:[{key:"pts",label:"Points",group:"Scoring"},{key:"fgm",label:"Shots Made",group:"Shooting"},{key:"fga",label:"Shots Attempted",group:"Shooting"},{key:"ftm",label:"Free Throws Made",group:"Shooting"},{key:"fta",label:"Free Throws Attempted",group:"Shooting"},{key:"ast",label:"Assists",group:"Impact"},{key:"reb",label:"Rebounds",group:"Impact"},{key:"stl",label:"Steals",group:"Defense"},{key:"blk",label:"Blocks",group:"Defense"},{key:"tov",label:"Turnovers",group:"Mistakes"},{key:"fouls",label:"Fouls",group:"Mistakes"}],
+    skills:["Ball Handling","Shooting Form","Layups","Free Throws","Passing","Court Vision","Defense","Rebounding","Footwork","Speed & Agility","Conditioning","Basketball IQ","Confidence","Leadership"],
+    practiceTypes:["Team Practice","Home Workout","Shooting","Ball Handling","Defense","Full Workout"],
+    insights:["Track shot attempts with makes so progress is honest.","Free throws are the easiest place to earn points.","Rebounds, steals, and assists show impact beyond scoring."]
+  },
+  soccer:{
+    id:"soccer",label:"Soccer",short:"Goals",icon:"⚽",accent:C.teal,hero:"Goal stats",tagline:"Goals, assists, shots, passes, tackles, saves, and minutes.",
+    statFields:[{key:"goals",label:"Goals",group:"Attack"},{key:"assists",label:"Assists",group:"Attack"},{key:"shots",label:"Shots",group:"Attack"},{key:"shotsOnGoal",label:"Shots On Goal",group:"Attack"},{key:"passesCompleted",label:"Passes Completed",group:"Team Play"},{key:"tackles",label:"Tackles",group:"Defense"},{key:"saves",label:"Saves",group:"Goalie"},{key:"fouls",label:"Fouls",group:"Discipline"},{key:"minutes",label:"Minutes",group:"Effort"}],
+    skills:["Dribbling","Passing","Shooting","First Touch","Defense","Field Vision","Conditioning","Confidence"],
+    practiceTypes:["Team Practice","Shooting","Dribbling","Passing","Defense","Conditioning"],
+    insights:["Shots on goal matter more than total shots.","Passing and tackles show team impact even without scoring.","Minutes plus effort helps parents see real participation."]
+  },
+  tennis:{
+    id:"tennis",label:"Tennis",short:"Court",icon:"🎾",accent:C.gold,hero:"Court tracking",tagline:"Serves, rallies, winners, errors, games, and match confidence.",
+    statFields:[{key:"aces",label:"Aces",group:"Serve"},{key:"doubleFaults",label:"Double Faults",group:"Serve"},{key:"firstServesIn",label:"1st Serves In",group:"Serve"},{key:"serveAttempts",label:"Serve Attempts",group:"Serve"},{key:"winners",label:"Winners",group:"Match"},{key:"unforcedErrors",label:"Unforced Errors",group:"Match"},{key:"ralliesWon",label:"Rallies Won",group:"Rallies"},{key:"gamesWon",label:"Games Won",group:"Score"},{key:"setsWon",label:"Sets Won",group:"Score"}],
+    skills:["Serve","Return","Footwork","Forehand","Backhand","Consistency","Focus","Confidence"],
+    practiceTypes:["Serve Practice","Rally Work","Footwork","Match Play","Conditioning"],
+    insights:["Serve consistency is the first pressure point to track.","Winners and errors together show decision quality.","Court confidence grows when improvement is visible."]
+  }
+};
+const DEFAULT_SPORT_ID="basketball";
 const DEF_SUBJECTS={Math:3,Reading:4,Science:3,"Social Studies":3,Writing:3};
 const DEF_PROFILE={name:"Scarlett",grade:"5th",teamName:"",emoji:"⭐",primaryGoal:"All-around player",birthDate:"2015-08-28",zodiac:"Virgo"};
 const ROUTINE_ITEMS=[
@@ -56,7 +81,7 @@ const ROUTINE_ITEMS=[
   {id:"water_b",e:"💦",label:"Water bottle ready"},
   {id:"read",e:"📖",label:"Read or calm down time"},
 ];
-const PRACTICE_TYPES=["Team Practice","Home Workout","Shooting","Ball Handling","Defense","Full Workout"];
+const PRACTICE_TYPES=SPORT_TEMPLATES.basketball.practiceTypes;
 const STYLE_TYPES=["Game Day","Practice","School","Weekend"];
 const HAIR_IDEAS=["Braids","Ponytail","Bun","Down","Half-up","Curly out"];
 const SHOE_PRIORITY=["Dream 🌟","Next Up 🔜","Maybe 🤔","Have It ✅"];
@@ -593,6 +618,7 @@ const BADGE_DEFS=[
 export default function ScarlettTracker(){
   const[loaded,setLoaded]=useState(false);
   const[tab,setTab]=useState(()=>{try{return localStorage.getItem("sc_last_tab")||"today";}catch{return "today";}});
+  const[selectedSportId,setSelectedSportId]=useState(()=>{try{return localStorage.getItem("sc_selected_sport")||DEFAULT_SPORT_ID;}catch{return DEFAULT_SPORT_ID;}});
   const[familyCode,setFamilyCode]=useState(()=>{try{return localStorage.getItem("sc_fc")||"";}catch{return "";}});
   const[codeInput,setCodeInput]=useState("");
   const[showSettings,setShowSettings]=useState(false);
@@ -658,6 +684,7 @@ export default function ScarlettTracker(){
   useEffect(()=>{if(!loaded)return;if(supRef.current){supRef.current=false;return;}clearTimeout(saveTmr.current);saveTmr.current=setTimeout(()=>{const entry={c:checks,r:starAwards,w:water,vitals};setDailyHist(prev=>{const next={...prev,[todayISO()]:entry};ss("sc_daily",{entries:next});return next;});},450);},[checks,starAwards,water,vitals,loaded]);
   useEffect(()=>{if(loaded)ss("sc_profile",profile);},[profile,loaded]);
   useEffect(()=>{try{localStorage.setItem("sc_last_tab",tab);}catch{}},[tab]);
+  useEffect(()=>{try{localStorage.setItem("sc_selected_sport",selectedSportId);}catch{}},[selectedSportId]);
 
   const addStars=async n=>{const ns=stars+n;setStars(ns);await ss("sc_goals",{entries:goals,stars:ns});};
   const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
@@ -956,7 +983,11 @@ export default function ScarlettTracker(){
 
   // ── HOOPS ──────────────────────────────────────────────────────────────
   const Hoops=()=>{
+    const sportTemplate=SPORT_TEMPLATES[selectedSportId]||SPORT_TEMPLATES.basketball;
+    const isBasketball=sportTemplate.id==="basketball";
     const[section,setSection]=useState("game");
+    const[templateStats,setTemplateStats]=useState(()=>Object.fromEntries((SPORT_TEMPLATES[selectedSportId]||SPORT_TEMPLATES.basketball).statFields.map(f=>[f.key,0])));
+    useEffect(()=>{setTemplateStats(Object.fromEntries(sportTemplate.statFields.map(f=>[f.key,0])));},[sportTemplate.id]);
     const emptyGf={pts:"",ast:"",reb:"",stl:"",blk:"",tov:"",fouls:"",fgm:"",fga:"",ftm:"",fta:"",result:"Win",opp:"",effort:0,confidence:0};
     const[gf,setGf]=useState(emptyGf);
     const[editGameId,setEditGameId]=useState(null);
@@ -1018,26 +1049,77 @@ export default function ScarlettTracker(){
     const ftA=s("fta"),ftM=s("ftm"),fgA=s("fga"),fgM=s("fgm");
     const SKILL_GROUPS={"Handles & Scoring":{col:C.coral,items:["Ball Handling","Shooting Form","Layups","Free Throws"]},"Passing & Vision":{col:C.purple,items:["Passing","Court Vision"]},"Defense & Hustle":{col:C.teal,items:["Defense","Rebounding","Footwork","Speed & Agility","Conditioning"]},"Mindset":{col:C.gold,items:["Basketball IQ","Confidence","Leadership"]}};
     const numInput=(label,key,big=false)=><div key={key}><div style={{fontSize:big?10:9,color:C.muted,fontWeight:800,marginBottom:5,textAlign:"center",lineHeight:1.15}}>{label}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[key]} onChange={ev=>setGf(p=>({...p,[key]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:big?21:18,padding:big?"10px 4px":"9px 4px"}}/></div>;
+    const sportMetric=(field)=><div key={field.key} style={{...glass,borderRadius:18,padding:12}}>
+      <div style={{fontSize:9,color:C.muted,fontWeight:900,letterSpacing:".7px",textTransform:"uppercase",marginBottom:7}}>{field.group}</div>
+      <div style={{fontSize:12,fontWeight:950,color:C.text,lineHeight:1.15,minHeight:30}}>{field.label}</div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginTop:10}}>
+        <button onClick={()=>setTemplateStats(p=>({...p,[field.key]:Math.max(0,(parseInt(p[field.key])||0)-1)}))} style={{width:34,height:34,borderRadius:12,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.04)",color:C.light,fontSize:18,fontWeight:950,cursor:"pointer"}}>−</button>
+        <div style={{fontFamily:"Georgia,serif",fontSize:26,fontWeight:950,color:sportTemplate.accent,minWidth:36,textAlign:"center"}}>{templateStats[field.key]||0}</div>
+        <button onClick={()=>setTemplateStats(p=>({...p,[field.key]:(parseInt(p[field.key])||0)+1}))} style={{width:34,height:34,borderRadius:12,border:`1px solid ${sportTemplate.accent}55`,background:`${sportTemplate.accent}18`,color:sportTemplate.accent,fontSize:18,fontWeight:950,cursor:"pointer"}}>+</button>
+      </div>
+    </div>;
+    const universalPct=(made,att)=>att?Math.round((made/att)*100)+"%":"—";
+
 
     return<div>
       <TabHero
-        eyebrow="Hoops Tracker"
-        title="Track the game. Build the player."
-        sub="Straightforward stats, editable game logs, practice notes, and skill growth all stay organized here."
-        icon="🏀"
+        eyebrow="Sport Engine"
+        title={`${sportTemplate.short}: ${sportTemplate.hero}`}
+        sub={isBasketball?"Basketball remains Scarlett’s active working tracker. Soccer and tennis are merged as template-driven preview modules for future expansion.":`${sportTemplate.label} is running through the same reusable sports framework. This preview shows how new sport stat modules plug in without replacing Scarlett’s app.`}
+        icon={sportTemplate.icon}
         stats={[
-          {value:games.length,label:"games",color:C.mauve,onClick:()=>setSection("game")},
-          {value:practices.length,label:"practices",color:C.gold,onClick:()=>setSection("practice")},
-          {value:Math.round(avgArr(Object.values(skills)))+"%",label:"skills",color:C.teal,onClick:()=>setSection("skills")}
+          {value:isBasketball?games.length:sportTemplate.statFields.length,label:isBasketball?"games":"metrics",color:sportTemplate.accent,onClick:()=>setSection("game")},
+          {value:isBasketball?practices.length:sportTemplate.practiceTypes.length,label:isBasketball?"practices":"practice types",color:C.gold,onClick:()=>setSection("practice")},
+          {value:isBasketball?Math.round(avgArr(Object.values(skills)))+"%":sportTemplate.skills.length,label:isBasketball?"skills":"skills",color:C.teal,onClick:()=>setSection("skills")}
         ]}
       />
+      <div style={cs}>
+        <CH e="🏟️" title="Sport Profile" sub="Basketball is active now; other sports are ready as modular templates."/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+          {Object.values(SPORT_TEMPLATES).map(sport=><button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{padding:"12px 7px",borderRadius:18,border:`1px solid ${selectedSportId===sport.id?sport.accent:C.border}`,background:selectedSportId===sport.id?`${sport.accent}20`:"rgba(255,255,255,.04)",color:selectedSportId===sport.id?C.cream:C.muted,cursor:"pointer",fontFamily:"system-ui"}}>
+            <div style={{fontSize:24,marginBottom:5}}>{sport.icon}</div>
+            <div style={{fontSize:11,fontWeight:950}}>{sport.label}</div>
+            <div style={{fontSize:8,color:selectedSportId===sport.id?sport.accent:C.muted,fontWeight:850,marginTop:3}}>{sport.id==="basketball"?"Active":"Preview"}</div>
+          </button>)}
+        </div>
+      </div>
       <div style={{display:"flex",gap:6,marginBottom:14,background:"rgba(255,255,255,.045)",borderRadius:18,padding:5,border:"1px solid rgba(255,255,255,.10)"}}>
-        {[["game","🏀 Game"],["practice","💪 Practice"],["skills","📊 Skills"]].map(([id,label])=>(
+        {[["game",`${sportTemplate.icon} Stats`],["practice","💪 Training"],["skills","📊 Skills"]].map(([id,label])=>(
           <button key={id} onClick={()=>setSection(id)} style={{flex:1,padding:"10px 0",borderRadius:12,border:"none",background:section===id?`linear-gradient(135deg,${C.mauve},${C.blush})`:"transparent",color:C.white,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>{label}</button>
         ))}
       </div>
 
-      {section==="game"&&<>
+      {section==="game"&&!isBasketball&&<>
+        <div style={cs}>
+          <CH e={sportTemplate.icon} title={`${sportTemplate.label} Live Stat Template`} sub="This is the merged modular sport engine preview. Full save history can be activated next without rebuilding the app."/>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+            {sportTemplate.statFields.map(field=>sportMetric(field))}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+            {sportTemplate.id==="soccer"&&<>
+              <SBox value={universalPct(templateStats.shotsOnGoal||0,templateStats.shots||0)} label="Shot Accuracy" color={sportTemplate.accent}/>
+              <SBox value={(templateStats.goals||0)+(templateStats.assists||0)} label="Goal Impact" color={C.gold}/>
+              <SBox value={templateStats.minutes||0} label="Minutes" color={C.teal}/>
+            </>}
+            {sportTemplate.id==="tennis"&&<>
+              <SBox value={universalPct(templateStats.firstServesIn||0,templateStats.serveAttempts||0)} label="Serve In %" color={sportTemplate.accent}/>
+              <SBox value={Math.max(0,(templateStats.winners||0)-(templateStats.unforcedErrors||0))} label="Clean Points" color={C.gold}/>
+              <SBox value={templateStats.setsWon||0} label="Sets Won" color={C.teal}/>
+            </>}
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            <button onClick={()=>setTemplateStats(Object.fromEntries(sportTemplate.statFields.map(f=>[f.key,0])))} style={{flex:1,padding:13,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)",color:C.light,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Reset Preview</button>
+            <button onClick={()=>setSelectedSportId("basketball")} style={{flex:1,padding:13,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Back to Basketball</button>
+          </div>
+        </div>
+        <div style={cs}>
+          <CH e="✨" title="Coach Insights" sub={`Generated from the ${sportTemplate.label} template`}/>
+          {sportTemplate.insights.map((insight,i)=><div key={insight} style={{padding:"10px 0",borderBottom:i<sportTemplate.insights.length-1?`1px solid ${C.border}`:"none",fontSize:12,color:C.text,lineHeight:1.55}}>
+            <span style={{color:sportTemplate.accent,fontWeight:950,marginRight:6}}>{i+1}.</span>{insight}
+          </div>)}
+        </div>
+      </>}
+      {section==="game"&&isBasketball&&<>
         <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:7}}>
           {[{v:games.length,l:"Games",col:C.coral},{v:wins,l:"Wins 🏆",col:C.green},{v:a("pts"),l:"Avg Points",col:C.gold},{v:games.length?Math.round(wins/games.length*100)+"%":"—",l:"Win %",col:C.teal}].map(({v,l,col})=><SBox key={l} value={v} label={l} color={col}/>) }
         </div>
@@ -1107,7 +1189,18 @@ export default function ScarlettTracker(){
         </div>}
       </>}
 
-      {section==="practice"&&<>
+      {section==="practice"&&!isBasketball&&<>
+        <div style={cs}>
+          <CH e="💪" title={`${sportTemplate.label} Training Types`} sub="Practice options come from the selected sport template."/>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            {sportTemplate.practiceTypes.map(type=><div key={type} style={{padding:13,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)"}}>
+              <div style={{fontSize:14,fontWeight:950,color:C.text}}>{type}</div>
+              <div style={{fontSize:10,color:C.muted,marginTop:4}}>Ready for future logs</div>
+            </div>)}
+          </div>
+        </div>
+      </>}
+      {section==="practice"&&isBasketball&&<>
         <div style={cs}>
           <CH e="➕" title="Log a Practice"/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>TYPE</div>
@@ -1136,7 +1229,17 @@ export default function ScarlettTracker(){
         </div>}
       </>}
 
-      {section==="skills"&&<>
+      {section==="skills"&&!isBasketball&&<>
+        <div style={cs}>
+          <CH e="📊" title={`${sportTemplate.label} Skill Template`} sub="Skill lists are also sport-specific, so each sport can have its own growth dashboard."/>
+          {sportTemplate.skills.map((skill,i)=><div key={skill} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:i<sportTemplate.skills.length-1?`1px solid ${C.border}`:"none"}}>
+            <div style={{width:30,height:30,borderRadius:10,background:`${sportTemplate.accent}18`,border:`1px solid ${sportTemplate.accent}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:950,color:sportTemplate.accent}}>{i+1}</div>
+            <div style={{flex:1,fontSize:13,fontWeight:900,color:C.text}}>{skill}</div>
+            <div style={{fontSize:10,color:C.muted,fontWeight:800}}>template</div>
+          </div>)}
+        </div>
+      </>}
+      {section==="skills"&&isBasketball&&<>
         <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
           <SBox value={Math.round(avgArr(Object.values(skills)))+"%"} label="Overall Rating" color={SKILL_COL(Math.round(avgArr(Object.values(skills))))}/>
           <SBox value={Object.entries(skills).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—"} label="Strongest Skill" color={C.gold}/>
