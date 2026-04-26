@@ -1481,7 +1481,7 @@ export default function ScarlettTracker(){
       </div>
 
       {section==="routine"&&<>
-        <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(217,120,185,.14),transparent 50%),linear-gradient(145deg,rgba(36,28,60,.98),rgba(15,12,28,.99))"}}>
+        <div style={{...cs,background:"radial-gradient(ellipse at 82% 6%,rgba(217,160,186,.10),transparent 42%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
             <CH e="✨" title={`Glow Routine (${rDone}/${routineItems.length})`} sub="Tap items to complete. Edit the routine any time."/>
             <div style={{fontSize:14,fontWeight:950,color:rPct>=100?C.green:C.gold}}>{rPct}%</div>
@@ -1529,7 +1529,7 @@ export default function ScarlettTracker(){
           <div style={{textAlign:"center",padding:12,borderRadius:14,background:`${C.mauve}10`,border:`1px solid ${C.mauve}33`,marginBottom:12}}><div style={{fontSize:22,fontWeight:950,color:C.mauve}}>{hoursNow} hours</div><div style={{fontSize:10,color:C.muted}}>planned sleep</div></div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>QUALITY</div>
           <EmojiPick val={sf.quality} emojis={["😴","🙂","😊","😎","👑"]} onSet={v=>setSf(p=>({...p,quality:v}))} col={C.mauve}/>
-          <button onClick={addSleep} style={{width:"100%",marginTop:14,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blue})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Sleep 🌙</button>
+          <button onClick={addSleep} style={{width:"100%",marginTop:14,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Sleep 🌙</button>
         </div>
         {sleepEntries.length>0&&<div style={cs}>
           <CH e="📊" title="Sleep Trend"/>
@@ -1540,7 +1540,7 @@ export default function ScarlettTracker(){
       </>}
 
       {section==="style"&&<>
-        <div style={{...cs,background:"linear-gradient(145deg,rgba(42,37,58,.98),rgba(20,18,33,.99))"}}>
+        <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))"}}>
           <CH e="💅" title="Style Studio" sub="Modern, simple, confidence-building — not too busy."/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
             <SBox value={styleLog.length} label="Fits" color={C.blush}/>
@@ -1903,7 +1903,7 @@ export default function ScarlettTracker(){
       />
       {burst&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,pointerEvents:"none",fontSize:56,filter:`drop-shadow(0 0 24px ${C.gold})`}}>🎉 ⭐ 🎯</div>}
 
-      <div style={{...cs,padding:18,background:"radial-gradient(ellipse at 12% 0%,rgba(255,215,0,.16),transparent 42%),radial-gradient(ellipse at 88% 0%,rgba(44,230,209,.10),transparent 42%),linear-gradient(145deg,rgba(31,20,62,.98),rgba(8,5,20,.99))",borderTop:`3px solid ${C.gold}`}}>
+      <div style={{...cs,padding:18,background:"radial-gradient(ellipse at 12% 0%,rgba(221,191,134,.10),transparent 42%),radial-gradient(ellipse at 88% 0%,rgba(217,160,186,.08),transparent 42%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",borderTop:`3px solid ${C.gold}`}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
           <div>
             <div style={{fontSize:10,color:C.gold,fontWeight:950,letterSpacing:"2px",textTransform:"uppercase",marginBottom:5}}>Goal Command Center</div>
@@ -1924,7 +1924,7 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
-      <div style={{...cs,background:"linear-gradient(145deg,rgba(21,18,46,.98),rgba(8,5,20,.99))"}}>
+      <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))"}}>
         <CH e="🧭" title="Today’s Next Step" sub="One clear action so it does not feel confusing."/>
         {nextGoal?<div style={{display:"grid",gridTemplateColumns:"52px 1fr",gap:12,alignItems:"center"}}>
           <div style={{width:52,height:52,borderRadius:18,display:"flex",alignItems:"center",justifyContent:"center",fontSize:25,background:`${(CAT[nextGoal.category]||CAT.basketball).col}18`,border:`1px solid ${(CAT[nextGoal.category]||CAT.basketball).col}44`}}>{waiting.includes(nextGoal)?"⏳":(CAT[nextGoal.category]||CAT.basketball).icon}</div>
@@ -1933,7 +1933,7 @@ export default function ScarlettTracker(){
         {nextReward&&<div style={{marginTop:12,padding:11,borderRadius:16,background:`${C.gold}10`,border:`1px solid ${C.gold}33`,fontSize:12,color:C.light,lineHeight:1.45}}>Reward motivation: <span style={{color:C.gold,fontWeight:950}}>🎁 {nextReward.name}</span></div>}
       </div>
 
-      <div style={{...cs,background:"linear-gradient(145deg,rgba(40,18,70,.98),rgba(8,5,20,.99))"}}>
+      <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))"}}>
         <CH e={editingGoalId?"✏️":"✨"} title={editingGoalId?"Edit Goal":"Create a Goal"} sub="Make it clear enough that she knows exactly what to do."/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
           {Object.entries(CAT).map(([k,v])=><button key={k} onClick={()=>setGf(p=>({...p,category:k}))} style={{padding:11,borderRadius:16,border:`1px solid ${gf.category===k?v.col:C.border}`,background:gf.category===k?`${v.col}22`:"rgba(255,255,255,.04)",color:C.white,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}><div style={{fontSize:20}}>{v.icon}</div><div style={{fontSize:12,fontWeight:950,marginTop:4}}>{v.label}</div><div style={{fontSize:9,color:C.muted,marginTop:2}}>{v.help}</div></button>)}
