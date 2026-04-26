@@ -541,6 +541,23 @@ function EmojiPick({val,emojis,onSet,col=C.blush}){return<div style={{display:"g
 function Chip({label,active,col=C.blush,onClick}){return<button onClick={onClick} style={{flexShrink:0,padding:"9px 14px",borderRadius:999,border:`1px solid ${active?col:C.border}`,background:active?`${col}22`:"rgba(255,255,255,.045)",color:active?C.cream:C.muted,fontWeight:900,cursor:"pointer",fontSize:12,whiteSpace:"nowrap",fontFamily:"system-ui"}}>{label}</button>;}
 function RingChart({val,col,label,size=54}){const r=size/2-6,circ=2*Math.PI*r,d=circ-(val/100)*circ,cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}55)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.12)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
 
+function TabHero({eyebrow,title,sub,icon="✦",stats=[]}){
+  return <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.40)",marginBottom:14}}>
+    <div style={{position:"absolute",right:18,top:12,fontSize:72,opacity:.12,color:C.mauve,lineHeight:1}}>{icon}</div>
+    <div style={{position:"relative",zIndex:1}}>
+      <div style={{fontSize:11,letterSpacing:"2.8px",fontWeight:950,color:C.mauve,textTransform:"uppercase",marginBottom:8}}>{eyebrow}</div>
+      <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.05,fontWeight:850,letterSpacing:"-.5px",maxWidth:305}}>{title}</div>
+      {sub&&<div style={{fontSize:13,lineHeight:1.55,color:"rgba(33,31,33,.70)",marginTop:8,maxWidth:330}}>{sub}</div>}
+      {stats.length>0&&<div style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(stats.length,3)},1fr)`,gap:8,marginTop:14}}>
+        {stats.slice(0,3).map((s,i)=><button key={`${s.label}_${i}`} onClick={s.onClick} style={{border:"1px solid rgba(0,0,0,.06)",background:"rgba(255,255,255,.50)",borderRadius:18,padding:"10px 8px",color:C.darkText,cursor:s.onClick?"pointer":"default",fontFamily:"system-ui",textAlign:"center"}}>
+          <div style={{fontSize:18,fontWeight:950,color:s.color||C.mauve,lineHeight:1}}>{s.value}</div>
+          <div style={{fontSize:9,fontWeight:900,color:"rgba(33,31,33,.55)",letterSpacing:".5px",marginTop:5,textTransform:"uppercase"}}>{s.label}</div>
+        </button>)}
+      </div>}
+    </div>
+  </div>;
+}
+
 // ── FIX: StableRenderer so tabs with their own useState hooks work correctly ──
 function StableRenderer({render}){return render();}
 class TabErrorBoundary extends React.Component{
@@ -879,6 +896,18 @@ export default function ScarlettTracker(){
     return <div>
       <button onClick={()=>setTab("today")} style={{marginBottom:12,border:"none",background:"rgba(255,255,255,.06)",color:C.blush,borderRadius:999,padding:"10px 14px",fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>← Back to Today</button>
 
+      <TabHero
+        eyebrow="Daily Coach"
+        title="One real lesson. One action today."
+        sub="The coach card turns inspiration into something Scarlett can actually do."
+        icon="🏀"
+        stats={[
+          {value:"Tip",label:"today",color:C.mauve},
+          {value:"1",label:"action",color:C.gold},
+          {value:"Goal",label:"next",color:C.teal,onClick:()=>setTab("goals")}
+        ]}
+      />
+
       <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
         <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
           <div style={{width:96,height:120,borderRadius:32,overflow:"hidden",background:`linear-gradient(135deg,${C.mauve}44,rgba(255,255,255,.38))`,border:`3px solid ${C.mauve}`,boxShadow:"0 14px 35px rgba(0,0,0,.25)"}}>
@@ -991,9 +1020,20 @@ export default function ScarlettTracker(){
     const numInput=(label,key,big=false)=><div key={key}><div style={{fontSize:big?10:9,color:C.muted,fontWeight:800,marginBottom:5,textAlign:"center",lineHeight:1.15}}>{label}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[key]} onChange={ev=>setGf(p=>({...p,[key]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:big?21:18,padding:big?"10px 4px":"9px 4px"}}/></div>;
 
     return<div>
-      <div style={{display:"flex",gap:6,marginBottom:14,background:"rgba(255,255,255,.06)",borderRadius:16,padding:5}}>
+      <TabHero
+        eyebrow="Hoops Tracker"
+        title="Track the game. Build the player."
+        sub="Straightforward stats, editable game logs, practice notes, and skill growth all stay organized here."
+        icon="🏀"
+        stats={[
+          {value:games.length,label:"games",color:C.mauve,onClick:()=>setSection("game")},
+          {value:practices.length,label:"practices",color:C.gold,onClick:()=>setSection("practice")},
+          {value:Math.round(avgArr(Object.values(skills)))+"%",label:"skills",color:C.teal,onClick:()=>setSection("skills")}
+        ]}
+      />
+      <div style={{display:"flex",gap:6,marginBottom:14,background:"rgba(255,255,255,.045)",borderRadius:18,padding:5,border:"1px solid rgba(255,255,255,.10)"}}>
         {[["game","🏀 Game"],["practice","💪 Practice"],["skills","📊 Skills"]].map(([id,label])=>(
-          <button key={id} onClick={()=>setSection(id)} style={{flex:1,padding:"10px 0",borderRadius:12,border:"none",background:section===id?`linear-gradient(135deg,${C.coral},${C.pink})`:"transparent",color:C.white,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>{label}</button>
+          <button key={id} onClick={()=>setSection(id)} style={{flex:1,padding:"10px 0",borderRadius:12,border:"none",background:section===id?`linear-gradient(135deg,${C.mauve},${C.blush})`:"transparent",color:C.white,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>{label}</button>
         ))}
       </div>
 
@@ -1037,7 +1077,7 @@ export default function ScarlettTracker(){
           </div>
           <div style={{display:"flex",gap:8}}>
             {editGameId&&<button onClick={resetGameForm} style={{flex:1,padding:14,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Cancel</button>}
-            <button onClick={logGame} style={{flex:editGameId?2:1,width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.coral},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.coral}33`}}>{editGameId?"Save Changes ✅":"Save Game ⭐"}</button>
+            <button onClick={logGame} style={{flex:editGameId?2:1,width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.mauve}22`}}>{editGameId?"Save Changes ✅":"Save Game ⭐"}</button>
           </div>
         </div>
         {games.length>0&&<div style={cs}>
@@ -1180,7 +1220,18 @@ export default function ScarlettTracker(){
     const avgSleep=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours)).toFixed(1):"—";
 
     return<div>
-      <div style={{display:"flex",gap:6,marginBottom:14,overflowX:"auto"}}>
+      <TabHero
+        eyebrow="My Glow"
+        title="Routine, rest, and confidence."
+        sub="A calmer place to manage nightly routine, sleep, and style without making it feel like a worksheet."
+        icon="✨"
+        stats={[
+          {value:rPct+"%",label:"routine",color:C.mauve,onClick:()=>setSection("routine")},
+          {value:avgSleep,label:"sleep",color:C.gold,onClick:()=>setSection("sleep")},
+          {value:styleLog.length,label:"fits",color:C.teal,onClick:()=>setSection("style")}
+        ]}
+      />
+      <div style={{display:"flex",gap:6,marginBottom:14,overflowX:"auto",padding:5,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.10)"}}>
         {[["routine","✨ Routine"],["sleep","🌙 Sleep"],["style","💅 Style"]].map(([id,label])=>(
           <button key={id} onClick={()=>setSection(id)} style={{flexShrink:0,padding:"10px 14px",borderRadius:12,border:`1px solid ${section===id?C.pink:C.border}`,background:section===id?`${C.pink}22`:"rgba(255,255,255,.05)",color:section===id?C.light:C.muted,fontWeight:900,cursor:"pointer",fontSize:13,fontFamily:"system-ui"}}>{label}</button>
         ))}
@@ -1413,6 +1464,17 @@ export default function ScarlettTracker(){
     };
 
     return <div>
+      <TabHero
+        eyebrow="Reward Wishlist"
+        title="Pick the reward. Earn it with a goal."
+        sub="Sneakers, clothes, beauty, toys, school items, and future rewards — connected to parent-approved follow-through."
+        icon="🛍️"
+        stats={[
+          {value:cleanWish.length,label:"saved",color:C.mauve},
+          {value:rewardTokens,label:"tokens",color:C.gold},
+          {value:cleanClaims.filter(x=>x.status==="requested").length,label:"requests",color:C.teal}
+        ]}
+      />
       <GlamHero style={{marginBottom:12}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:12}}>
           <div>
@@ -1586,6 +1648,17 @@ export default function ScarlettTracker(){
     </div>;};
 
     return<div>
+      <TabHero
+        eyebrow="Goal Command Center"
+        title="Set it. Do it. Earn it."
+        sub="Every goal gets a clear number, a reason, a next step, and a parent-approved reward path."
+        icon="🎯"
+        stats={[
+          {value:goals.length,label:"set",color:C.mauve},
+          {value:waiting.length,label:"parent check",color:C.gold},
+          {value:approved.length,label:"approved",color:C.green}
+        ]}
+      />
       {burst&&<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,display:"flex",alignItems:"center",justifyContent:"center",zIndex:999,pointerEvents:"none",fontSize:56,filter:`drop-shadow(0 0 24px ${C.gold})`}}>🎉 ⭐ 🎯</div>}
 
       <div style={{...cs,padding:18,background:"radial-gradient(ellipse at 12% 0%,rgba(255,215,0,.16),transparent 42%),radial-gradient(ellipse at 88% 0%,rgba(44,230,209,.10),transparent 42%),linear-gradient(145deg,rgba(31,20,62,.98),rgba(8,5,20,.99))",borderTop:`3px solid ${C.gold}`}}>
@@ -1664,6 +1737,17 @@ export default function ScarlettTracker(){
     const overallGlow=Math.round(avgArr([avgSk,Math.round(gpa/4*100),games.length?winPct:0].filter(v=>v>0)))||0;
 
     return<div>
+      <TabHero
+        eyebrow="Rewards & Progress"
+        title="Celebrate what was earned."
+        sub="Approved goals unlock reward tokens. Progress, badges, grades, and growth stay visible for parents and Scarlett."
+        icon="🎁"
+        stats={[
+          {value:approvedGoalCount,label:"approved",color:C.green},
+          {value:rewardTokens,label:"available",color:C.gold},
+          {value:earnedBadges.length,label:"badges",color:C.mauve}
+        ]}
+      />
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 0%,rgba(255,215,0,.22),transparent 45%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",borderTop:`3px solid ${C.gold}`}}>
         <CH e="🎁" title="Reward Shop" sub="Wishlist rewards unlock only after real goals are approved."/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
