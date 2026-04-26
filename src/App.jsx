@@ -787,20 +787,53 @@ export default function ScarlettTracker(){
   // ── HOOPS ──────────────────────────────────────────────────────────────
   const Hoops=()=>{
     const[section,setSection]=useState("game");
-    const[gf,setGf]=useState({pts:"",ast:"",reb:"",stl:"",blk:"",tov:"",fgm:"",fga:"",ftm:"",fta:"",result:"Win",opp:"",effort:0,confidence:0});
+    const emptyGf={pts:"",ast:"",reb:"",stl:"",blk:"",tov:"",fouls:"",fgm:"",fga:"",ftm:"",fta:"",result:"Win",opp:"",effort:0,confidence:0};
+    const[gf,setGf]=useState(emptyGf);
+    const[editGameId,setEditGameId]=useState(null);
     const[pf,setPf]=useState({type:"Team Practice",duration:"",effort:0,note:""});
 
     const ni=k=>parseInt(gf[k])||0;
     const ftPctNow=ni("fta")?Math.round(ni("ftm")/ni("fta")*100):null;
     const fgPctNow=ni("fga")?Math.round(ni("fgm")/ni("fga")*100):null;
+    const resetGameForm=()=>{setGf(emptyGf);setEditGameId(null);};
+
+    const startEditGame=g=>{
+      setSection("game");
+      setEditGameId(g.id);
+      setGf({
+        pts:String(g.pts??""),
+        ast:String(g.ast??""),
+        reb:String(g.reb??""),
+        stl:String(g.stl??""),
+        blk:String(g.blk??""),
+        tov:String(g.tov??""),
+        fouls:String(g.fouls??""),
+        fgm:String(g.fgm??""),
+        fga:String(g.fga??""),
+        ftm:String(g.ftm??""),
+        fta:String(g.fta??""),
+        result:g.result||"Win",
+        opp:g.opponent||"",
+        effort:g.effort||0,
+        confidence:g.confidence||0
+      });
+      setTimeout(()=>window.scrollTo({top:0,behavior:"smooth"}),50);
+    };
 
     const logGame=async()=>{
       const pts=ni("pts");if(!gf.result)return;
-      const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),pts,ast:ni("ast"),reb:ni("reb"),stl:ni("stl"),blk:ni("blk"),tov:ni("tov"),fgm:ni("fgm"),fga:ni("fga"),ftm:ni("ftm"),fta:ni("fta"),result:gf.result,opponent:gf.opp,effort:gf.effort,confidence:gf.confidence};
+      const base={date:toShort(todayISO()),dateISO:todayISO(),pts,ast:ni("ast"),reb:ni("reb"),stl:ni("stl"),blk:ni("blk"),tov:ni("tov"),fouls:ni("fouls"),fgm:ni("fgm"),fga:ni("fga"),ftm:ni("ftm"),fta:ni("fta"),result:gf.result,opponent:gf.opp,effort:gf.effort,confidence:gf.confidence};
+      if(editGameId){
+        const ng=games.map(g=>g.id===editGameId?{...g,...base,id:g.id,date:g.date||base.date,dateISO:g.dateISO||base.dateISO}:g);
+        await saveBball(ng,skills);
+        resetGameForm();
+        return;
+      }
+      const entry={id:uid(),...base};
       const ng=[entry,...games].slice(0,100);await saveBball(ng,skills);
       const earn=(gf.result==="Win"?5:2)+(pts>=15?4:pts>=10?2:pts>=5?1:0)+(gf.effort>=4?1:0)+(ni("stl")>=3?1:0);
       await addStars(earn);
-      setGf({pts:"",ast:"",reb:"",stl:"",blk:"",tov:"",fgm:"",fga:"",ftm:"",fta:"",result:"Win",opp:"",effort:0,confidence:0});
+      resetGameForm();
     };
     const logPractice=async()=>{
       const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),type:pf.type,duration:pf.duration,effort:pf.effort,note:pf.note};
@@ -814,6 +847,7 @@ export default function ScarlettTracker(){
     const a=k=>games.length?(s(k)/games.length).toFixed(1):"—";
     const ftA=s("fta"),ftM=s("ftm"),fgA=s("fga"),fgM=s("fgm");
     const SKILL_GROUPS={"Handles & Scoring":{col:C.coral,items:["Ball Handling","Shooting Form","Layups","Free Throws"]},"Passing & Vision":{col:C.purple,items:["Passing","Court Vision"]},"Defense & Hustle":{col:C.teal,items:["Defense","Rebounding","Footwork","Speed & Agility","Conditioning"]},"Mindset":{col:C.gold,items:["Basketball IQ","Confidence","Leadership"]}};
+    const numInput=(label,key,big=false)=><div key={key}><div style={{fontSize:big?10:9,color:C.muted,fontWeight:800,marginBottom:5,textAlign:"center",lineHeight:1.15}}>{label}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[key]} onChange={ev=>setGf(p=>({...p,[key]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:big?21:18,padding:big?"10px 4px":"9px 4px"}}/></div>;
 
     return<div>
       <div style={{display:"flex",gap:6,marginBottom:14,background:"rgba(255,255,255,.06)",borderRadius:16,padding:5}}>
@@ -824,60 +858,70 @@ export default function ScarlettTracker(){
 
       {section==="game"&&<>
         <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:7}}>
-          {[{v:games.length,l:"Games",col:C.coral},{v:wins,l:"Wins 🏆",col:C.green},{v:a("pts"),l:"Avg Pts",col:C.gold},{v:games.length?Math.round(wins/games.length*100)+"%":"—",l:"Win %",col:C.teal}].map(({v,l,col})=><SBox key={l} value={v} label={l} color={col}/>)}
+          {[{v:games.length,l:"Games",col:C.coral},{v:wins,l:"Wins 🏆",col:C.green},{v:a("pts"),l:"Avg Points",col:C.gold},{v:games.length?Math.round(wins/games.length*100)+"%":"—",l:"Win %",col:C.teal}].map(({v,l,col})=><SBox key={l} value={v} label={l} color={col}/>) }
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:7}}>
-          {[{v:a("ast"),l:"Avg Ast",col:C.purple},{v:a("reb"),l:"Avg Reb",col:C.teal},{v:a("stl"),l:"Avg Stl",col:C.blue},{v:a("blk"),l:"Avg Blk",col:C.orange}].map(({v,l,col})=><SBox key={l} value={v} label={l} color={col}/>)}
+          {[{v:a("ast"),l:"Avg Assists",col:C.purple},{v:a("reb"),l:"Avg Rebounds",col:C.teal},{v:a("stl"),l:"Avg Steals",col:C.blue},{v:a("fouls"),l:"Avg Fouls",col:C.orange}].map(({v,l,col})=><SBox key={l} value={v} label={l} color={col}/>) }
         </div>
         {(ftA>0||fgA>0)&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7,marginBottom:12}}>
-          {ftA>0&&<SBox value={Math.round(ftM/ftA*100)+"%"} label={`FT% (${ftM}/${ftA})`} color={ftM/ftA>=.7?C.green:C.gold}/>}
-          {fgA>0&&<SBox value={Math.round(fgM/fgA*100)+"%"} label={`FG% (${fgM}/${fgA})`} color={fgM/fgA>=.45?C.green:C.teal}/>}
+          {fgA>0&&<SBox value={Math.round(fgM/fgA*100)+"%"} label={`Shots (${fgM}/${fgA})`} color={fgM/fgA>=.45?C.green:C.teal}/>}
+          {ftA>0&&<SBox value={Math.round(ftM/ftA*100)+"%"} label={`Free Throws (${ftM}/${ftA})`} color={ftM/ftA>=.7?C.green:C.gold}/>}
         </div>}
         <div style={cs}>
-          <CH e="➕" title="Log a Game"/>
+          <CH e={editGameId?"✏️":"➕"} title={editGameId?"Edit Saved Game":"Log a Game"} sub={editGameId?"Fix the stats, then save changes":"Use straightforward stat names so it is easy to enter correctly"}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>RESULT</div>
           <div style={{display:"flex",gap:8,marginBottom:14}}>
             {["Win","Loss"].map(r=><button key={r} onClick={()=>setGf(p=>({...p,result:r}))} style={{flex:1,padding:14,borderRadius:16,border:`2px solid ${gf.result===r?(r==="Win"?C.green:C.red):C.border}`,background:gf.result===r?(r==="Win"?`${C.green}20`:`${C.red}18`):"rgba(255,255,255,.04)",color:gf.result===r?(r==="Win"?C.green:C.red):C.muted,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui"}}>{r==="Win"?"🏆 Win":"💪 Loss"}</button>)}
           </div>
-          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>MAIN STATS</div>
+          <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:8}}>PLAYER STATS</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
-            {[["🔥 Points","pts"],["🤝 Assists","ast"],["💪 Rebounds","reb"]].map(([l,k])=><div key={k}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:5,textAlign:"center"}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[k]} onChange={ev=>setGf(p=>({...p,[k]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:22,padding:"10px 4px"}}/></div>)}
+            {[ ["Points","pts"], ["Assists","ast"], ["Rebounds","reb"] ].map(([l,k])=>numInput(l,k,true))}
           </div>
-          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>DEFENSE</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
-            {[["🛡️ Steals","stl"],["✋ Blocks","blk"],["⚠️ Turnovers","tov"]].map(([l,k])=><div key={k}><div style={{fontSize:10,color:C.muted,fontWeight:700,marginBottom:5,textAlign:"center"}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[k]} onChange={ev=>setGf(p=>({...p,[k]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:22,padding:"10px 4px"}}/></div>)}
-          </div>
-          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>SHOOTING 🎯</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:7,marginBottom:6}}>
-            {[["FG Made","fgm"],["FG Tried","fga"],["FT Made","ftm"],["FT Tried","fta"]].map(([l,k])=><div key={k}><div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:5,textAlign:"center"}}>{l}</div><input type="number" inputMode="numeric" min="0" placeholder="0" value={gf[k]} onChange={ev=>setGf(p=>({...p,[k]:ev.target.value}))} style={{...INP,textAlign:"center",fontWeight:900,fontSize:18,padding:"9px 4px"}}/></div>)}
+          <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:8}}>SHOOTING</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
+            {[ ["Shots Made","fgm"], ["Shots Attempted","fga"], ["Free Throws Made","ftm"], ["Free Throws Attempted","fta"] ].map(([l,k])=>numInput(l,k,false))}
           </div>
           {(ftPctNow!==null||fgPctNow!==null)&&<div style={{display:"flex",gap:8,marginBottom:12}}>
-            {fgPctNow!==null&&<div style={{flex:1,padding:"8px 10px",borderRadius:12,background:`${fgPctNow>=45?C.green:C.gold}14`,border:`1px solid ${fgPctNow>=45?C.green:C.gold}44`,textAlign:"center"}}><div style={{fontSize:16,fontWeight:950,color:fgPctNow>=45?C.green:C.gold}}>{fgPctNow}%</div><div style={{fontSize:9,color:C.muted}}>FG%</div></div>}
-            {ftPctNow!==null&&<div style={{flex:1,padding:"8px 10px",borderRadius:12,background:`${ftPctNow>=70?C.green:C.orange}14`,border:`1px solid ${ftPctNow>=70?C.green:C.orange}44`,textAlign:"center"}}><div style={{fontSize:16,fontWeight:950,color:ftPctNow>=70?C.green:C.orange}}>{ftPctNow}%</div><div style={{fontSize:9,color:C.muted}}>FT%</div></div>}
+            {fgPctNow!==null&&<div style={{flex:1,padding:"8px 10px",borderRadius:12,background:`${fgPctNow>=45?C.green:C.gold}14`,border:`1px solid ${fgPctNow>=45?C.green:C.gold}44`,textAlign:"center"}}><div style={{fontSize:16,fontWeight:950,color:fgPctNow>=45?C.green:C.gold}}>{fgPctNow}%</div><div style={{fontSize:9,color:C.muted}}>Shot %</div></div>}
+            {ftPctNow!==null&&<div style={{flex:1,padding:"8px 10px",borderRadius:12,background:`${ftPctNow>=70?C.green:C.orange}14`,border:`1px solid ${ftPctNow>=70?C.green:C.orange}44`,textAlign:"center"}}><div style={{fontSize:16,fontWeight:950,color:ftPctNow>=70?C.green:C.orange}}>{ftPctNow}%</div><div style={{fontSize:9,color:C.muted}}>Free Throw %</div></div>}
           </div>}
+          <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:8}}>DEFENSE / MISTAKES</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:7,marginBottom:14}}>
+            {[ ["Steals","stl"], ["Blocks","blk"], ["Turnovers","tov"], ["Fouls","fouls"] ].map(([l,k])=>numInput(l,k,false))}
+          </div>
           <input value={gf.opp} onChange={e=>setGf(p=>({...p,opp:e.target.value}))} placeholder="Opponent (optional)" style={{...INP,marginBottom:12}}/>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
             <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:8}}>EFFORT ⚡</div><RD val={gf.effort} max={5} col={C.orange} onSet={v=>setGf(p=>({...p,effort:v}))}/></div>
             <div><div style={{fontSize:10,color:C.muted,fontWeight:800,marginBottom:8}}>CONFIDENCE 💜</div><RD val={gf.confidence} max={5} col={C.purple} onSet={v=>setGf(p=>({...p,confidence:v}))}/></div>
           </div>
-          <button onClick={logGame} style={{width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.coral},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.coral}33`}}>Save Game ⭐</button>
+          <div style={{display:"flex",gap:8}}>
+            {editGameId&&<button onClick={resetGameForm} style={{flex:1,padding:14,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Cancel</button>}
+            <button onClick={logGame} style={{flex:editGameId?2:1,width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.coral},${C.pink})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.coral}33`}}>{editGameId?"Save Changes ✅":"Save Game ⭐"}</button>
+          </div>
         </div>
         {games.length>0&&<div style={cs}>
-          <CH e="📋" title="Game History"/>
-          {games.slice(0,8).map(g=><div key={g.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
+          <CH e="📋" title="Game History" sub="Tap Edit if a saved stat needs to be corrected"/>
+          {games.slice(0,12).map(g=><div key={g.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"11px 0",borderBottom:`1px solid ${C.border}`}}>
             <div style={{width:38,height:38,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,background:g.result==="Win"?`${C.green}20`:`${C.red}14`,border:`1px solid ${g.result==="Win"?C.green+"44":C.red+"33"}`,flexShrink:0}}>{g.result==="Win"?"🏆":"💪"}</div>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:900,color:C.text,marginBottom:3}}>{g.pts} pts · {g.ast} ast · {g.reb} reb</div>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:3}}>
-                {g.stl>0&&<span style={{fontSize:10,color:C.blue,background:`${C.blue}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{g.stl} stl</span>}
-                {g.blk>0&&<span style={{fontSize:10,color:C.orange,background:`${C.orange}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{g.blk} blk</span>}
-                {g.tov>0&&<span style={{fontSize:10,color:C.red,background:`${C.red}14`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{g.tov} tov</span>}
-                {g.fta>0&&<span style={{fontSize:10,color:C.teal,background:`${C.teal}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{Math.round(g.ftm/g.fta*100)}% FT</span>}
-                {g.fga>0&&<span style={{fontSize:10,color:C.gold,background:`${C.gold}18`,padding:"1px 7px",borderRadius:5,fontWeight:800}}>{Math.round(g.fgm/g.fga*100)}% FG</span>}
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:950,color:C.text,marginBottom:4}}>{g.result||"Game"}{g.opponent?` vs ${g.opponent}`:""}</div>
+              <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:5}}>
+                <span style={{fontSize:10,color:C.gold,background:`${C.gold}18`,padding:"2px 7px",borderRadius:6,fontWeight:850}}>Points {g.pts||0}</span>
+                <span style={{fontSize:10,color:C.purple,background:`${C.purple}18`,padding:"2px 7px",borderRadius:6,fontWeight:850}}>Assists {g.ast||0}</span>
+                <span style={{fontSize:10,color:C.teal,background:`${C.teal}18`,padding:"2px 7px",borderRadius:6,fontWeight:850}}>Rebounds {g.reb||0}</span>
+                <span style={{fontSize:10,color:C.blue,background:`${C.blue}18`,padding:"2px 7px",borderRadius:6,fontWeight:850}}>Steals {g.stl||0}</span>
+                <span style={{fontSize:10,color:C.orange,background:`${C.orange}18`,padding:"2px 7px",borderRadius:6,fontWeight:850}}>Blocks {g.blk||0}</span>
+                <span style={{fontSize:10,color:C.red,background:`${C.red}14`,padding:"2px 7px",borderRadius:6,fontWeight:850}}>Turnovers {g.tov||0}</span>
+                <span style={{fontSize:10,color:C.orange,background:`${C.orange}12`,padding:"2px 7px",borderRadius:6,fontWeight:850}}>Fouls {g.fouls||0}</span>
+                <span style={{fontSize:10,color:C.light,background:"rgba(255,255,255,.07)",padding:"2px 7px",borderRadius:6,fontWeight:850}}>Shots {g.fgm||0}/{g.fga||0}</span>
+                <span style={{fontSize:10,color:C.light,background:"rgba(255,255,255,.07)",padding:"2px 7px",borderRadius:6,fontWeight:850}}>Free Throws {g.ftm||0}/{g.fta||0}</span>
               </div>
-              <div style={{fontSize:10,color:C.muted}}>{g.date}{g.opponent?` · vs ${g.opponent}`:""}</div>
+              <div style={{fontSize:10,color:C.muted}}>{g.date}</div>
             </div>
-            <button onClick={()=>saveBball(games.filter(x=>x.id!==g.id),skills)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:18}}>×</button>
+            <div style={{display:"flex",flexDirection:"column",gap:6,flexShrink:0}}>
+              <button onClick={()=>startEditGame(g)} style={{padding:"6px 9px",borderRadius:10,border:`1px solid ${C.teal}44`,background:`${C.teal}14`,color:C.teal,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Edit</button>
+              <button onClick={()=>saveBball(games.filter(x=>x.id!==g.id),skills)} style={{padding:"6px 9px",borderRadius:10,border:`1px solid ${C.red}33`,background:`${C.red}10`,color:C.red,fontWeight:900,cursor:"pointer",fontSize:10,fontFamily:"system-ui"}}>Delete</button>
+            </div>
           </div>)}
         </div>}
       </>}
@@ -887,7 +931,7 @@ export default function ScarlettTracker(){
           <CH e="➕" title="Log a Practice"/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>TYPE</div>
           <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4,marginBottom:14}}>
-            {PRACTICE_TYPES.map(t=><Chip key={t} label={t} active={pf.type===t} col={C.purple} onClick={()=>setPf(p=>({...p,type:t}))}/>)}
+            {PRACTICE_TYPES.map(t=><Chip key={t} label={t} active={pf.type===t} col={C.purple} onClick={()=>setPf(p=>({...p,type:t}))}/>) }
           </div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>MINUTES</div>
           <input type="number" inputMode="numeric" placeholder="e.g. 60" value={pf.duration} onChange={e=>setPf(p=>({...p,duration:e.target.value}))} style={{...INP,textAlign:"center",fontSize:22,fontWeight:900,marginBottom:14}}/>
