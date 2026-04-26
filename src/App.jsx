@@ -423,8 +423,9 @@ const WNBA_DAILY_COACH=[
     takeaway:"Lesson: trust your work and stay ready."
   }
 ];
+const WNBA_COACH_ROTATION_OFFSET=1; // Moves today's coach forward while still rotating at local 12:00 AM.
 function getDailyWnbaCoach(){
-  const day=localDayKey();
+  const day=localDayKey()+WNBA_COACH_ROTATION_OFFSET;
   return WNBA_DAILY_COACH[day%WNBA_DAILY_COACH.length];
 }
 
