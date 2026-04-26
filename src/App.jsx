@@ -1632,17 +1632,6 @@ export default function ScarlettTracker(){
         </div>}
       </>}
 
-      <div style={cs}>
-        <CH e="🔮" title="Future Sport Profiles" sub="Optional sport templates for later. Keep basketball focused now, then add a new sport when it actually becomes part of her routine."/>
-        <div style={{fontSize:10,color:C.muted,fontWeight:950,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:8}}>Future Sport Profiles</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-          {FUTURE_SPORT_IDS.map(id=>{const sport=SPORT_TEMPLATES[id];const selected=selectedSportId===sport.id;return <button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{padding:"12px 7px",borderRadius:18,border:`1px solid ${selected?sport.accent:C.border}`,background:selected?`${sport.accent}20`:"rgba(255,255,255,.04)",color:selected?C.cream:C.muted,cursor:"pointer",fontFamily:"system-ui"}}>
-            <div style={{fontSize:24,marginBottom:5}}>{sport.icon}</div>
-            <div style={{fontSize:10,fontWeight:950,lineHeight:1.15,minHeight:24,display:"flex",alignItems:"center",justifyContent:"center"}}>{sport.label}</div>
-            <div style={{fontSize:8,color:selected?sport.accent:C.muted,fontWeight:850,marginTop:5}}>{sport.id==="custom"?"Create Later":"Preview / Add Later"}</div>
-          </button>;})}
-        </div>
-      </div>
     </div>;
   };
 
