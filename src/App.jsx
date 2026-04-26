@@ -974,7 +974,7 @@ export default function ScarlettTracker(){
         sub="A daily Virgo-inspired mindset card that rotates at 12:00 AM and turns the vibe into a real action."
         icon="♍"
         stats={[
-          {value:"12AM",label:"rotates",color:C.mauve},
+          {value:"♍",label:"virgo",color:C.mauve},
           {value:"1",label:"power move",color:C.gold},
           {value:"Goal",label:"next",color:C.teal,onClick:()=>setTab("goals")}
         ]}
