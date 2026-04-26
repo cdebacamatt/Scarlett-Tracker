@@ -33,7 +33,7 @@ const C={
 // 5 tabs instead of 12
 const TABS=[
   {id:"today",e:"🏠",label:"Today"},
-  {id:"hoops",e:"🏀",label:"Hoops"},
+  {id:"hoops",e:"🏀",label:"Sports"},
   {id:"glow",e:"✨",label:"My Glow"},
   {id:"wishlist",e:"🛍️",label:"Wishlist"},
   {id:"goals",e:"🎯",label:"Goals"},
@@ -47,7 +47,7 @@ const DEF_SKILLS={"Ball Handling":35,"Shooting Form":30,"Layups":35,"Free Throws
 
 const SPORT_TEMPLATES={
   basketball:{
-    id:"basketball",label:"Basketball",short:"Hoops",icon:"🏀",accent:C.mauve,hero:"Hoop section",tagline:"Shots, assists, rebounds, defense, and confidence.",
+    id:"basketball",label:"Basketball",short:"Sports",icon:"🏀",accent:C.mauve,hero:"Performance Hub",tagline:"Stats, training, skills, and confidence in one place.",
     statFields:[{key:"pts",label:"Points",group:"Scoring"},{key:"fgm",label:"Shots Made",group:"Shooting"},{key:"fga",label:"Shots Attempted",group:"Shooting"},{key:"ftm",label:"Free Throws Made",group:"Shooting"},{key:"fta",label:"Free Throws Attempted",group:"Shooting"},{key:"ast",label:"Assists",group:"Impact"},{key:"reb",label:"Rebounds",group:"Impact"},{key:"stl",label:"Steals",group:"Defense"},{key:"blk",label:"Blocks",group:"Defense"},{key:"tov",label:"Turnovers",group:"Mistakes"},{key:"fouls",label:"Fouls",group:"Mistakes"}],
     skills:["Ball Handling","Shooting Form","Layups","Free Throws","Passing","Court Vision","Defense","Rebounding","Footwork","Speed & Agility","Conditioning","Basketball IQ","Confidence","Leadership"],
     practiceTypes:["Team Practice","Home Workout","Shooting","Ball Handling","Defense","Full Workout"],
@@ -1218,9 +1218,9 @@ export default function ScarlettTracker(){
 
     return<div>
       <TabHero
-        eyebrow="Sport Engine"
-        title={`${sportTemplate.short}: ${sportTemplate.hero}`}
-        sub={isBasketball?"Basketball remains Scarlett’s active working tracker. Soccer and tennis are merged as template-driven preview modules for future expansion.":`${sportTemplate.label} is running through the same reusable sports framework. This preview shows how new sport stat modules plug in without replacing Scarlett’s app.`}
+        eyebrow={isBasketball?"Sports Hub":"Sport Preview"}
+        title={isBasketball?"Sports: Performance Hub":`${sportTemplate.label}: Performance Preview`}
+        sub={isBasketball?"Track Scarlett’s active sport, training, game stats, and skills here, with room to add future sports when they become relevant.":`${sportTemplate.label} plugs into the same reusable sports framework, so new sports can be added later without changing Scarlett’s current data.`}
         icon={sportTemplate.icon}
         stats={[
           {value:isBasketball?games.length:sportTemplate.statFields.length,label:isBasketball?"games":"metrics",color:sportTemplate.accent,onClick:()=>setSection("game")},
@@ -1229,9 +1229,8 @@ export default function ScarlettTracker(){
         ]}
       />
       <div style={cs}>
-        <CH e="🏟️" title="Athlete Sport Profile" sub="Scarlett’s current tracker stays focused on basketball. Future sports can be previewed or activated later without changing her saved basketball data."/>
-        <div style={{fontSize:10,color:C.muted,fontWeight:950,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:8}}>Current Active Sport</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:8,marginBottom:14}}>
+        <CH e="🏟️" title="Current Active Sport" sub="Basketball stays at the top because this is Scarlett’s active saved tracker for stats, training, and skills."/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:8}}>
           {ACTIVE_SPORT_IDS.map(id=>{const sport=SPORT_TEMPLATES[id];return <button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{display:"flex",alignItems:"center",gap:12,padding:14,borderRadius:20,border:`1px solid ${selectedSportId===sport.id?sport.accent:C.border}`,background:selectedSportId===sport.id?`${sport.accent}20`:"rgba(255,255,255,.04)",color:C.cream,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
             <div style={{width:44,height:44,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:25,background:`${sport.accent}18`,border:`1px solid ${sport.accent}44`}}>{sport.icon}</div>
             <div style={{flex:1}}>
@@ -1239,15 +1238,6 @@ export default function ScarlettTracker(){
               <div style={{fontSize:11,color:C.muted,marginTop:2}}>Active tracker · saved games · practices · skills</div>
             </div>
             <div style={{fontSize:9,fontWeight:950,color:sport.accent,background:`${sport.accent}18`,padding:"5px 8px",borderRadius:999}}>ACTIVE</div>
-          </button>;})}
-        </div>
-
-        <div style={{fontSize:10,color:C.muted,fontWeight:950,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:8}}>Future Sport Profiles</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-          {FUTURE_SPORT_IDS.map(id=>{const sport=SPORT_TEMPLATES[id];const selected=selectedSportId===sport.id;return <button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{padding:"12px 7px",borderRadius:18,border:`1px solid ${selected?sport.accent:C.border}`,background:selected?`${sport.accent}20`:"rgba(255,255,255,.04)",color:selected?C.cream:C.muted,cursor:"pointer",fontFamily:"system-ui"}}>
-            <div style={{fontSize:24,marginBottom:5}}>{sport.icon}</div>
-            <div style={{fontSize:10,fontWeight:950,lineHeight:1.15,minHeight:24,display:"flex",alignItems:"center",justifyContent:"center"}}>{sport.label}</div>
-            <div style={{fontSize:8,color:selected?sport.accent:C.muted,fontWeight:850,marginTop:5}}>{sport.id==="custom"?"Create Later":"Preview / Add Later"}</div>
           </button>;})}
         </div>
       </div>
@@ -1629,6 +1619,17 @@ export default function ScarlettTracker(){
           </div>;})}
         </div>}
       </>}
+
+      <div style={cs}>
+        <CH e="🔮" title="Future Sport Profiles" sub="These stay at the bottom so the main tracker stays focused. Preview or add later when Scarlett actually starts a new sport."/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+          {FUTURE_SPORT_IDS.map(id=>{const sport=SPORT_TEMPLATES[id];const selected=selectedSportId===sport.id;return <button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{padding:"12px 7px",borderRadius:18,border:`1px solid ${selected?sport.accent:C.border}`,background:selected?`${sport.accent}20`:"rgba(255,255,255,.04)",color:selected?C.cream:C.muted,cursor:"pointer",fontFamily:"system-ui"}}>
+            <div style={{fontSize:24,marginBottom:5}}>{sport.icon}</div>
+            <div style={{fontSize:10,fontWeight:950,lineHeight:1.15,minHeight:24,display:"flex",alignItems:"center",justifyContent:"center"}}>{sport.label}</div>
+            <div style={{fontSize:8,color:selected?sport.accent:C.muted,fontWeight:850,marginTop:5}}>{sport.id==="custom"?"Create Later":"Preview / Add Later"}</div>
+          </button>;})}
+        </div>
+      </div>
     </div>;
   };
 
