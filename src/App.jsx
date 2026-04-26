@@ -454,37 +454,16 @@ const addDays=(n=7)=>{const d=new Date();d.setDate(d.getDate()+n);return dateToL
 const daysAgo=d=>{try{return Math.round((Date.now()-new Date(d+"T12:00:00"))/86400000);}catch{return 999;}};
 const glamGrad=`linear-gradient(135deg,${C.blush},${C.mauve},${C.gold})`;
 const DAILY_HOROSCOPE=[
-  {vibe:"Virgo focus queen",message:"Your superpower today is noticing the little details others miss. Pick one tiny promise and finish it all the way.",power:"Finish one thing fully",lucky:"Gold stars"},
-  {vibe:"Clean routine energy",message:"A Virgo glow-up starts with order. Clear one small mess, prep one thing early, and your whole day feels lighter.",power:"Prep before pressure",lucky:"Clean outfit"},
-  {vibe:"Court discipline",message:"Reps do not need to be perfect to count. Keep your form clean, your feet active, and your mind locked in.",power:"15 focused reps",lucky:"Basketball shoes"},
-  {vibe:"School boss mode",message:"Your brain is sharp today. Start with the hardest school task first so the rest of the day feels easier.",power:"Hard thing first",lucky:"Purple pen"},
-  {vibe:"Main character calm",message:"You do not have to rush to prove anything. Move with confidence, stay kind, and let your follow-through speak.",power:"Calm confidence",lucky:"Soft glam"},
-  {vibe:"Trendsetter Virgo",message:"You do not have to copy every trend. Choose what fits your style, your confidence, and the person you are becoming.",power:"Be original",lucky:"Something shiny"},
-  {vibe:"Reward mindset",message:"The wishlist is not just stuff. It is proof that discipline, goals, and follow-through turn into real rewards.",power:"Earn it first",lucky:"Dream item"},
-  {vibe:"Practice promise",message:"A little practice done today beats a perfect plan saved for later. Start small and let momentum build.",power:"Start for 5 minutes",lucky:"Pink notebook"},
-  {vibe:"Virgo reset",message:"If the day feels messy, reset one thing: your room, your backpack, your attitude, or your next choice.",power:"Reset and restart",lucky:"Fresh start"},
-  {vibe:"Glow-up details",message:"Tiny habits make the glow-up real. Face care, outfit prep, and sleep are quiet wins that stack up.",power:"Do the routine",lucky:"Glowy skin"},
-  {vibe:"Leader energy",message:"Lead by example today. Be the teammate who listens, hustles, and keeps the mood strong.",power:"Encourage someone",lucky:"Team colors"},
-  {vibe:"Confidence builder",message:"Confidence grows when you keep promises to yourself. Do one thing you said you would do.",power:"Keep the promise",lucky:"Crown emoji"},
-  {vibe:"Focused and fitted",message:"Looking good can help you feel ready, but your real power is showing up prepared.",power:"Pack early",lucky:"Favorite hoodie"},
-  {vibe:"Free throw mindset",message:"Slow down, breathe, and repeat. Virgo energy loves a routine — use it to build consistency.",power:"Same routine every time",lucky:"Free throws"},
-  {vibe:"No drama discipline",message:"Protect your peace today. Put your energy into school, practice, style, and goals — not distractions.",power:"Stay unbothered",lucky:"Teal accent"},
-  {vibe:"Smart girl era",message:"Asking for help is not weakness. It is strategy. Smart players and smart students use their resources.",power:"Ask one question",lucky:"Study notes"},
-  {vibe:"Clean bag, clear mind",message:"A packed backpack and ready outfit make tomorrow easier. Future you will be thankful.",power:"Prep tonight",lucky:"Backpack check"},
-  {vibe:"Hustle with heart",message:"Give effort even when nobody is clapping. The work still counts, and you are building trust with yourself.",power:"Quiet hustle",lucky:"Sneaker laces"},
-  {vibe:"Virgo glow check",message:"Notice what is working. Celebrate one win before you think about what needs fixing.",power:"Name one win",lucky:"Gold sparkle"},
-  {vibe:"Better than yesterday",message:"You do not need to beat everyone today. Just beat yesterday's version of you by one small choice.",power:"One percent better",lucky:"Practice fit"},
-  {vibe:"Organized athlete",message:"Write it down, track it, and make it real. Goals are easier when you can see the next move.",power:"Track the next move",lucky:"Checklist"},
-  {vibe:"Soft but strong",message:"You can be sweet and still be serious about your goals. Kindness and discipline can both be yours.",power:"Kind and locked in",lucky:"Pink + black"},
-  {vibe:"Game-day brain",message:"See the floor, make the pass, take the open shot, and trust the work you have done.",power:"Trust your training",lucky:"Jersey number"},
-  {vibe:"Routine queen",message:"A routine is not boring when it gets you closer to the girl you want to become.",power:"Keep the streak alive",lucky:"Night routine"},
-  {vibe:"Homework then highlights",message:"Screens feel better when the work is done first. Handle the assignment, then enjoy the fun.",power:"Work before scroll",lucky:"YouTube break"},
-  {vibe:"Dream pair energy",message:"That wishlist item becomes more meaningful when it is connected to effort, goals, and follow-through.",power:"Earn the unlock",lucky:"Dream shoes"},
-  {vibe:"Clear goals only",message:"Make the goal simple enough to do today. Clear beats complicated every time.",power:"Make it tiny",lucky:"One goal"},
-  {vibe:"Brave beginner",message:"It is okay to be building. Every strong player started as someone learning the basics.",power:"Practice the basics",lucky:"Layups"},
-  {vibe:"Level-up day",message:"Pick one area to improve and give it your best attention. Focus is the shortcut.",power:"One focus area",lucky:"XP boost"},
-  {vibe:"Friendship and focus",message:"Be fun, be kind, and still stay on track. The right friends will respect your goals.",power:"Good energy only",lucky:"Group chat joy"},
-  {vibe:"Virgo victory",message:"Today is a good day to prove to yourself that you can start, finish, and feel proud.",power:"Finish strong",lucky:"Victory star"},
+  {vibe:"Virgo focus queen",message:"Your superpower today is noticing the little details others miss. Pick one tiny promise and finish it all the way.",power:"Finish one thing fully",lucky:"Gold stars",theme:"Details become confidence",element:"Earth",energy:"Focused and steady",longVibe:"Virgo energy is strongest when the day has a clear plan. Scarlett does not need to do everything at once; she needs one clean promise, one next step, and one finished action. Today is about proving to herself that small follow-through builds real confidence.",tryThis:"Choose one goal and write the exact next step. Then finish only that step before starting something else.",affirmation:"I am focused, prepared, and proud of my follow-through.",journal:"What is one small thing I can finish today that will make me feel proud?",glowTip:"Clean up one small area before starting homework or practice."},
+  {vibe:"Clean routine energy",message:"A Virgo glow-up starts with order. Clear one small mess, prep one thing early, and your whole day feels lighter.",power:"Prep before pressure",lucky:"Clean outfit",theme:"Organized glow",element:"Earth",energy:"Calm and prepared",longVibe:"Today’s Virgo vibe is about making life feel easier before it gets busy. A prepared backpack, outfit, water bottle, or practice bag can turn stress into calm. When Scarlett creates order around her, she gives herself more room to shine.",tryThis:"Pick one thing to prepare early: outfit, backpack, shoes, water bottle, or homework space.",affirmation:"I am organized, calm, and ready for what is next.",journal:"What can I prepare now that future me will be thankful for?",glowTip:"Lay out tomorrow’s outfit or practice gear before bedtime."},
+  {vibe:"Court discipline",message:"Reps do not need to be perfect to count. Keep your form clean, your feet active, and your mind locked in.",power:"15 focused reps",lucky:"Basketball shoes",theme:"Practice with purpose",element:"Earth",energy:"Locked in",longVibe:"Virgo discipline is not about being perfect. It is about paying attention. On the court, that means clean form, active feet, and repeating the basics even when nobody is watching. The goal is not a flashy practice. The goal is a focused one.",tryThis:"Do 15 focused reps of one basketball skill and rate your effort honestly.",affirmation:"I am disciplined, coachable, and getting better every day.",journal:"What basketball skill needs my cleanest focus right now?",glowTip:"Pick one skill before practice so the work has a purpose."},
+  {vibe:"School boss mode",message:"Your brain is sharp today. Start with the hardest school task first so the rest of the day feels easier.",power:"Hard thing first",lucky:"Purple pen",theme:"Smart strategy",element:"Earth",energy:"Sharp and capable",longVibe:"Virgo energy likes a smart plan. Today, Scarlett can make school feel less overwhelming by starting with the hardest task first. Once that is done, everything else feels lighter. This is how confidence grows in the classroom.",tryThis:"Start with the school task you least want to do and give it 20 focused minutes.",affirmation:"I am smart, capable, and brave enough to start.",journal:"What school task would feel amazing to get out of the way?",glowTip:"Use a timer and make the first 20 minutes distraction-free."},
+  {vibe:"Main character calm",message:"You do not have to rush to prove anything. Move with confidence, stay kind, and let your follow-through speak.",power:"Calm confidence",lucky:"Soft glam",theme:"Quiet confidence",element:"Earth",energy:"Grounded and confident",longVibe:"Today’s Virgo magic is calm confidence. Scarlett does not have to be the loudest person in the room to be powerful. She can be kind, prepared, steady, and strong. The real main character energy is following through even when things are not perfect.",tryThis:"Before reacting to anything stressful, take one breath and choose the calmest next move.",affirmation:"I am calm, confident, and in control of my choices.",journal:"Where can I show confidence today without needing attention?",glowTip:"Choose one simple detail that makes you feel put together."},
+  {vibe:"Trendsetter Virgo",message:"You do not have to copy every trend. Choose what fits your style, your confidence, and the person you are becoming.",power:"Be original",lucky:"Something shiny",theme:"Personal style",element:"Earth",energy:"Creative and selective",longVibe:"Virgo style is thoughtful. It is not about following every trend; it is about choosing what actually feels like you. Scarlett can love sneakers, beauty, outfits, and viral ideas while still building her own taste and confidence.",tryThis:"Add one wishlist item only if you can name the goal that would earn it.",affirmation:"I am original, stylish, and true to myself.",journal:"What style choice feels most like me right now?",glowTip:"Pick one accessory, hairstyle, or outfit detail that feels confident, not forced."},
+  {vibe:"Goal getter",message:"Do not just wish for the reward. Build the path to it. One goal, one action, one checkmark at a time.",power:"Earned reward",lucky:"Wishlist win",theme:"Earned success",element:"Earth",energy:"Motivated and practical",longVibe:"Today’s Virgo vibe connects perfectly with the app: set the goal, do the action, earn the reward. Scarlett’s wishlist is not just about wanting things. It is a reminder that effort creates options and follow-through creates pride.",tryThis:"Pick one wishlist item and connect it to one clear goal with one clear action.",affirmation:"I earn good things by keeping promises to myself.",journal:"What reward would feel better if I truly earned it?",glowTip:"Make the goal smaller if it feels too big to start."},
+  {vibe:"Kind but focused",message:"You can be sweet and still stay on task. Protect your time, your peace, and your goals.",power:"Stay on track",lucky:"Quiet win",theme:"Boundaries and focus",element:"Earth",energy:"Kind and steady",longVibe:"Virgo energy can be caring without getting pulled off track. Today is about being kind while still protecting focus. Scarlett can be a good friend, daughter, teammate, and student without forgetting her own goals.",tryThis:"Say yes to one helpful thing and no to one distraction.",affirmation:"I am kind, focused, and allowed to protect my goals.",journal:"What distraction do I need to say no to today?",glowTip:"Put your phone or tablet away during one focused block."},
+  {vibe:"Reset and rise",message:"If yesterday was messy, today can still be clean. A Virgo reset starts with one honest next step.",power:"Fresh start",lucky:"New checklist",theme:"Fresh start",element:"Earth",energy:"Renewed and hopeful",longVibe:"A bad day does not ruin the whole week. Virgo energy knows how to reset. Scarlett can look at what did not work, choose one better step, and move forward without being hard on herself.",tryThis:"Write one thing that did not go well and one thing you can do differently today.",affirmation:"I can reset, rise, and try again.",journal:"What does a better next step look like today?",glowTip:"Make a tiny checklist with only three things."},
+  {vibe:"Finish strong",message:"Today is a good day to prove to yourself that you can start, finish, and feel proud.",power:"Finish strong",lucky:"Victory star",theme:"Completion energy",element:"Earth",energy:"Determined and proud",longVibe:"Virgo energy loves completion. Not because everything has to be perfect, but because finishing creates trust with yourself. Today, Scarlett’s power move is to finish something she started and let that win count.",tryThis:"Choose one unfinished task and complete it before adding anything new.",affirmation:"I finish what I start and I am proud of my effort.",journal:"What would feel really good to finish today?",glowTip:"Celebrate the finish with one star, checkmark, or parent high-five."}
 ];
 const HOROSCOPE_ROTATION_OFFSET=7; // Forces a clearly new Virgo Daily Vibe today while still rotating at local 12:00 AM.
 function getDailyHoroscope(profile){
@@ -889,18 +868,17 @@ export default function ScarlettTracker(){
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
-        <button onClick={()=>setShowVirgo(!showVirgo)} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(45,43,47,.92),rgba(25,24,27,.98))",border:"1px solid rgba(255,255,255,.13)"}}>
+        <button onClick={()=>setTab("virgo")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(45,43,47,.92),rgba(25,24,27,.98))",border:"1px solid rgba(255,255,255,.13)"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
             <div style={{width:38,height:38,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:C.mauve,color:C.cream,fontSize:21}}>♍</div>
             <div style={{fontSize:10,letterSpacing:"2.5px",fontWeight:950,color:C.blush}}>VIRGO DAILY VIBE</div>
           </div>
           <div style={{fontFamily:"Georgia,serif",fontSize:21,lineHeight:1.08,color:C.cream,marginBottom:8}}>{horoscope.vibe}</div>
-          <div style={{fontSize:13,lineHeight:1.45,color:C.light,opacity:.86}}>{showVirgo?horoscope.message:String(horoscope.message||"").slice(0,82)+(String(horoscope.message||"").length>82?"...":"")}</div>
-          {showVirgo&&<div style={{marginTop:10,display:"grid",gap:7}}>
+          <div style={{fontSize:13,lineHeight:1.45,color:C.light,opacity:.86}}>{String(horoscope.message||"").slice(0,82)+(String(horoscope.message||"").length>82?"...":"")}</div>
+          <div style={{marginTop:10,display:"grid",gap:7}}>
             <div style={{fontSize:12,color:C.blush}}><b>Power move:</b> {horoscope.power}</div>
-            <div style={{fontSize:12,color:C.gold}}><b>Lucky vibe:</b> {horoscope.lucky}</div>
-          </div>}
-          <div style={{fontSize:13,color:C.blush,fontWeight:900,marginTop:12}}>{showVirgo?"Show Less":"See More"} →</div>
+          </div>
+          <div style={{fontSize:13,color:C.blush,fontWeight:900,marginTop:12}}>See More →</div>
         </button>
 
         <button onClick={()=>setTab("coach")} style={{...cs,marginBottom:0,textAlign:"left",cursor:"pointer",fontFamily:"system-ui",background:"linear-gradient(145deg,rgba(45,43,47,.92),rgba(25,24,27,.98))",border:"1px solid rgba(255,255,255,.13)"}}>
@@ -972,6 +950,88 @@ export default function ScarlettTracker(){
             <div style={{width:42,height:42,borderRadius:"50%",border:"2px dashed rgba(33,31,33,.36)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,margin:"3px auto 8px"}}>＋</div>
             <div style={{fontSize:10,lineHeight:1.15}}>Add to<br/>Wishlist</div>
           </button>
+        </div>
+      </div>
+    </div>;
+  };
+
+
+
+  // ── VIRGO DAILY VIBE SPOTLIGHT ─────────────────────────────────────────
+  const VirgoVibe=()=>{
+    const horoscope=getDailyHoroscope(profile);
+    const quickActions=[
+      {label:"Turn vibe into a goal",icon:"🎯",go:"goals"},
+      {label:"Open My Glow routine",icon:"✨",go:"glow"},
+      {label:"Check rewards",icon:"🎁",go:"progress"}
+    ];
+    return <div>
+      <button onClick={()=>setTab("today")} style={{marginBottom:12,border:"none",background:"rgba(255,255,255,.06)",color:C.blush,borderRadius:999,padding:"10px 14px",fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>← Back to Today</button>
+
+      <TabHero
+        eyebrow="Virgo Daily Vibe"
+        title="A calm focus prompt for Scarlett."
+        sub="A daily Virgo-inspired mindset card that rotates at 12:00 AM and turns the vibe into a real action."
+        icon="♍"
+        stats={[
+          {value:"12AM",label:"rotates",color:C.mauve},
+          {value:"1",label:"power move",color:C.gold},
+          {value:"Goal",label:"next",color:C.teal,onClick:()=>setTab("goals")}
+        ]}
+      />
+
+      <div style={{...cs,background:`linear-gradient(135deg,${C.cream},${C.cream2})`,color:C.darkText,border:"1px solid rgba(255,255,255,.24)",padding:20,boxShadow:"0 24px 60px rgba(0,0,0,.42)"}}>
+        <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
+          <div style={{width:92,height:92,borderRadius:32,display:"flex",alignItems:"center",justifyContent:"center",fontSize:54,background:`linear-gradient(135deg,${C.mauve}26,rgba(255,255,255,.56))`,border:`3px solid ${C.mauve}`,boxShadow:"0 14px 35px rgba(0,0,0,.18)"}}>♍</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:11,letterSpacing:"2.6px",fontWeight:950,color:C.mauve,marginBottom:8}}>{horoscope.sign||"Virgo"} ENERGY</div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:28,lineHeight:1.02,fontWeight:850,color:C.darkText}}>{horoscope.vibe}</div>
+            <div style={{marginTop:8,fontSize:12,color:"rgba(33,31,33,.62)",fontWeight:800}}>{horoscope.theme||"Daily focus"} · {horoscope.element||"Earth"}</div>
+          </div>
+        </div>
+
+        <div style={{padding:15,borderRadius:20,background:"rgba(255,255,255,.62)",border:"1px solid rgba(0,0,0,.06)",marginBottom:14}}>
+          <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>TODAY'S HOROSCOPE</div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:22,lineHeight:1.25,color:C.darkText}}>“{horoscope.message}”</div>
+        </div>
+
+        <div style={{fontSize:12,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:8}}>VIRGO READ</div>
+        <div style={{fontFamily:"Georgia,serif",fontSize:24,lineHeight:1.08,fontWeight:850,marginBottom:10}}>{horoscope.theme||horoscope.vibe}</div>
+        <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{horoscope.longVibe||horoscope.message}</div>
+
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(167,101,131,.10)",border:"1px solid rgba(167,101,131,.22)"}}>
+            <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:5}}>POWER MOVE</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{horoscope.tryThis||horoscope.power}</div>
+          </div>
+          <div style={{padding:13,borderRadius:18,background:"rgba(221,191,134,.13)",border:"1px solid rgba(221,191,134,.25)"}}>
+            <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:"#9C7A3C",marginBottom:5}}>I AM AFFIRMATION</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{horoscope.affirmation||"I am focused, calm, and ready."}</div>
+          </div>
+          <div style={{padding:13,borderRadius:18,background:"rgba(141,189,182,.13)",border:"1px solid rgba(141,189,182,.25)"}}>
+            <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:"#4F8F87",marginBottom:5}}>JOURNAL PROMPT</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{horoscope.journal||"What is one small win I can create today?"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",border:"1px solid rgba(255,255,255,.12)"}}>
+        <CH e="✨" title="Use the Virgo vibe" sub="Make the daily vibe useful, not just cute"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9,marginBottom:12}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.12)"}}>
+            <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.blush,marginBottom:5}}>LUCKY VIBE</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.cream}}>{horoscope.lucky}</div>
+          </div>
+          <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.12)"}}>
+            <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.gold,marginBottom:5}}>GLOW TIP</div>
+            <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.cream}}>{horoscope.glowTip||"Keep it simple and finish one thing."}</div>
+          </div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9}}>
+          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.cream,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+            <span style={{display:"flex",alignItems:"center",gap:10,fontWeight:900}}><span style={{fontSize:20}}>{a.icon}</span>{a.label}</span>
+            <span style={{color:C.blush,fontWeight:950}}>→</span>
+          </button>)}
         </div>
       </div>
     </div>;
@@ -2016,7 +2076,7 @@ export default function ScarlettTracker(){
     </div>;
   };
 
-  const CONTENT={today:Today,coach:Coach,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
+  const CONTENT={today:Today,virgo:VirgoVibe,coach:Coach,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
 
   return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(217,160,186,.12),transparent 30%),radial-gradient(circle at 92% 0%,rgba(221,191,134,.08),transparent 24%),linear-gradient(180deg,#0A0A0C,#111113 54%,#09090B)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
     <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden;background:#0A0A0C} input::placeholder,textarea::placeholder{color:rgba(247,241,234,.45)}`}</style>
