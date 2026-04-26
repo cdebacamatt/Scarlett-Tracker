@@ -307,6 +307,8 @@ const uid=()=>`${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
 const pad2=n=>String(n).padStart(2,"0");
 const dateToLocalISO=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
 const todayISO=()=>dateToLocalISO(new Date());
+// Shared daily key for all "new day" content. Uses the device's local date at 12:00 AM.
+const localDayKey=()=>Math.floor(new Date(`${todayISO()}T00:00:00`).getTime()/86400000);
 const toShort=iso=>new Date(`${iso||todayISO()}T12:00:00`).toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const shiftISO=(iso,d)=>{const dt=new Date(`${iso}T12:00:00`);dt.setDate(dt.getDate()+d);return dateToLocalISO(dt);};
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -365,7 +367,7 @@ const DAILY_HOROSCOPE=[
   {vibe:"Virgo victory",message:"Today is a good day to prove to yourself that you can start, finish, and feel proud.",power:"Finish strong",lucky:"Victory star"},
 ];
 function getDailyHoroscope(profile){
-  const day=Math.floor(new Date(todayISO()+"T12:00:00").getTime()/86400000);
+  const day=localDayKey();
   const h=DAILY_HOROSCOPE[day%DAILY_HOROSCOPE.length];
   const sign=profile?.zodiac||"Virgo";
   return {sign,...h};
@@ -422,7 +424,7 @@ const WNBA_DAILY_COACH=[
   }
 ];
 function getDailyWnbaCoach(){
-  const day=Math.floor(new Date(todayISO()+"T12:00:00").getTime()/86400000);
+  const day=localDayKey();
   return WNBA_DAILY_COACH[day%WNBA_DAILY_COACH.length];
 }
 
