@@ -1,4 +1,4 @@
-\import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 const C={bg:"#0B0C14",nav:"#12121F",navy:"#171827",navy2:"#1F2033",card:"#242436",card2:"#2A2A3D",border:"rgba(255,255,255,.10)",coral:"#E86F8F",teal:"#6AD8CF",purple:"#A78BFA",gold:"#EBCB6A",green:"#7DDB9C",blue:"#7DAAF2",pink:"#D978B9",orange:"#E8A35D",red:"#E66B76",white:"#FFFFFF",text:"#F7F2FB",muted:"#B9B2C8",light:"#E7DEEF"};
 
@@ -366,7 +366,7 @@ const DAILY_HOROSCOPE=[
   {vibe:"Friendship and focus",message:"Be fun, be kind, and still stay on track. The right friends will respect your goals.",power:"Good energy only",lucky:"Group chat joy"},
   {vibe:"Virgo victory",message:"Today is a good day to prove to yourself that you can start, finish, and feel proud.",power:"Finish strong",lucky:"Victory star"},
 ];
-const HOROSCOPE_ROTATION_OFFSET=1; // Moves today's Virgo Daily Vibe forward while still rotating at local 12:00 AM.
+const HOROSCOPE_ROTATION_OFFSET=7; // Forces a clearly new Virgo Daily Vibe today while still rotating at local 12:00 AM.
 function getDailyHoroscope(profile){
   const day=localDayKey()+HOROSCOPE_ROTATION_OFFSET;
   const h=DAILY_HOROSCOPE[day%DAILY_HOROSCOPE.length];
@@ -667,7 +667,7 @@ export default function ScarlettTracker(){
       </div>
 
       <div style={{...cs,borderTop:`3px solid ${C.gold}`,background:"radial-gradient(ellipse at 15% 0%,rgba(255,215,0,.18),transparent 46%),linear-gradient(145deg,rgba(32,14,62,.97),rgba(10,5,22,.99))"}}>
-        <CH e="♍" title={`${horoscope.sign} Daily Vibe`} sub="For fun: a focus prompt for today"/>
+        <CH e="♍" title={`${horoscope.sign} Daily Vibe`} sub="Fresh daily focus · rotates at 12:00 AM"/>
         <div style={{fontSize:18,fontWeight:950,color:C.gold,marginBottom:7}}>{horoscope.vibe}</div>
         <div style={{fontSize:13,lineHeight:1.55,color:C.light,marginBottom:10}}>{horoscope.message}</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
