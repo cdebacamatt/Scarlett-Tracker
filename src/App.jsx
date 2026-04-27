@@ -29,6 +29,14 @@ const C={
   light:"#E6EEEC",
   border:"rgba(255,255,255,.12)"
 };
+const svgImg=s=>`data:image/svg+xml;utf8,${encodeURIComponent(s)}`;
+const REWARD_THUMBS={
+  basketball:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="b" x1="0" x2="1"><stop stop-color="#d98235"/><stop offset="1" stop-color="#b75d24"/></linearGradient></defs><rect width="200" height="200" rx="42" fill="#F7F4EC"/><circle cx="100" cy="100" r="58" fill="url(#b)" stroke="#3b2316" stroke-width="5"/><path d="M43 100h114M100 42c24 28 24 88 0 116M55 62c40 25 72 58 90 99M145 62c-40 25-72 58-90 99" fill="none" stroke="#3b2316" stroke-width="5" stroke-linecap="round"/></svg>`),
+  jersey:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M66 30h30c4 12 4 22 4 22s0-10 4-22h30l24 28-20 28-8-8v88H70V78l-8 8-20-28 24-28z" fill="#101516" stroke="#D8A85E" stroke-width="5" stroke-linejoin="round"/><path d="M78 36c8 18 36 18 44 0" fill="none" stroke="#D8A85E" stroke-width="4"/><text x="100" y="94" text-anchor="middle" font-family="Arial Black,Arial" font-size="23" fill="#F7F4EC">ACES</text><text x="100" y="132" text-anchor="middle" font-family="Arial Black,Arial" font-size="43" fill="#F7F4EC">10</text><path d="M72 160h56" stroke="#35CFC9" stroke-width="5" stroke-linecap="round"/></svg>`),
+  backpack:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M68 72c0-26 15-42 32-42s32 16 32 42" fill="none" stroke="#111414" stroke-width="10" stroke-linecap="round"/><rect x="54" y="55" width="92" height="116" rx="26" fill="#151A1B" stroke="#303738" stroke-width="5"/><rect x="70" y="108" width="60" height="43" rx="12" fill="#242B2C" stroke="#3B4546" stroke-width="4"/><path d="M76 78h48M82 130h36" stroke="#35CFC9" stroke-width="5" stroke-linecap="round"/><path d="M145 72c10 16 12 48 4 72M55 72c-10 16-12 48-4 72" fill="none" stroke="#111414" stroke-width="7" stroke-linecap="round"/></svg>`),
+  sneaker:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M45 121c22 4 44-2 59-24l14-22c18 24 30 34 55 40 8 2 12 9 9 17-3 10-13 15-25 15H58c-13 0-23-7-25-16-1-6 4-11 12-10z" fill="#151A1B" stroke="#2C3435" stroke-width="5" stroke-linejoin="round"/><path d="M75 119c31 6 55 2 86-4M99 93l30 23M88 103l24 16M118 76l-13 30" fill="none" stroke="#35CFC9" stroke-width="5" stroke-linecap="round"/><path d="M48 139h121" stroke="#D8A85E" stroke-width="6" stroke-linecap="round"/></svg>`)
+};
+
 
 // 5 tabs instead of 12
 const TABS=[
@@ -816,9 +824,9 @@ export default function ScarlettTracker(){
     };
     const toggleCheck=async id=>{const next={...checks,[id]:!checks[id]};setChecks(next);if(!checks[id]&&!starAwards[id]){setStarAwards(p=>({...p,[id]:true}));await addStars(1);}};
     const starterRewards=[
-      {name:"New Basketball",cost:"300 pts",img:"🏀"},
-      {name:"WNBA Jersey",cost:"500 pts",img:"https://images.stockx.com/images/Nike-Sabrina-3-SE-What-The-GS.jpg?fit=fill&bg=FFFFFF&w=520&h=360&q=70&dpr=1"},
-      {name:"Nike Backpack",cost:"400 pts",img:"🎒"}
+      {name:"New Basketball",cost:"300 pts",img:REWARD_THUMBS.basketball},
+      {name:"WNBA Jersey",cost:"500 pts",img:REWARD_THUMBS.jersey},
+      {name:"Nike Backpack",cost:"400 pts",img:REWARD_THUMBS.backpack}
     ];
     const rewardTiles=previewRewards.length?previewRewards.map(x=>({name:x.name,cost:x.goalId?"Goal reward":`${rewardCost(x)} token${rewardCost(x)===1?"":"s"}`,img:x.image||x.photo||x.img||""})):starterRewards;
     const goalRows=todayGoals.length?todayGoals.map((g,i)=>({type:"goal",id:g.id,title:g.title||g.goal||"Goal",sub:g.category?`${String(g.category).replace(/^./,m=>m.toUpperCase())} goal`:"Goal",done:!!g.parentApproved,progress:g.done?100:g.submitted?75:35,e:g.category==="school"?"📖":g.category==="health"?"💗":g.category==="future"?"🚀":"👟"})):habits.slice(0,3).map(h=>({type:"habit",id:h.id,title:h.label,sub:"Daily quest",done:!!checks[h.id],progress:checks[h.id]?100:0,e:h.e||"⭐"}));
@@ -939,14 +947,14 @@ export default function ScarlettTracker(){
             <div style={{width:58,height:58,borderRadius:"50%",border:`6px solid rgba(53,207,201,.18)`,borderTopColor:C.teal,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 6px",fontWeight:900,color:C.teal,fontSize:18}}>{stars}</div>
             <div style={{fontSize:10}}>Points</div>
           </button>
-          {rewardTiles.slice(0,3).map((it,i)=><button key={`${it.name}_${i}`} onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(255,255,255,.10)",background:"rgba(255,255,255,.045)",borderRadius:16,padding:7,cursor:"pointer",fontFamily:"system-ui",color:C.text,minWidth:0}}>
-            <div style={{height:44,borderRadius:12,background:"rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:6,overflow:"hidden"}}>
-              {it.img&&String(it.img).startsWith("http")?<img src={it.img} alt={it.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:28}}>{it.img||"🎁"}</span>}
+          {rewardTiles.slice(0,3).map((it,i)=><button key={`${it.name}_${i}`} onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(255,255,255,.10)",background:"rgba(255,255,255,.045)",borderRadius:16,padding:8,cursor:"pointer",fontFamily:"system-ui",color:C.text,minWidth:0}}>
+            <div style={{height:58,borderRadius:15,background:"rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:6,overflow:"hidden"}}>
+              {it.img&&(String(it.img).startsWith("http")||String(it.img).startsWith("data:image"))?<img src={it.img} alt={it.name} style={{width:"100%",height:"100%",objectFit:"contain",padding:4,boxSizing:"border-box"}}/>:<span style={{fontSize:28}}>{it.img||"🎁"}</span>}
             </div>
-            <div style={{fontSize:10,fontWeight:800,lineHeight:1.15,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{it.name}</div>
+            <div style={{fontSize:10,fontWeight:850,lineHeight:1.15,minHeight:23,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{it.name}</div>
             <div style={{fontSize:9,color:C.teal,marginTop:2}}>{it.cost}</div>
           </button>)}
-          <button onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(255,255,255,.10)",background:"rgba(255,255,255,.045)",borderRadius:16,padding:7,cursor:"pointer",fontFamily:"system-ui",color:C.text}}>
+          <button onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",borderRadius:18,padding:8,cursor:"pointer",fontFamily:"system-ui",color:C.text}}>
             <div style={{width:42,height:42,borderRadius:"50%",border:"2px dashed rgba(53,207,201,.50)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,margin:"3px auto 8px"}}>＋</div>
             <div style={{fontSize:10,lineHeight:1.15}}>Add to<br/>Wishlist</div>
           </button>
@@ -2177,11 +2185,14 @@ export default function ScarlettTracker(){
         <TabErrorBoundary key={`err_${tab}`}><StableRenderer key={tab} render={CONTENT[tab]||Today}/></TabErrorBoundary>
       </div>
 
-      <div style={{position:"fixed",left:"50%",bottom:"max(8px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(404px,calc(100% - 22px))",display:"grid",gridTemplateColumns:`repeat(${TABS.length},1fr)`,gap:2,background:"rgba(13,17,18,.94)",backdropFilter:"blur(24px)",border:"1px solid rgba(255,255,255,.11)",borderRadius:24,padding:"8px 7px calc(8px + env(safe-area-inset-bottom,0px))",boxShadow:"0 18px 55px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.06)",zIndex:60}}>
-        {TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{background:"transparent",border:"none",borderRadius:18,color:tab===t.id?C.teal:"rgba(247,244,236,.62)",padding:"7px 2px",fontFamily:"system-ui",fontWeight:850,cursor:"pointer"}}>
-          <div style={{fontSize:tab===t.id?21:19,lineHeight:1,filter:tab===t.id?`drop-shadow(0 0 12px ${C.teal}66)`:"none"}}>{t.e}</div>
-          <div style={{fontSize:8.5,marginTop:4,letterSpacing:".1px",color:tab===t.id?C.teal:"rgba(247,244,236,.58)"}}>{t.label}</div>
-        </button>)}
+      <div style={{position:"fixed",left:"50%",bottom:"max(10px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(410px,calc(100% - 28px))",display:"grid",gridTemplateColumns:`repeat(${TABS.length},1fr)`,gap:1,background:"rgba(9,13,14,.96)",backdropFilter:"blur(26px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:28,padding:"11px 9px calc(10px + env(safe-area-inset-bottom,0px))",boxShadow:"0 20px 60px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07)",zIndex:60}}>
+        {TABS.map(t=>{
+          const active=tab===t.id;
+          return <button key={t.id} onClick={()=>setTab(t.id)} style={{background:active?"rgba(53,207,201,.08)":"transparent",border:"none",borderRadius:20,color:active?C.teal:"rgba(247,244,236,.56)",padding:"7px 2px 6px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer",minWidth:0}}>
+            <div style={{fontSize:20,lineHeight:1,filter:active?`drop-shadow(0 0 13px ${C.teal}88)`:"grayscale(.15) brightness(.9)",transform:active?"translateY(-1px)":"none"}}>{t.e}</div>
+            <div style={{fontSize:8.5,marginTop:5,letterSpacing:".25px",color:active?C.teal:"rgba(247,244,236,.58)",fontWeight:950,textShadow:active?`0 0 12px ${C.teal}55`:"none"}}>{t.label}</div>
+          </button>;
+        })}
       </div>
     </div>
   </div>;
