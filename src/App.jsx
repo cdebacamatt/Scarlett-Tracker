@@ -922,7 +922,8 @@ export default function ScarlettTracker(){
   const approveGoal=async id=>{
     let shouldReward=false;
     const ng=goals.map(g=>{if(g.id!==id)return g;shouldReward=!g.parentApproved;return {...g,done:true,submitted:true,parentApproved:true,approvedDate:toShort(todayISO())};});
-    await saveGoals(ng,stars);
+    // Parent-approved goals are the main reward engine.
+    await saveGoals(ng,shouldReward?stars+5:stars);
   };
   const requestReward=async item=>{
     const existing=claimFor(item);
@@ -949,7 +950,15 @@ export default function ScarlettTracker(){
     const allDone=habits.length>0&&done===habits.length;
     const horoscope=getDailyHoroscope(profile);
     const wnbaCoach=getDailyWnbaCoach();
-    const todayGoals=safeObjects(goals).filter(g=>!g.archived).slice(0,3);
+    const allGoals=safeObjects(goals).filter(g=>!g.archived);
+    const activeGoals=allGoals.filter(g=>!g.done);
+    const waitingGoals=allGoals.filter(g=>g.done&&!g.parentApproved);
+    const approvedGoals=allGoals.filter(g=>g.parentApproved);
+    const goalDoneCount=allGoals.filter(g=>g.done).length;
+    const goalProgressPct=allGoals.length?Math.round((goalDoneCount/allGoals.length)*100):0;
+    const todayGoals=[...activeGoals,...waitingGoals,...approvedGoals].slice(0,3);
+    const nextImportantGoal=activeGoals[0]||waitingGoals[0]||approvedGoals[0]||null;
+    const connectedReward=nextImportantGoal?safeObjects(shoeWish).find(w=>w.goalId===nextImportantGoal.id):null;
     const previewRewards=safeObjects(shoeWish).slice(0,3);
     const addQuest=async()=>{
       const label=newQuest.trim();
@@ -970,7 +979,7 @@ export default function ScarlettTracker(){
       {name:"Nike Backpack",cost:"400 pts",img:REWARD_THUMBS.backpack}
     ];
     const rewardTiles=previewRewards.length?previewRewards.map(x=>({name:x.name,cost:x.goalId?"Goal reward":`${rewardCost(x)} token${rewardCost(x)===1?"":"s"}`,img:x.image||x.photo||x.img||""})):starterRewards;
-    const goalRows=todayGoals.length?todayGoals.map((g,i)=>({type:"goal",id:g.id,title:g.title||g.goal||"Goal",sub:g.category?`${String(g.category).replace(/^./,m=>m.toUpperCase())} goal`:"Goal",done:!!g.parentApproved,progress:g.done?100:g.submitted?75:35,e:g.category==="school"?"📖":g.category==="health"?"💗":g.category==="future"?"🚀":"👟"})):habits.slice(0,3).map(h=>({type:"habit",id:h.id,title:h.label,sub:"Daily quest",done:!!checks[h.id],progress:checks[h.id]?100:0,e:h.e||"⭐"}));
+    const goalRows=todayGoals.length?todayGoals.map((g,i)=>({type:"goal",id:g.id,title:g.text||g.title||g.goal||"Goal",sub:g.parentApproved?"Approved goal":g.done?"Waiting for parent approval":g.category?`${String(g.category).replace(/^./,m=>m.toUpperCase())} goal`:"Goal",done:!!g.parentApproved,progress:g.parentApproved?100:g.done?85:g.submitted?65:35,e:g.category==="school"?"📖":g.category==="health"?"💗":g.category==="future"?"🚀":g.category==="character"?"⭐":"🏀"})):habits.slice(0,3).map(h=>({type:"habit",id:h.id,title:h.label,sub:"Daily quest",done:!!checks[h.id],progress:checks[h.id]?100:0,e:h.e||"⭐"}));
     return <div>
       <div style={{...cs,padding:0,background:"transparent",border:"none",boxShadow:"none",overflow:"visible",marginBottom:14}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
@@ -1014,6 +1023,31 @@ export default function ScarlettTracker(){
             <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="I am..." style={{...INP,background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.14)",color:C.text,fontWeight:850}}/>
           </div>}
         </div>
+      </div>
+
+      <div style={{...cs,background:"radial-gradient(circle at 88% 0%,rgba(255,140,198,.14),transparent 36%),linear-gradient(145deg,rgba(20,25,26,.98),rgba(9,12,13,.99))",border:"1px solid rgba(255,255,255,.14)",padding:16}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:12}}>
+          <CH e="🎯" title="Goal Progress" sub="This is the main way to earn meaningful rewards."/>
+          <button onClick={()=>setTab("goals")} style={{border:"none",background:"transparent",color:C.pink,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:12}}>Manage →</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}>
+          <SBox value={allGoals.length} label="Set" color={C.pink}/>
+          <SBox value={activeGoals.length} label="Active" color={C.teal}/>
+          <SBox value={waitingGoals.length} label="Parent OK" color={C.gold}/>
+          <SBox value={approvedGoals.length} label="Approved" color={C.green}/>
+        </div>
+        <div style={{height:10,background:"rgba(255,255,255,.08)",borderRadius:99,overflow:"hidden",marginBottom:12}}>
+          <div style={{height:"100%",width:`${goalProgressPct}%`,background:`linear-gradient(90deg,${C.pink},${C.teal},${C.gold})`,borderRadius:99,transition:"width .35s ease"}}/>
+        </div>
+        {nextImportantGoal?<button onClick={()=>setTab("goals")} style={{width:"100%",display:"grid",gridTemplateColumns:"42px 1fr auto",gap:10,alignItems:"center",padding:12,borderRadius:18,border:`1px solid ${C.pink}44`,background:`linear-gradient(145deg,${C.pink}14,rgba(255,255,255,.035))`,color:C.text,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+          <div style={{width:38,height:38,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",background:`${C.pink}20`,fontSize:19}}>🎯</div>
+          <div style={{minWidth:0}}>
+            <div style={{fontSize:12,color:C.pink,fontWeight:950,letterSpacing:"1px",textTransform:"uppercase"}}>{nextImportantGoal.parentApproved?"Recently approved":nextImportantGoal.done?"Needs parent approval":"Next goal to attack"}</div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:17,lineHeight:1.12,color:C.cream,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{nextImportantGoal.text||nextImportantGoal.title||"Goal"}</div>
+            <div style={{fontSize:11,color:C.muted,marginTop:3}}>{connectedReward?`Reward path: ${connectedReward.name}`:"Connect this goal to a wishlist reward when ready."}</div>
+          </div>
+          <div style={{fontSize:18,color:C.pink}}>→</div>
+        </button>:<button onClick={()=>setTab("goals")} style={{width:"100%",padding:14,borderRadius:18,border:`1px dashed ${C.pink}55`,background:`${C.pink}10`,color:C.pink,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Set her first meaningful goal 🎯</button>}
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
@@ -1075,7 +1109,7 @@ export default function ScarlettTracker(){
           <input value={newQuest} onChange={e=>setNewQuest(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")addQuest();}} placeholder="Quick daily quest..." style={{...INP,flex:1,background:"rgba(255,255,255,.045)"}}/>
           <button onClick={addQuest} style={{width:70,borderRadius:16,border:"none",background:C.gold,color:C.text,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Add</button>
         </div>
-        <button onClick={()=>setTab("goals")} style={{width:"100%",border:"none",borderRadius:14,padding:13,marginTop:9,background:`linear-gradient(135deg,${C.mauve},${C.rose})`,color:C.white,fontWeight:850,fontSize:15,cursor:"pointer",fontFamily:"system-ui"}}>＋ Add a Goal</button>
+        <button onClick={()=>setTab("goals")} style={{width:"100%",border:"none",borderRadius:14,padding:13,marginTop:9,background:`linear-gradient(135deg,${C.mauve},${C.rose})`,color:C.white,fontWeight:850,fontSize:15,cursor:"pointer",fontFamily:"system-ui"}}>＋ Add a Meaningful Goal</button>
       </div>
 
       <div style={{...cs,background:"linear-gradient(145deg,rgba(20,25,26,.96),rgba(10,13,14,.99))",color:C.text,border:"1px solid rgba(255,255,255,.12)",padding:14}}>
@@ -1307,17 +1341,18 @@ export default function ScarlettTracker(){
       }
       const entry={id:uid(),...base};
       const ng=[entry,...games].slice(0,100);await saveBball(ng,skills);
-      const earn=(gf.result==="Win"?5:2)+(pts>=15?4:pts>=10?2:pts>=5?1:0)+(gf.effort>=4?1:0)+(ni("stl")>=3?1:0);
+      // Sports tracking earns light encouragement only. Major rewards come from completed goals.
+      const earn=1+(gf.effort>=4?1:0);
       await addStars(earn);
       resetGameForm();
     };
     const logPractice=async()=>{
       const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),type:pf.type,duration:pf.duration,effort:pf.effort,note:pf.note};
       const np=[entry,...practices].slice(0,100);await savePrax(np);
-      await addStars(pf.effort>=4?4:3);
+      await addStars(1);
       setPf({type:"Team Practice",duration:"",effort:0,note:""});
     };
-    const adjSkill=async(skill,delta)=>{const nv=Math.min(100,Math.max(0,(skills[skill]||0)+delta));const nsk={...skills,[skill]:nv};await saveBball(games,nsk);if(delta>0)await addStars(1);};
+    const adjSkill=async(skill,delta)=>{const nv=Math.min(100,Math.max(0,(skills[skill]||0)+delta));const nsk={...skills,[skill]:nv};await saveBball(games,nsk);};
     const wins=games.filter(g=>g.result==="Win").length;
     const s=k=>games.reduce((a,g)=>a+(g[k]||0),0);
     const a=k=>games.length?(s(k)/games.length).toFixed(1):"—";
@@ -1618,7 +1653,7 @@ export default function ScarlettTracker(){
     const[sf,setSf]=useState({bed:"21:00",wake:"06:30",quality:0});
     const calcH=(b,w)=>{try{const[bh,bm]=b.split(":").map(Number),[wh,wm]=w.split(":").map(Number);let m=(wh*60+wm)-(bh*60+bm);if(m<0)m+=1440;return Math.round(m/60*10)/10;}catch{return 0;}};
     const hoursNow=calcH(sf.bed,sf.wake);
-    const addSleep=async()=>{if(!sf.quality)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),bedtime:sf.bed,waketime:sf.wake,hours:hoursNow,quality:sf.quality};await saveSleep([entry,...sleepEntries].slice(0,90));await addStars(hoursNow>=9?3:2);setSf({bed:"21:00",wake:"06:30",quality:0});};
+    const addSleep=async()=>{if(!sf.quality)return;const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),bedtime:sf.bed,waketime:sf.wake,hours:hoursNow,quality:sf.quality};await saveSleep([entry,...sleepEntries].slice(0,90));await addStars(1);setSf({bed:"21:00",wake:"06:30",quality:0});};
 
     const STYLE_MOODS=[
       {id:"sporty",e:"🏀",label:"Sporty"},
@@ -1636,7 +1671,7 @@ export default function ScarlettTracker(){
       if(!stf.outfit&&!stf.hair&&!stf.shoes&&!stf.accessories&&!stf.trend&&!stf.notes)return;
       const entry={id:uid(),date:toShort(todayISO()),dateISO:todayISO(),...stf};
       await saveStyle([entry,...styleLog].slice(0,40),shoeWish);
-      await addStars(3);
+      await addStars(1);
       setStf({type:"Game Day",outfit:"",hair:"",shoes:"",accessories:"",trend:"",styleMood:"",vibe:0,notes:""});
     };
     const avgSleep=sleepEntries.length?avgArr(sleepEntries.slice(0,7).map(e=>e.hours)).toFixed(1):"—";
@@ -1856,7 +1891,6 @@ export default function ScarlettTracker(){
       };
       stores.forEach(shop=>{item[`${shop}Url`]=shopUrl(shop,name);});
       await saveStyle(styleLog,[item,...cleanWish].slice(0,60));
-      await addStars(1);
       setWf({name:"",category:"auto",why:"",priority:"Dream 🌟",goalId:""});
     };
 
@@ -1866,7 +1900,6 @@ export default function ScarlettTracker(){
       const next={id:uid(),priority:"Dream 🌟",goalId:"",cost:3,storeList:stores,...item,category,search:item.search||item.name};
       stores.forEach(shop=>{next[`${shop}Url`]=next[`${shop}Url`]||shopUrl(shop,next.search||next.name);});
       await saveStyle(styleLog,[next,...cleanWish].slice(0,60));
-      await addStars(1);
     };
 
     const requestItem=async item=>{
@@ -2042,7 +2075,20 @@ export default function ScarlettTracker(){
     };
     const startEdit=g=>{setEditingGoalId(g.id);setGf({text:g.text||"",category:g.category||"basketball",targetDate:g.targetDate||addDays(7),why:g.why||"",steps:g.steps||""});};
     const cancelEdit=()=>{setEditingGoalId(null);setGf(emptyGoal());};
-    const toggleGoal=async id=>{const ng=goals.map(g=>{if(g.id!==id)return g;const completing=!g.done;if(completing){setBurst(id);setTimeout(()=>setBurst(null),2200);return{...g,done:true,submitted:true,parentApproved:false,completedDate:toShort(todayISO())};}return{...g,done:false,submitted:false,parentApproved:false,completedDate:"",approvedDate:""};});await saveGoals(ng);};
+    const toggleGoal=async id=>{
+      let earned=0;
+      const ng=goals.map(g=>{
+        if(g.id!==id)return g;
+        const completing=!g.done;
+        if(completing){
+          setBurst(id);setTimeout(()=>setBurst(null),2200);
+          earned=5;
+          return{...g,done:true,submitted:true,parentApproved:false,completedDate:toShort(todayISO())};
+        }
+        return{...g,done:false,submitted:false,parentApproved:false,completedDate:"",approvedDate:""};
+      });
+      await saveGoals(ng,stars+earned);
+    };
     const removeGoal=async id=>{await saveGoals(goals.filter(g=>g.id!==id));};
     const selectedCat=CAT[gf.category]||CAT.basketball;
 
@@ -2172,7 +2218,7 @@ export default function ScarlettTracker(){
         ]}
       />
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 0%,rgba(255,215,0,.22),transparent 45%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",borderTop:`3px solid ${C.gold}`}}>
-        <CH e="🎁" title="Reward Shop" sub="Wishlist rewards unlock only after real goals are approved."/>
+        <CH e="🎁" title="Reward Shop" sub="Big wishlist rewards are earned through approved goals first. Sports stats can help, but goal follow-through is the main path."/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
           <SBox value={approvedGoalCount} label="Approved Goals" color={C.green}/>
           <SBox value={spentRewardTokens} label="Tokens Used" color={C.purple}/>
