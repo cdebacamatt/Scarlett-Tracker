@@ -344,7 +344,7 @@ const goalColors={basketball:C.rose,school:C.teal,health:C.green,character:C.gol
 
 const today=new Date();
 const hour=today.getHours();
-const greeting=hour<12?"Good morning":"hour"<17?"Good afternoon":"Good evening";
+const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
 const dayStr=today.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
 
 return<div style={{paddingBottom:4}}>
