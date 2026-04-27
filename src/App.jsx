@@ -825,7 +825,7 @@ export default function ScarlettTracker(){
     ensureMeta("viewport","width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no");
     ensureMeta("apple-mobile-web-app-capable","yes");
     ensureMeta("mobile-web-app-capable","yes");
-    ensureMeta("apple-mobile-web-app-status-bar-style","black-translucent");
+    ensureMeta("apple-mobile-web-app-status-bar-style","black");
     ensureMeta("theme-color","#080B0C");
     document.documentElement.style.background="#080B0C";
     document.documentElement.style.minHeight="100%";
@@ -1040,7 +1040,7 @@ export default function ScarlettTracker(){
     const rewardTiles=previewRewards.length?previewRewards.map(x=>({name:x.name,cost:x.goalId?"Goal reward":`${rewardCost(x)} token${rewardCost(x)===1?"":"s"}`,img:x.image||x.photo||x.img||""})):starterRewards;
     const goalRows=todayGoals.length?todayGoals.map((g,i)=>({type:"goal",id:g.id,title:g.text||g.title||g.goal||"Goal",sub:g.parentApproved?"Approved goal":g.done?"Waiting for parent approval":g.category?`${String(g.category).replace(/^./,m=>m.toUpperCase())} goal`:"Goal",done:!!g.parentApproved,progress:g.parentApproved?100:g.done?85:g.submitted?65:35,e:g.category==="school"?"📖":g.category==="health"?"💗":g.category==="future"?"🚀":g.category==="character"?"⭐":"🏀"})):habits.slice(0,3).map(h=>({type:"habit",id:h.id,title:h.label,sub:"Daily quest",done:!!checks[h.id],progress:checks[h.id]?100:0,e:h.e||"⭐"}));
     return <div>
-      <div style={{...cs,padding:0,background:"transparent",border:"none",boxShadow:"none",overflow:"visible",marginBottom:14}}>
+      <div style={{...cs,padding:0,background:"transparent",border:"none",boxShadow:"none",overflow:"visible",marginBottom:14,marginTop:4}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
           <div style={{display:"flex",alignItems:"center",gap:12,minWidth:0}}>
             <div style={{width:66,height:66,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.blush},${C.rose})`,boxShadow:`0 0 0 4px rgba(217,160,186,.08)`}}>
@@ -1056,7 +1056,7 @@ export default function ScarlettTracker(){
               <div style={{fontSize:18,color:C.gold,lineHeight:1}}>★ {stars}</div>
               <div style={{fontSize:10,color:C.muted,marginTop:3}}>Stars</div>
             </button>
-            <button onClick={()=>setShowSettings(true)} style={{width:48,height:48,borderRadius:16,border:`1px solid rgba(255,255,255,.13)`,background:"rgba(255,255,255,.07)",color:C.light,cursor:"pointer",fontSize:18}}>🔔</button>
+            <button aria-label="Open settings" onClick={()=>setShowSettings(true)} style={{width:54,height:54,borderRadius:18,border:`1px solid rgba(255,255,255,.16)`,background:"rgba(255,255,255,.09)",color:C.light,cursor:"pointer",fontSize:20,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 8px 24px rgba(0,0,0,.35)",position:"relative",zIndex:80}}>⚙️</button>
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10,marginLeft:78}}>
@@ -2365,10 +2365,10 @@ export default function ScarlettTracker(){
   const CONTENT={today:Today,virgo:VirgoVibe,coach:Coach,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
 
   return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(255,140,198,.12),transparent 30%),radial-gradient(circle at 92% 0%,rgba(216,168,94,.10),transparent 24%),linear-gradient(180deg,#080B0C,#101516 54%,#070909)",minHeight:"100dvh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
-    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} html,body,#root{margin:0;min-height:100%;width:100%;overflow-x:hidden;background:#080B0C} body{margin:0;overflow-x:hidden;background:#080B0C} input::placeholder,textarea::placeholder{color:rgba(247,244,236,.42)} .app-card-img{object-fit:contain!important;background:#F7F4EC}`}</style>
+    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} html,body,#root{margin:0;min-height:100%;width:100%;overflow-x:hidden;background:#080B0C;-webkit-text-size-adjust:100%} body{margin:0;overflow-x:hidden;background:#080B0C} input::placeholder,textarea::placeholder{color:rgba(247,244,236,.42)} .app-card-img{object-fit:contain!important;background:#F7F4EC}`}</style>
     <div style={{width:"100%",maxWidth:430,margin:"0 auto",minHeight:"100dvh",position:"relative",boxShadow:"0 0 100px rgba(255,140,198,.08)"}}>
 
-      <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 10px",background:"linear-gradient(180deg,rgba(8,11,12,.96),rgba(8,11,12,.86))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+      <div style={{position:"sticky",top:0,zIndex:50,padding:"calc(18px + env(safe-area-inset-top,0px)) 14px 12px",background:"linear-gradient(180deg,rgba(8,11,12,.98),rgba(8,11,12,.90))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
           <button onClick={()=>setTab("today")} style={{display:"flex",alignItems:"center",gap:10,minWidth:0,border:"none",background:"transparent",padding:0,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
             <div style={{width:42,height:42,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.pink},${C.teal},${C.gold})`,flexShrink:0}}>
@@ -2394,7 +2394,7 @@ export default function ScarlettTracker(){
 
       {showSettings&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.82)",zIndex:100,display:"flex",alignItems:"stretch",justifyContent:"center"}} onClick={e=>{if(e.target===e.currentTarget)setShowSettings(false);}}>
         <div style={{width:"100%",maxWidth:430,height:"100dvh",margin:"0 auto",background:C.card,borderRadius:0,overflowY:"auto",WebkitOverflowScrolling:"touch",padding:"0 24px calc(84px + env(safe-area-inset-bottom,0px))",boxShadow:"0 -24px 70px rgba(0,0,0,.65)"}}>
-          <div style={{position:"sticky",top:0,zIndex:3,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,margin:"0 -24px 20px",padding:"calc(14px + env(safe-area-inset-top,0px)) 24px 14px",background:"linear-gradient(180deg,rgba(20,24,25,.98),rgba(20,24,25,.92))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+          <div style={{position:"sticky",top:0,zIndex:3,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,margin:"0 -24px 20px",padding:"calc(22px + env(safe-area-inset-top,0px)) 24px 14px",background:"linear-gradient(180deg,rgba(20,24,25,.98),rgba(20,24,25,.92))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
             <button onClick={()=>setShowSettings(false)} style={{display:"flex",alignItems:"center",gap:7,background:"rgba(255,255,255,.08)",border:`1px solid ${C.border}`,borderRadius:999,padding:"10px 13px",color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>← Back</button>
             <div style={{fontSize:18,fontWeight:950}}>Setup ⚙️</div>
             <button onClick={()=>setShowSettings(false)} style={{background:`linear-gradient(135deg,${C.pink},${C.teal})`,border:"none",borderRadius:999,padding:"10px 13px",minWidth:58,color:C.darkText,fontSize:13,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Done</button>
