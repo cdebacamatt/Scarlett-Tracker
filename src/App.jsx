@@ -809,6 +809,12 @@ export default function ScarlettTracker(){
   useEffect(()=>{if(loaded)ss("sc_profile",profile);},[profile,loaded]);
   useEffect(()=>{try{localStorage.setItem("sc_last_tab",tab);}catch{}},[tab]);
   useEffect(()=>{try{localStorage.setItem("sc_selected_sport",selectedSportId);}catch{}},[selectedSportId]);
+  useEffect(()=>{
+    const onKey=e=>{if(e.key==="Escape")setShowSettings(false);};
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  },[]);
+
 
   useEffect(()=>{
     if(!loaded)return;
@@ -2367,10 +2373,11 @@ export default function ScarlettTracker(){
       </div>
 
       {showSettings&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.88)",zIndex:100,display:"flex",alignItems:"flex-end"}} onClick={e=>{if(e.target===e.currentTarget)setShowSettings(false);}}>
-        <div style={{width:"100%",maxWidth:430,margin:"0 auto",background:C.card,borderRadius:"24px 24px 0 0",padding:24,paddingBottom:48}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+        <div style={{width:"100%",maxWidth:430,margin:"0 auto",background:C.card,borderRadius:"24px 24px 0 0",maxHeight:"92vh",overflowY:"auto",padding:24,paddingBottom:"calc(72px + env(safe-area-inset-bottom,0px))",boxShadow:"0 -24px 70px rgba(0,0,0,.65)"}}>
+          <div style={{position:"sticky",top:-24,zIndex:3,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,margin:"-24px -24px 20px",padding:"18px 24px 14px",background:"linear-gradient(180deg,rgba(20,24,25,.98),rgba(20,24,25,.92))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+            <button onClick={()=>setShowSettings(false)} style={{display:"flex",alignItems:"center",gap:7,background:"rgba(255,255,255,.08)",border:`1px solid ${C.border}`,borderRadius:999,padding:"10px 13px",color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>← Back</button>
             <div style={{fontSize:18,fontWeight:950}}>Setup ⚙️</div>
-            <button onClick={()=>setShowSettings(false)} style={{background:"rgba(255,255,255,.1)",border:"none",borderRadius:10,width:36,height:36,color:C.white,fontSize:18,cursor:"pointer"}}>×</button>
+            <button onClick={()=>setShowSettings(false)} style={{background:`linear-gradient(135deg,${C.pink},${C.teal})`,border:"none",borderRadius:999,padding:"10px 13px",minWidth:58,color:C.darkText,fontSize:13,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Done</button>
           </div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>CHILD'S NAME</div>
           <input value={profile.name||""} onChange={e=>setProfile(p=>({...p,name:e.target.value}))} placeholder="e.g. Scarlett" style={{...INP,marginBottom:6}}/>
@@ -2410,6 +2417,7 @@ export default function ScarlettTracker(){
             <button onClick={()=>activateCode(codeInput)} style={{width:"100%",padding:13,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.pink},${C.blush},${C.teal})`,color:C.darkText,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14,marginBottom:8}}>Connect ☁</button>
             <button onClick={()=>activateCode(genCode())} style={{width:"100%",padding:13,borderRadius:12,border:`1px solid ${C.teal}44`,background:`${C.teal}12`,color:C.teal,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Create New Family Code ✨</button>
           </>}
+          <button onClick={()=>setShowSettings(false)} style={{position:"sticky",bottom:0,width:"100%",marginTop:18,padding:15,borderRadius:18,border:"none",background:`linear-gradient(135deg,${C.pink},${C.teal},${C.gold})`,color:C.darkText,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:15,boxShadow:"0 -10px 35px rgba(0,0,0,.30)"}}>Back to App</button>
         </div>
       </div>}
 
