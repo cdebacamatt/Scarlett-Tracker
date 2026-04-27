@@ -9,18 +9,18 @@ const C={
   card2:"#1A2021",
   cream:"#F4EFE6",
   cream2:"#EDE4D8",
-  mauve:"#35CFC9",
-  blush:"#35CFC9",
-  rose:"#31BDB8",
-  dusty:"#6EDAD5",
+  mauve:"#F2A7C8",
+  blush:"#F7B7D2",
+  rose:"#EE8DBB",
+  dusty:"#F4CBDD",
   gold:"#D8A85E",
   green:"#8ECFA2",
   teal:"#35CFC9",
   blue:"#8BB8D8",
-  purple:"#35CFC9",
-  pink:"#35CFC9",
+  purple:"#CBA6F7",
+  pink:"#FF8CC6",
   orange:"#D8A85E",
-  coral:"#35CFC9",
+  coral:"#F08AA8",
   red:"#D98484",
   white:"#FFFFFF",
   text:"#F7F4EC",
@@ -32,9 +32,9 @@ const C={
 const svgImg=s=>`data:image/svg+xml;utf8,${encodeURIComponent(s)}`;
 const REWARD_THUMBS={
   basketball:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="b" x1="0" x2="1"><stop stop-color="#d98235"/><stop offset="1" stop-color="#b75d24"/></linearGradient></defs><rect width="200" height="200" rx="42" fill="#F7F4EC"/><circle cx="100" cy="100" r="58" fill="url(#b)" stroke="#3b2316" stroke-width="5"/><path d="M43 100h114M100 42c24 28 24 88 0 116M55 62c40 25 72 58 90 99M145 62c-40 25-72 58-90 99" fill="none" stroke="#3b2316" stroke-width="5" stroke-linecap="round"/></svg>`),
-  jersey:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M66 30h30c4 12 4 22 4 22s0-10 4-22h30l24 28-20 28-8-8v88H70V78l-8 8-20-28 24-28z" fill="#101516" stroke="#D8A85E" stroke-width="5" stroke-linejoin="round"/><path d="M78 36c8 18 36 18 44 0" fill="none" stroke="#D8A85E" stroke-width="4"/><text x="100" y="94" text-anchor="middle" font-family="Arial Black,Arial" font-size="23" fill="#F7F4EC">ACES</text><text x="100" y="132" text-anchor="middle" font-family="Arial Black,Arial" font-size="43" fill="#F7F4EC">10</text><path d="M72 160h56" stroke="#35CFC9" stroke-width="5" stroke-linecap="round"/></svg>`),
-  backpack:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M68 72c0-26 15-42 32-42s32 16 32 42" fill="none" stroke="#111414" stroke-width="10" stroke-linecap="round"/><rect x="54" y="55" width="92" height="116" rx="26" fill="#151A1B" stroke="#303738" stroke-width="5"/><rect x="70" y="108" width="60" height="43" rx="12" fill="#242B2C" stroke="#3B4546" stroke-width="4"/><path d="M76 78h48M82 130h36" stroke="#35CFC9" stroke-width="5" stroke-linecap="round"/><path d="M145 72c10 16 12 48 4 72M55 72c-10 16-12 48-4 72" fill="none" stroke="#111414" stroke-width="7" stroke-linecap="round"/></svg>`),
-  sneaker:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M45 121c22 4 44-2 59-24l14-22c18 24 30 34 55 40 8 2 12 9 9 17-3 10-13 15-25 15H58c-13 0-23-7-25-16-1-6 4-11 12-10z" fill="#151A1B" stroke="#2C3435" stroke-width="5" stroke-linejoin="round"/><path d="M75 119c31 6 55 2 86-4M99 93l30 23M88 103l24 16M118 76l-13 30" fill="none" stroke="#35CFC9" stroke-width="5" stroke-linecap="round"/><path d="M48 139h121" stroke="#D8A85E" stroke-width="6" stroke-linecap="round"/></svg>`)
+  jersey:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M66 30h30c4 12 4 22 4 22s0-10 4-22h30l24 28-20 28-8-8v88H70V78l-8 8-20-28 24-28z" fill="#101516" stroke="#D8A85E" stroke-width="5" stroke-linejoin="round"/><path d="M78 36c8 18 36 18 44 0" fill="none" stroke="#D8A85E" stroke-width="4"/><text x="100" y="94" text-anchor="middle" font-family="Arial Black,Arial" font-size="23" fill="#F7F4EC">ACES</text><text x="100" y="132" text-anchor="middle" font-family="Arial Black,Arial" font-size="43" fill="#F7F4EC">10</text><path d="M72 160h56" stroke="#FF8CC6" stroke-width="5" stroke-linecap="round"/></svg>`),
+  backpack:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M68 72c0-26 15-42 32-42s32 16 32 42" fill="none" stroke="#111414" stroke-width="10" stroke-linecap="round"/><rect x="54" y="55" width="92" height="116" rx="26" fill="#151A1B" stroke="#303738" stroke-width="5"/><rect x="70" y="108" width="60" height="43" rx="12" fill="#242B2C" stroke="#3B4546" stroke-width="4"/><path d="M76 78h48M82 130h36" stroke="#FF8CC6" stroke-width="5" stroke-linecap="round"/><path d="M145 72c10 16 12 48 4 72M55 72c-10 16-12 48-4 72" fill="none" stroke="#111414" stroke-width="7" stroke-linecap="round"/></svg>`),
+  sneaker:svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="42" fill="#F7F4EC"/><path d="M45 121c22 4 44-2 59-24l14-22c18 24 30 34 55 40 8 2 12 9 9 17-3 10-13 15-25 15H58c-13 0-23-7-25-16-1-6 4-11 12-10z" fill="#151A1B" stroke="#2C3435" stroke-width="5" stroke-linejoin="round"/><path d="M75 119c31 6 55 2 86-4M99 93l30 23M88 103l24 16M118 76l-13 30" fill="none" stroke="#FF8CC6" stroke-width="5" stroke-linecap="round"/><path d="M48 139h121" stroke="#D8A85E" stroke-width="6" stroke-linecap="round"/></svg>`)
 };
 
 
@@ -558,12 +558,49 @@ function getDailyWnbaCoach(){
 }
 
 // ── STORAGE ──────────────────────────────────────────────────────────────
+// Refresh-safe: the app writes to localStorage and keeps a duplicate snapshot.
+// Clear-history-safe: browser history/site-data clearing can erase localStorage, so the app also supports:
+// 1) Family Code cloud sync when window.storage is available, and
+// 2) manual JSON backup / restore from Setup.
+const SC_STORAGE_KEYS=["sc_daily","sc_bball","sc_practices","sc_style","sc_routine","sc_sleep","sc_school","sc_goals","sc_rewards","sc_profile","sc_habits","sc_last_tab","sc_selected_sport"];
 let _FC=null;
 function getFamilyCode(){try{return _FC||localStorage.getItem("sc_fc")||null;}catch{return null;}}
 function setFCGlobal(c){_FC=c;try{if(c)localStorage.setItem("sc_fc",c);else localStorage.removeItem("sc_fc");}catch{}}
 function fKey(k){const fc=getFamilyCode();return fc?`glow_${fc}_${k}`:null;}
-async function sg(k){try{const sk=fKey(k);if(sk&&window.storage){try{const r=await window.storage.get(sk,true);if(r?.value)return JSON.parse(r.value);}catch{}}const raw=localStorage.getItem(k);return raw?JSON.parse(raw):null;}catch{return null;}}
-async function ss(k,v){try{const p=JSON.stringify(v);const sk=fKey(k);if(sk&&window.storage){try{await window.storage.set(sk,p,true);}catch{}}try{localStorage.setItem(k,p);}catch{}return true;}catch{return false;}}
+function safeJSONParse(raw){try{return raw?JSON.parse(raw):null;}catch{return null;}}
+function makeLocalSnapshot(extra={}){
+  try{
+    const data={};
+    SC_STORAGE_KEYS.forEach(k=>{const raw=localStorage.getItem(k);if(raw!=null)data[k]=safeJSONParse(raw);});
+    const pack={app:"ScarlettTracker",version:3,savedAt:new Date().toISOString(),familyCode:getFamilyCode()||"",data,...extra};
+    localStorage.setItem("sc_full_backup_latest",JSON.stringify(pack));
+    localStorage.setItem("sc_full_backup_mirror",JSON.stringify(pack));
+    return pack;
+  }catch{return null;}
+}
+async function sg(k){
+  try{
+    const sk=fKey(k);
+    if(sk&&window.storage){
+      try{const r=await window.storage.get(sk,true);if(r?.value)return JSON.parse(r.value);}catch{}
+    }
+    const raw=localStorage.getItem(k);
+    if(raw!=null)return JSON.parse(raw);
+    const mirror=safeJSONParse(localStorage.getItem("sc_full_backup_latest"))||safeJSONParse(localStorage.getItem("sc_full_backup_mirror"));
+    if(mirror?.data?.[k]!==undefined)return mirror.data[k];
+    return null;
+  }catch{return null;}
+}
+async function ss(k,v){
+  try{
+    const p=JSON.stringify(v);
+    const sk=fKey(k);
+    if(sk&&window.storage){try{await window.storage.set(sk,p,true);}catch{}}
+    try{localStorage.setItem(k,p);}catch{}
+    try{makeLocalSnapshot({lastSavedKey:k});}catch{}
+    return true;
+  }catch{return false;}
+}
 const genCode=()=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join("");};
 
 // ── UI ATOMS ──────────────────────────────────────────────────────────────
@@ -600,7 +637,7 @@ function GlamHero({children,style={}}){
   return <div style={{
     ...cs,
     padding:18,
-    background:"radial-gradient(circle at 85% 4%,rgba(216,168,94,.14),transparent 32%),radial-gradient(circle at 14% 0%,rgba(53,207,201,.16),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.97),rgba(9,12,13,.99))",
+    background:"radial-gradient(circle at 85% 4%,rgba(216,168,94,.14),transparent 32%),radial-gradient(circle at 14% 0%,rgba(255,140,198,.14),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.97),rgba(9,12,13,.99))",
     border:"1px solid rgba(255,255,255,.14)",
     boxShadow:"0 22px 54px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)",
     ...style
@@ -611,7 +648,7 @@ function GlamHero({children,style={}}){
   </div>;
 }
 
-function CH({e,title,sub}){return<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{fontSize:18,filter:"drop-shadow(0 0 10px rgba(53,207,201,.35))"}}>{e}</div><div><div style={{fontWeight:950,fontSize:10,letterSpacing:"2.4px",color:C.teal,textTransform:"uppercase",marginBottom:2}}>{title}</div>{sub&&<div style={{fontSize:11,color:C.muted,lineHeight:1.35}}>{sub}</div>}</div></div>;}
+function CH({e,title,sub}){return<div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><div style={{fontSize:18,filter:"drop-shadow(0 0 10px rgba(255,140,198,.26))"}}>{e}</div><div><div style={{fontWeight:950,fontSize:10,letterSpacing:"2.4px",color:C.teal,textTransform:"uppercase",marginBottom:2}}>{title}</div>{sub&&<div style={{fontSize:11,color:C.muted,lineHeight:1.35}}>{sub}</div>}</div></div>;}
 function SBox({value,label,color=C.teal,sub}){return<div style={{...glass,borderRadius:18,padding:12,textAlign:"center",borderTop:`2px solid ${color}`,background:"linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.025))"}}><div style={{fontWeight:950,fontSize:22,color,lineHeight:1,textShadow:`0 0 18px ${color}55`}}>{value}</div><div style={{fontSize:10,fontWeight:800,color:"rgba(247,244,236,.72)",marginTop:5}}>{label}</div>{sub&&<div style={{fontSize:9,color:C.muted,marginTop:4}}>{sub}</div>}</div>;}
 function SkBar({skill,val}){const col=SKILL_COL(val),level=SKILL_LEVEL(val);return<div style={{marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}><span style={{fontSize:13,fontWeight:800,color:C.text}}>{skill}</span><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{background:`${col}22`,color:col,fontSize:9,fontWeight:900,padding:"2px 8px",borderRadius:6}}>{level}</span><span style={{fontSize:14,fontWeight:950,color:col}}>{val}%</span></div></div><div style={{height:9,background:"rgba(255,255,255,.08)",borderRadius:100,overflow:"hidden"}}><div style={{height:"100%",background:`linear-gradient(90deg,${col}cc,${C.blush})`,borderRadius:100,width:`${val}%`,transition:"width .4s ease"}}/></div></div>;}
 function RD({val,max=5,col=C.blush,onSet}){return<div style={{display:"flex",gap:7}}>{Array.from({length:max},(_,i)=><div key={i} onClick={()=>onSet(i+1===val?0:i+1)} style={{width:34,height:34,borderRadius:10,background:i<val?`linear-gradient(145deg,${col},${C.blush})`:"rgba(255,255,255,.045)",border:`1.5px solid ${i<val?col:"rgba(255,255,255,.12)"}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:i<val?`0 0 16px ${col}35`:"none",transition:"all .15s"}}><span style={{fontSize:10,fontWeight:900,color:i<val?C.white:"rgba(255,255,255,.32)"}}>{i+1}</span></div>)}</div>;}
@@ -620,7 +657,7 @@ function Chip({label,active,col=C.teal,onClick}){return<button onClick={onClick}
 function RingChart({val,col,label,size=54}){const r=size/2-6,circ=2*Math.PI*r,d=circ-(val/100)*circ,cx=size/2,cy=size/2;return<svg width={size} height={size} style={{filter:`drop-shadow(0 0 10px ${col}55)`}}><circle cx={cx} cy={cy} r={r} fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.12)" strokeWidth={6}/><circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={6} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={d} transform={`rotate(-90 ${cx} ${cy})`} style={{transition:"all .5s ease"}}/><text x={cx} y={cy+4} textAnchor="middle" fill="white" fontSize={label.length>3?9:13} fontWeight={900} fontFamily="system-ui">{label}</text></svg>;}
 
 function TabHero({eyebrow,title,sub,icon="✦",stats=[]}){
-  return <div style={{...cs,background:"radial-gradient(circle at 88% 8%,rgba(53,207,201,.18),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.97),rgba(9,12,13,.99))",color:C.text,border:"1px solid rgba(255,255,255,.16)",padding:22,boxShadow:"0 24px 64px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.08)",marginBottom:14}}>
+  return <div style={{...cs,background:"radial-gradient(circle at 88% 8%,rgba(255,140,198,.16),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.97),rgba(9,12,13,.99))",color:C.text,border:"1px solid rgba(255,255,255,.16)",padding:22,boxShadow:"0 24px 64px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.08)",marginBottom:14}}>
     <div style={{position:"absolute",right:16,top:12,fontSize:88,opacity:.20,color:C.teal,lineHeight:1,filter:"drop-shadow(0 0 18px rgba(53,207,201,.25))"}}>{icon}</div>
     <div style={{position:"relative",zIndex:1}}>
       <div style={{fontSize:11,letterSpacing:"3px",fontWeight:950,color:C.teal,textTransform:"uppercase",marginBottom:10}}>{eyebrow}</div>
@@ -675,6 +712,7 @@ export default function ScarlettTracker(){
   const[familyCode,setFamilyCode]=useState(()=>{try{return localStorage.getItem("sc_fc")||"";}catch{return "";}});
   const[codeInput,setCodeInput]=useState("");
   const[showSettings,setShowSettings]=useState(false);
+  const[backupMsg,setBackupMsg]=useState("");
   const[editing,setEditing]=useState(false);
 
   const[profile,setProfile]=useState(clone(DEF_PROFILE));
@@ -697,7 +735,7 @@ export default function ScarlettTracker(){
   const[rewardClaims,setRewardClaims]=useState([]);
   const[habits,setHabits]=useState(clone(DEF_HABITS));
 
-  const saveTmr=useRef(null),savedTm=useRef(null),editBlurT=useRef(null),supRef=useRef(false);
+  const saveTmr=useRef(null),savedTm=useRef(null),editBlurT=useRef(null),supRef=useRef(false),backupFileRef=useRef(null);
 
   const xpPerLevel=50;
   const xp=stars*5;
@@ -739,6 +777,33 @@ export default function ScarlettTracker(){
   useEffect(()=>{try{localStorage.setItem("sc_last_tab",tab);}catch{}},[tab]);
   useEffect(()=>{try{localStorage.setItem("sc_selected_sport",selectedSportId);}catch{}},[selectedSportId]);
 
+  useEffect(()=>{
+    if(!loaded)return;
+    const flush=()=>{try{
+      const payload=buildBackupPayload();
+      const d=payload.data;
+      localStorage.setItem("sc_daily",JSON.stringify(d.sc_daily));
+      localStorage.setItem("sc_bball",JSON.stringify(d.sc_bball));
+      localStorage.setItem("sc_practices",JSON.stringify(d.sc_practices));
+      localStorage.setItem("sc_style",JSON.stringify(d.sc_style));
+      localStorage.setItem("sc_routine",JSON.stringify(d.sc_routine));
+      localStorage.setItem("sc_sleep",JSON.stringify(d.sc_sleep));
+      localStorage.setItem("sc_school",JSON.stringify(d.sc_school));
+      localStorage.setItem("sc_goals",JSON.stringify(d.sc_goals));
+      localStorage.setItem("sc_rewards",JSON.stringify(d.sc_rewards));
+      localStorage.setItem("sc_profile",JSON.stringify(d.sc_profile));
+      localStorage.setItem("sc_habits",JSON.stringify(d.sc_habits));
+      localStorage.setItem("sc_full_backup_latest",JSON.stringify(payload));
+      localStorage.setItem("sc_full_backup_mirror",JSON.stringify(payload));
+    }catch{}};
+    const vis=()=>{if(document.visibilityState==="hidden")flush();};
+    window.addEventListener("pagehide",flush);
+    window.addEventListener("beforeunload",flush);
+    document.addEventListener("visibilitychange",vis);
+    return()=>{window.removeEventListener("pagehide",flush);window.removeEventListener("beforeunload",flush);document.removeEventListener("visibilitychange",vis);};
+  },[loaded,profile,stars,dailyHist,checks,starAwards,water,vitals,games,practices,skills,subjects,sleepEntries,routineHist,routineItems,styleLog,shoeWish,goals,rewardClaims,habits,tab,selectedSportId]);
+
+
   const addStars=async n=>{const ns=stars+n;setStars(ns);await ss("sc_goals",{entries:goals,stars:ns});};
   const saveBball=async(g,sk)=>{setGames(g);setSkills(sk);await ss("sc_bball",{games:g,skills:sk});};
   const savePrax=async p=>{setPractices(p);await ss("sc_practices",{entries:p});};
@@ -749,6 +814,80 @@ export default function ScarlettTracker(){
   const saveRoutine=async(entries=routineHist,items=routineItems)=>{setRoutineHist(entries);setRoutineItems(items);await ss("sc_routine",{entries,items});};
   const saveSleep=async e=>{setSleepEntries(e);await ss("sc_sleep",{entries:e});};
   const saveSchool=async sub=>{setSubjects(sub);await ss("sc_school",{subjects:sub});};
+
+  const buildBackupPayload=()=>({
+    app:"ScarlettTracker",
+    version:3,
+    savedAt:new Date().toISOString(),
+    familyCode:familyCode||getFamilyCode()||"",
+    data:{
+      sc_daily:{entries:dailyHist},
+      sc_bball:{games,skills},
+      sc_practices:{entries:practices},
+      sc_style:{fits:styleLog,shoes:shoeWish},
+      sc_routine:{entries:routineHist,items:routineItems},
+      sc_sleep:{entries:sleepEntries},
+      sc_school:{subjects},
+      sc_goals:{entries:goals,stars},
+      sc_rewards:{claims:rewardClaims},
+      sc_profile:profile,
+      sc_habits:{entries:habits},
+      sc_last_tab:tab,
+      sc_selected_sport:selectedSportId
+    }
+  });
+  const saveEverythingNow=async()=>{
+    const payload=buildBackupPayload();
+    const d=payload.data;
+    await Promise.all([
+      ss("sc_daily",d.sc_daily),ss("sc_bball",d.sc_bball),ss("sc_practices",d.sc_practices),ss("sc_style",d.sc_style),
+      ss("sc_routine",d.sc_routine),ss("sc_sleep",d.sc_sleep),ss("sc_school",d.sc_school),ss("sc_goals",d.sc_goals),
+      ss("sc_rewards",d.sc_rewards),ss("sc_profile",d.sc_profile),ss("sc_habits",d.sc_habits)
+    ]);
+    try{
+      localStorage.setItem("sc_last_tab",tab);
+      localStorage.setItem("sc_selected_sport",selectedSportId);
+      localStorage.setItem("sc_full_backup_latest",JSON.stringify(payload));
+      localStorage.setItem("sc_full_backup_mirror",JSON.stringify(payload));
+      if(getFamilyCode()&&window.storage){try{await window.storage.set(fKey("sc_full_backup_latest"),JSON.stringify(payload),true);}catch{}}
+    }catch{}
+    setBackupMsg("Saved backup snapshot.");
+    setTimeout(()=>setBackupMsg(""),2200);
+    return payload;
+  };
+  const exportBackup=async()=>{
+    const payload=await saveEverythingNow();
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`scarlett-backup-${todayISO()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    setBackupMsg("Backup file downloaded.");
+    setTimeout(()=>setBackupMsg(""),2600);
+  };
+  const restoreBackupPayload=async(payload)=>{
+    const d=payload?.data||payload;
+    if(!d||typeof d!=="object")return;
+    const daily=d.sc_daily||{entries:{}},bball=d.sc_bball||{games:[],skills:clone(DEF_SKILLS)},prax=d.sc_practices||{entries:[]},styleD=d.sc_style||{fits:[],shoes:[]},routineD=d.sc_routine||{entries:{},items:clone(ROUTINE_ITEMS)},slp=d.sc_sleep||{entries:[]},school=d.sc_school||{subjects:clone(DEF_SUBJECTS)},gd=d.sc_goals||{entries:[],stars:0},rd=d.sc_rewards||{claims:[]},pd=d.sc_profile||clone(DEF_PROFILE),hd=d.sc_habits||{entries:clone(DEF_HABITS)};
+    setDailyHist(daily.entries||{});setGames(safeArray(bball.games));setSkills(bball.skills||clone(DEF_SKILLS));setPractices(safeArray(prax.entries));setStyleLog(safeArray(styleD.fits));setShoeWish(safeArray(styleD.shoes));setRoutineHist(routineD.entries||{});setRoutineItems(routineD.items||clone(ROUTINE_ITEMS));setSleepEntries(safeArray(slp.entries));setSubjects(school.subjects||clone(DEF_SUBJECTS));setGoals(safeArray(gd.entries));setStars(Number(gd.stars)||0);setRewardClaims(safeArray(rd.claims));setProfile({...clone(DEF_PROFILE),...pd});setHabits(hd.entries||[]);
+    const e=(daily.entries||{})[todayISO()]||{};setChecks(e.c||{});setStarAwards(e.r||{});setWater(e.w||0);setVitals(e.vitals||clone(DEF_VITALS));
+    await Promise.all([
+      ss("sc_daily",daily),ss("sc_bball",bball),ss("sc_practices",prax),ss("sc_style",styleD),ss("sc_routine",routineD),ss("sc_sleep",slp),ss("sc_school",school),ss("sc_goals",gd),ss("sc_rewards",rd),ss("sc_profile",pd),ss("sc_habits",hd)
+    ]);
+    setBackupMsg("Backup restored.");
+    setTimeout(()=>setBackupMsg(""),2600);
+  };
+  const importBackupFile=async e=>{
+    const file=e.target.files?.[0]; if(!file)return;
+    try{const payload=JSON.parse(await file.text());await restoreBackupPayload(payload);}
+    catch{setBackupMsg("That backup file could not be read.");setTimeout(()=>setBackupMsg(""),2600);}
+    e.target.value="";
+  };
+
 
   const activateCode=async code=>{
     const c=(code||"").trim().toUpperCase();if(c.length<4)return;
@@ -765,6 +904,8 @@ export default function ScarlettTracker(){
     if(rd?.claims)setRewardClaims(safeArray(rd.claims));
     if(hd?.entries)setHabits(hd.entries);
     if(pd)setProfile({...clone(DEF_PROFILE),...pd});
+    setBackupMsg("Family Sync Code connected. Use Save Now to push a fresh snapshot.");
+    setTimeout(()=>setBackupMsg(""),3000);
   };
 
   const onEditFocus=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);setEditing(true);}};
@@ -852,13 +993,13 @@ export default function ScarlettTracker(){
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10,marginLeft:78}}>
           <div style={{height:7,flex:1,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.teal},${C.gold})`,borderRadius:99,transition:"width .4s"}}/>
+            <div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.pink},${C.teal},${C.gold})`,borderRadius:99,transition:"width .4s"}}/>
           </div>
           <div style={{fontSize:12,color:C.muted,whiteSpace:"nowrap"}}>{xpInLevel} / {xpPerLevel} XP to Level {level+1}</div>
         </div>
       </div>
 
-      <div style={{...cs,background:"radial-gradient(circle at 85% 18%,rgba(53,207,201,.16),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.98),rgba(9,12,13,.99))",color:C.text,border:"1px solid rgba(255,255,255,.16)",padding:22,boxShadow:"0 24px 60px rgba(0,0,0,.48)",minHeight:166}}>
+      <div style={{...cs,background:"radial-gradient(circle at 85% 18%,rgba(255,140,198,.14),transparent 34%),linear-gradient(145deg,rgba(20,25,26,.98),rgba(9,12,13,.99))",color:C.text,border:"1px solid rgba(255,255,255,.16)",padding:22,boxShadow:"0 24px 60px rgba(0,0,0,.48)",minHeight:166}}>
         <div style={{position:"absolute",right:22,top:18,fontSize:86,opacity:.18,color:C.mauve,lineHeight:1}}>♕</div>
         <div style={{position:"relative",zIndex:1}}>
           <div style={{fontSize:13,letterSpacing:"3px",fontWeight:950,color:C.mauve,marginBottom:12}}>I AM...</div>
@@ -944,7 +1085,7 @@ export default function ScarlettTracker(){
         </div>
         <div style={{display:"grid",gridTemplateColumns:"82px repeat(3,1fr) 74px",gap:8,alignItems:"stretch"}}>
           <button onClick={()=>setTab("progress")} style={{border:"none",background:"rgba(255,255,255,.045)",borderRadius:18,cursor:"pointer",fontFamily:"system-ui",padding:8,color:C.text,border:"1px solid rgba(255,255,255,.08)"}}>
-            <div style={{width:58,height:58,borderRadius:"50%",border:`6px solid rgba(53,207,201,.18)`,borderTopColor:C.teal,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 6px",fontWeight:900,color:C.teal,fontSize:18}}>{stars}</div>
+            <div style={{width:58,height:58,borderRadius:"50%",border:`6px solid rgba(255,140,198,.16)`,borderTopColor:C.teal,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 6px",fontWeight:900,color:C.teal,fontSize:18}}>{stars}</div>
             <div style={{fontSize:10}}>Points</div>
           </button>
           {rewardTiles.slice(0,3).map((it,i)=><button key={`${it.name}_${i}`} onClick={()=>setTab("wishlist")} style={{border:"1px solid rgba(255,255,255,.10)",background:"rgba(255,255,255,.045)",borderRadius:16,padding:8,cursor:"pointer",fontFamily:"system-ui",color:C.text,minWidth:0}}>
@@ -1008,7 +1149,7 @@ export default function ScarlettTracker(){
         <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{horoscope.longVibe||horoscope.message}</div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
-          <div style={{padding:13,borderRadius:18,background:"rgba(53,207,201,.08)",border:"1px solid rgba(167,101,131,.22)"}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(255,140,198,.08)",border:"1px solid rgba(167,101,131,.22)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:5}}>POWER MOVE</div>
             <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{horoscope.tryThis||horoscope.power}</div>
           </div>
@@ -1091,7 +1232,7 @@ export default function ScarlettTracker(){
         <div style={{fontSize:15,lineHeight:1.65,color:"rgba(33,31,33,.78)",marginBottom:14}}>{coach.longTip||coach.takeaway}</div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:10}}>
-          <div style={{padding:13,borderRadius:18,background:"rgba(53,207,201,.08)",border:"1px solid rgba(167,101,131,.22)"}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(255,140,198,.08)",border:"1px solid rgba(167,101,131,.22)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.mauve,marginBottom:5}}>TRY THIS TODAY</div>
             <div style={{fontSize:14,lineHeight:1.5,fontWeight:750}}>{coach.tryThis||"Choose one small action and finish it today."}</div>
           </div>
@@ -1276,7 +1417,7 @@ export default function ScarlettTracker(){
           </div>
           <div style={{display:"flex",gap:8}}>
             <button onClick={()=>setTemplateStats(Object.fromEntries(sportTemplate.statFields.map(f=>[f.key,0])))} style={{flex:1,padding:13,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.045)",color:C.light,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Reset Preview</button>
-            <button onClick={()=>setSelectedSportId("basketball")} style={{flex:1,padding:13,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Back to Basketball</button>
+            <button onClick={()=>setSelectedSportId("basketball")} style={{flex:1,padding:13,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.pink},${C.blush},${C.teal})`,color:C.darkText,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Back to Basketball</button>
           </div>
         </div>
         <div style={cs}>
@@ -1326,7 +1467,7 @@ export default function ScarlettTracker(){
           </div>
           <div style={{display:"flex",gap:8}}>
             {editGameId&&<button onClick={resetGameForm} style={{flex:1,padding:14,borderRadius:16,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.05)",color:C.light,fontWeight:900,cursor:"pointer",fontSize:14,fontFamily:"system-ui"}}>Cancel</button>}
-            <button onClick={logGame} style={{flex:editGameId?2:1,width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.mauve}22`}}>{editGameId?"Save Changes ✅":"Save Game ⭐"}</button>
+            <button onClick={logGame} style={{flex:editGameId?2:1,width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.pink},${C.blush},${C.teal})`,color:C.darkText,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.mauve}22`}}>{editGameId?"Save Changes ✅":"Save Game ⭐"}</button>
           </div>
         </div>
         {games.length>0&&<div style={cs}>
@@ -1380,7 +1521,7 @@ export default function ScarlettTracker(){
           <EmojiPick val={pf.effort} emojis={["😴","🙂","😊","💪","🔥"]} onSet={v=>setPf(p=>({...p,effort:v}))} col={C.purple}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6,marginTop:14}}>WHAT DID YOU WORK ON? (optional)</div>
           <textarea value={pf.note} onChange={e=>setPf(p=>({...p,note:e.target.value}))} placeholder="Free throws, left-hand layups, defensive slides..." style={{...TXT,minHeight:60,marginBottom:12}}/>
-          <button onClick={logPractice} style={{width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.purple}33`}}>Save Practice ⭐</button>
+          <button onClick={logPractice} style={{width:"100%",padding:16,borderRadius:16,border:"none",background:`linear-gradient(135deg,${C.pink},${C.blush},${C.teal})`,color:C.darkText,fontWeight:950,cursor:"pointer",fontSize:16,fontFamily:"system-ui",boxShadow:`0 12px 28px ${C.purple}33`}}>Save Practice ⭐</button>
         </div>
         {practices.length>0&&<div style={cs}>
           <CH e="📋" title="Practice History" sub={`${practices.length} sessions`}/>
@@ -1546,7 +1687,7 @@ export default function ScarlettTracker(){
             <input value={routineForm.label} onChange={e=>setRoutineForm(p=>({...p,label:e.target.value}))} placeholder="Example: Pack basketball bag" style={INP}/>
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button onClick={saveRoutineItem} style={{flex:1,minWidth:150,padding:12,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.teal},${C.gold})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>{editRoutine?"Save Changes":"Add Item"}</button>
+            <button onClick={saveRoutineItem} style={{flex:1,minWidth:150,padding:12,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.pink},${C.teal},${C.gold})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>{editRoutine?"Save Changes":"Add Item"}</button>
             {(editRoutine||routineForm.label)&&<button onClick={()=>{setEditRoutine(null);setRoutineForm({e:"✨",label:"",id:""});}} style={{padding:"12px 14px",borderRadius:12,border:`1px solid ${C.border}`,background:"rgba(255,255,255,.04)",color:C.muted,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Cancel</button>}
           </div>
           <button onClick={resetRoutineDefaults} style={{width:"100%",marginTop:10,padding:10,borderRadius:12,border:`1px solid ${C.gold}44`,background:`${C.gold}10`,color:C.gold,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>Reset to Starter Routine</button>
@@ -1568,7 +1709,7 @@ export default function ScarlettTracker(){
           <div style={{textAlign:"center",padding:12,borderRadius:14,background:`${C.mauve}10`,border:`1px solid ${C.mauve}33`,marginBottom:12}}><div style={{fontSize:22,fontWeight:950,color:C.mauve}}>{hoursNow} hours</div><div style={{fontSize:10,color:C.muted}}>planned sleep</div></div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:8}}>QUALITY</div>
           <EmojiPick val={sf.quality} emojis={["😴","🙂","😊","😎","👑"]} onSet={v=>setSf(p=>({...p,quality:v}))} col={C.mauve}/>
-          <button onClick={addSleep} style={{width:"100%",marginTop:14,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Sleep 🌙</button>
+          <button onClick={addSleep} style={{width:"100%",marginTop:14,padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.pink},${C.blush},${C.teal})`,color:C.darkText,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Sleep 🌙</button>
         </div>
         {sleepEntries.length>0&&<div style={cs}>
           <CH e="📊" title="Sleep Trend"/>
@@ -1617,7 +1758,7 @@ export default function ScarlettTracker(){
           <div style={{fontSize:11,color:C.muted,fontWeight:900,marginBottom:8}}>CONFIDENCE VIBE</div>
           <EmojiPick val={stf.vibe} emojis={["😐","🙂","😊","😍","💅"]} onSet={v=>setStf(p=>({...p,vibe:v}))} col={C.blush}/>
           <textarea value={stf.notes} onChange={e=>setStf(p=>({...p,notes:e.target.value}))} placeholder="Optional notes: what felt good, what to try next..." style={{...TXT,marginTop:12,marginBottom:12}}/>
-          <button onClick={logFit} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.teal},${C.gold})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Style Log 💅</button>
+          <button onClick={logFit} style={{width:"100%",padding:14,borderRadius:14,border:"none",background:`linear-gradient(135deg,${C.pink},${C.teal},${C.gold})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Save Style Log 💅</button>
           <button onClick={()=>setTab("wishlist")} style={{width:"100%",marginTop:8,padding:12,borderRadius:14,border:`1px solid ${C.gold}44`,background:`${C.gold}10`,color:C.gold,fontWeight:900,cursor:"pointer",fontFamily:"system-ui",fontSize:13}}>Open Wishlist for shoes, clothes, beauty, and toys 🛍️</button>
         </div>
         {styleLog.length>0&&<div style={cs}>
@@ -2059,7 +2200,7 @@ export default function ScarlettTracker(){
         }
       </div>
 
-      <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(53,207,201,.13),transparent 50%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",textAlign:"center",padding:20}}>
+      <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,140,198,.12),transparent 50%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",textAlign:"center",padding:20}}>
         <div style={{fontSize:44,marginBottom:6}}>⭐</div>
         <div style={{fontSize:28,fontWeight:950,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</div>
         <div style={{display:"inline-block",marginTop:8,padding:"6px 16px",borderRadius:999,background:`${C.purple}25`,border:`1px solid ${C.purple}55`,fontSize:13,fontWeight:900,color:C.purple}}>Level {level} · {levelTitle}</div>
@@ -2118,20 +2259,20 @@ export default function ScarlettTracker(){
 
   const CONTENT={today:Today,virgo:VirgoVibe,coach:Coach,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
 
-  return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(53,207,201,.13),transparent 30%),radial-gradient(circle at 92% 0%,rgba(216,168,94,.10),transparent 24%),linear-gradient(180deg,#080B0C,#101516 54%,#070909)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
+  return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(255,140,198,.12),transparent 30%),radial-gradient(circle at 92% 0%,rgba(216,168,94,.10),transparent 24%),linear-gradient(180deg,#080B0C,#101516 54%,#070909)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
     <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden;background:#080B0C} input::placeholder,textarea::placeholder{color:rgba(247,244,236,.42)} .app-card-img{object-fit:contain!important;background:#F7F4EC}`}</style>
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(53,207,201,.08)"}}>
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(255,140,198,.08)"}}>
 
       <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 10px",background:"linear-gradient(180deg,rgba(8,11,12,.96),rgba(8,11,12,.86))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
           <button onClick={()=>setTab("today")} style={{display:"flex",alignItems:"center",gap:10,minWidth:0,border:"none",background:"transparent",padding:0,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
-            <div style={{width:42,height:42,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.teal},${C.gold})`,flexShrink:0}}>
+            <div style={{width:42,height:42,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.pink},${C.teal},${C.gold})`,flexShrink:0}}>
               <div style={{width:"100%",height:"100%",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:"#171618",color:C.cream,fontWeight:950,fontFamily:"Georgia,serif",fontSize:19}}>{(profile.name||"S").slice(0,1)}</div>
             </div>
             <div style={{minWidth:0}}>
               <div style={{fontWeight:850,fontSize:23,letterSpacing:"-.5px",lineHeight:1,color:C.cream,fontFamily:"Georgia,serif"}}>{profile.name}</div>
               <div style={{display:"flex",alignItems:"center",gap:7,marginTop:5}}>
-                <div style={{width:76,height:6,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden"}}><div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.teal},${C.gold})`,borderRadius:99,transition:"width .4s"}}/></div>
+                <div style={{width:76,height:6,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden"}}><div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.pink},${C.teal},${C.gold})`,borderRadius:99,transition:"width .4s"}}/></div>
                 <span style={{fontSize:10,color:C.blush,fontWeight:850,whiteSpace:"nowrap"}}>LV {level} {levelTitle}</span>
               </div>
             </div>
@@ -2161,6 +2302,18 @@ export default function ScarlettTracker(){
           <div style={{fontSize:10,color:C.gold,fontWeight:800,marginBottom:14}}>♍ Virgo daily vibe enabled</div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>TEAM NAME (optional)</div>
           <input value={profile.teamName} onChange={e=>setProfile(p=>({...p,teamName:e.target.value}))} placeholder="e.g. Lady Eagles" style={{...INP,marginBottom:18}}/>
+
+          <div style={{margin:"8px 0 18px",padding:14,borderRadius:18,background:`linear-gradient(145deg,${C.pink}18,rgba(255,255,255,.04))`,border:`1px solid ${C.pink}44`}}>
+            <div style={{fontSize:11,color:C.pink,fontWeight:950,letterSpacing:"1.4px",textTransform:"uppercase",marginBottom:6}}>💗 Protect Progress</div>
+            <div style={{fontSize:11,color:C.muted,lineHeight:1.55,marginBottom:10}}>Refreshes are safe. Clearing browser history/site data can erase local storage, so use a Family Sync Code or download a backup file before clearing Safari/Chrome data.</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+              <button onClick={saveEverythingNow} style={{padding:11,borderRadius:12,border:`1px solid ${C.teal}55`,background:`${C.teal}14`,color:C.teal,fontWeight:950,cursor:"pointer",fontSize:12,fontFamily:"system-ui"}}>Save Now</button>
+              <button onClick={exportBackup} style={{padding:11,borderRadius:12,border:`1px solid ${C.pink}55`,background:`${C.pink}14`,color:C.pink,fontWeight:950,cursor:"pointer",fontSize:12,fontFamily:"system-ui"}}>Download Backup</button>
+            </div>
+            <input ref={backupFileRef} type="file" accept="application/json,.json" onChange={importBackupFile} style={{display:"none"}}/>
+            <button onClick={()=>backupFileRef.current?.click()} style={{width:"100%",padding:11,borderRadius:12,border:`1px solid ${C.gold}55`,background:`${C.gold}12`,color:C.gold,fontWeight:950,cursor:"pointer",fontSize:12,fontFamily:"system-ui"}}>Restore From Backup File</button>
+            {backupMsg&&<div style={{fontSize:10,color:C.green,fontWeight:850,marginTop:8,textAlign:"center"}}>{backupMsg}</div>}
+          </div>
           <div style={{fontSize:11,color:C.blue,fontWeight:800,marginBottom:6}}>☁ FAMILY SYNC CODE</div>
           <div style={{fontSize:11,color:C.muted,marginBottom:10,lineHeight:1.6}}>Create a code and enter it on every device — mom's phone, dad's tablet, any screen. Everyone sees the same data.</div>
           {familyCode?<>
@@ -2174,7 +2327,7 @@ export default function ScarlettTracker(){
             </div>
           </>:<>
             <input value={codeInput} onChange={e=>setCodeInput(e.target.value.toUpperCase())} placeholder="Enter code (e.g. SC7X2K)" maxLength={6} style={{...INP,letterSpacing:"6px",fontWeight:950,fontSize:20,textAlign:"center",marginBottom:8}}/>
-            <button onClick={()=>activateCode(codeInput)} style={{width:"100%",padding:13,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.mauve},${C.blush})`,color:C.white,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14,marginBottom:8}}>Connect ☁</button>
+            <button onClick={()=>activateCode(codeInput)} style={{width:"100%",padding:13,borderRadius:12,border:"none",background:`linear-gradient(135deg,${C.pink},${C.blush},${C.teal})`,color:C.darkText,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14,marginBottom:8}}>Connect ☁</button>
             <button onClick={()=>activateCode(genCode())} style={{width:"100%",padding:13,borderRadius:12,border:`1px solid ${C.teal}44`,background:`${C.teal}12`,color:C.teal,fontWeight:950,cursor:"pointer",fontFamily:"system-ui",fontSize:14}}>Create New Family Code ✨</button>
           </>}
         </div>
@@ -2188,7 +2341,7 @@ export default function ScarlettTracker(){
       <div style={{position:"fixed",left:"50%",bottom:"max(10px,env(safe-area-inset-bottom,0px))",transform:editing?"translate(-50%,calc(125% + 20px))":"translateX(-50%)",opacity:editing?0:1,pointerEvents:editing?"none":"auto",transition:"transform .22s ease,opacity .18s ease",width:"min(410px,calc(100% - 28px))",display:"grid",gridTemplateColumns:`repeat(${TABS.length},1fr)`,gap:1,background:"rgba(9,13,14,.96)",backdropFilter:"blur(26px)",border:"1px solid rgba(255,255,255,.13)",borderRadius:28,padding:"11px 9px calc(10px + env(safe-area-inset-bottom,0px))",boxShadow:"0 20px 60px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.07)",zIndex:60}}>
         {TABS.map(t=>{
           const active=tab===t.id;
-          return <button key={t.id} onClick={()=>setTab(t.id)} style={{background:active?"rgba(53,207,201,.08)":"transparent",border:"none",borderRadius:20,color:active?C.teal:"rgba(247,244,236,.56)",padding:"7px 2px 6px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer",minWidth:0}}>
+          return <button key={t.id} onClick={()=>setTab(t.id)} style={{background:active?"rgba(255,140,198,.08)":"transparent",border:"none",borderRadius:20,color:active?C.teal:"rgba(247,244,236,.56)",padding:"7px 2px 6px",fontFamily:"system-ui",fontWeight:900,cursor:"pointer",minWidth:0}}>
             <div style={{fontSize:20,lineHeight:1,filter:active?`drop-shadow(0 0 13px ${C.teal}88)`:"grayscale(.15) brightness(.9)",transform:active?"translateY(-1px)":"none"}}>{t.e}</div>
             <div style={{fontSize:8.5,marginTop:5,letterSpacing:".25px",color:active?C.teal:"rgba(247,244,236,.58)",fontWeight:950,textShadow:active?`0 0 12px ${C.teal}55`:"none"}}>{t.label}</div>
           </button>;
