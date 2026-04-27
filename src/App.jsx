@@ -552,7 +552,7 @@ const WNBA_DAILY_COACH=[
   }
 ];
 const WNBA_COACH_ROTATION_OFFSET=1; // Moves today's coach forward while still rotating at local 12:00 AM.
-function getDailyWnbaCoach(){
+function getDailyWnbaCoach(profile){
   const day=localDayKey()+WNBA_COACH_ROTATION_OFFSET;
   return WNBA_DAILY_COACH[day%WNBA_DAILY_COACH.length];
 }
@@ -602,6 +602,39 @@ async function ss(k,v){
   }catch{return false;}
 }
 const genCode=()=>{const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join("");};
+const displayName=p=>(String(p?.name||"").trim()||"Scarlett");
+function nameText(s,p){return String(s||"").replaceAll("Scarlett",displayName(p));}
+function birthMonthDay(v){
+  const raw=String(v||"2015-08-28");
+  const parts=raw.split("-");
+  if(parts.length>=3){
+    const m=Number(parts[1]),d=Number(parts[2]);
+    if(m&&d){
+      const dt=new Date(2000,m-1,d);
+      return dt.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    }
+  }
+  return raw.replace(/,\s*\d{4}$/,"").replace(/\b\d{4}\b/g,"").trim()||"Aug 28";
+}
+function monthDayToBirthDate(v,prev="2015-08-28"){
+  const t=String(v||"").trim();
+  if(!t)return prev||"2015-08-28";
+  const y=(String(prev||"2015-08-28").split("-")[0])||"2015";
+  const parsed=new Date(`${t} ${y}`);
+  if(!Number.isNaN(parsed.getTime())){
+    const m=String(parsed.getMonth()+1).padStart(2,"0");
+    const d=String(parsed.getDate()).padStart(2,"0");
+    return `${y}-${m}-${d}`;
+  }
+  const nums=t.match(/\d+/g);
+  if(nums&&nums.length>=2){
+    const m=String(Math.min(12,Math.max(1,Number(nums[0])))).padStart(2,"0");
+    const d=String(Math.min(31,Math.max(1,Number(nums[1])))).padStart(2,"0");
+    return `${y}-${m}-${d}`;
+  }
+  return prev||"2015-08-28";
+}
+
 
 // ── UI ATOMS ──────────────────────────────────────────────────────────────
 const cs={
@@ -911,7 +944,7 @@ export default function ScarlettTracker(){
   const onEditFocus=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);setEditing(true);}};
   const onEditBlur=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);editBlurT.current=setTimeout(()=>setEditing(false),160);}};
 
-  if(!loaded)return<div style={{background:C.bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:14,fontFamily:"system-ui"}}><div style={{fontSize:52,filter:`drop-shadow(0 0 22px ${C.gold})`}}>⭐</div><div style={{fontWeight:900,fontSize:18,color:C.white}}>Loading {profile.name}'s Glow Up...</div></div>;
+  if(!loaded)return<div style={{background:C.bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:14,fontFamily:"system-ui"}}><div style={{fontSize:52,filter:`drop-shadow(0 0 22px ${C.gold})`}}>⭐</div><div style={{fontWeight:900,fontSize:18,color:C.white}}>Loading {displayName(profile)}'s Glow Up...</div></div>;
 
   const badgeData={games,practices,sleepEntries,subjects,goals,skills,dailyHist,shoeWish,styleLog,stars};
   const rewardCost=item=>{if(item?.cost)return item.cost;const p=String(item?.priority||"").toLowerCase();if(p.includes("dream"))return 3;if(p.includes("next"))return 2;return 1;};
@@ -949,7 +982,7 @@ export default function ScarlettTracker(){
     const total=Math.max(habits.length,1);
     const allDone=habits.length>0&&done===habits.length;
     const horoscope=getDailyHoroscope(profile);
-    const wnbaCoach=getDailyWnbaCoach();
+    const wnbaCoach=getDailyWnbaCoach(profile);
     const allGoals=safeObjects(goals).filter(g=>!g.archived);
     const activeGoals=allGoals.filter(g=>!g.done);
     const waitingGoals=allGoals.filter(g=>g.done&&!g.parentApproved);
@@ -985,10 +1018,10 @@ export default function ScarlettTracker(){
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
           <div style={{display:"flex",alignItems:"center",gap:12,minWidth:0}}>
             <div style={{width:66,height:66,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.blush},${C.rose})`,boxShadow:`0 0 0 4px rgba(217,160,186,.08)`}}>
-              <div style={{width:"100%",height:"100%",borderRadius:"50%",background:"radial-gradient(circle at 35% 25%,rgba(255,255,255,.18),transparent 25%),linear-gradient(145deg,#252229,#111)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,fontWeight:950,color:C.cream,fontFamily:"Georgia,serif"}}>{(profile.name||"S").slice(0,1)}</div>
+              <div style={{width:"100%",height:"100%",borderRadius:"50%",background:"radial-gradient(circle at 35% 25%,rgba(255,255,255,.18),transparent 25%),linear-gradient(145deg,#252229,#111)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,fontWeight:950,color:C.cream,fontFamily:"Georgia,serif"}}>{displayName(profile).slice(0,1)}</div>
             </div>
             <div style={{minWidth:0}}>
-              <div style={{fontSize:34,lineHeight:1,fontWeight:800,color:C.cream,fontFamily:"Georgia,serif",letterSpacing:"-.6px"}}>{profile.name}</div>
+              <div style={{fontSize:34,lineHeight:1,fontWeight:800,color:C.cream,fontFamily:"Georgia,serif",letterSpacing:"-.6px"}}>{displayName(profile)}</div>
               <div style={{fontSize:13,color:C.muted,marginTop:4}}>Level {level} • {levelTitle}</div>
             </div>
           </div>
@@ -1223,7 +1256,7 @@ export default function ScarlettTracker(){
 
   // ── WNBA COACH SPOTLIGHT ───────────────────────────────────────────────
   const Coach=()=>{
-    const coach=getDailyWnbaCoach();
+    const coach=getDailyWnbaCoach(profile);
     const quickActions=[
       {label:"Log hoops work",icon:"🏀",go:"hoops"},
       {label:"Set a goal from this",icon:"🎯",go:"goals"},
@@ -1235,7 +1268,7 @@ export default function ScarlettTracker(){
       <TabHero
         eyebrow="Daily Coach"
         title="One real lesson. One action today."
-        sub="The coach card turns inspiration into something Scarlett can actually do."
+        sub="The coach card turns inspiration into something she can actually do."
         icon="🏀"
         stats={[
           {value:"Tip",label:"today",color:C.mauve},
@@ -1404,7 +1437,7 @@ export default function ScarlettTracker(){
       <TabHero
         eyebrow="Sports Hub"
         title="Sports: Performance Hub"
-        sub="Track Scarlett’s active sport, training, game stats, and skills here, with room to add future sports only when they become relevant."
+        sub="Track the active sport, training, game stats, and skills here, with room to add future sports only when they become relevant."
         icon="🏀"
         stats={[
           {value:games.length,label:"games",color:C.mauve,onClick:()=>setSection("game")},
@@ -1413,7 +1446,7 @@ export default function ScarlettTracker(){
         ]}
       />
       <div style={cs}>
-        <CH e="🏟️" title="Current Active Sport" sub="Basketball stays at the top because this is Scarlett’s active saved tracker for stats, training, and skills."/>
+        <CH e="🏟️" title="Current Active Sport" sub="Basketball stays at the top because this is the active saved tracker for stats, training, and skills."/>
         <div style={{fontSize:10,color:C.muted,fontWeight:950,letterSpacing:"1.6px",textTransform:"uppercase",marginBottom:8}}>Current Active Sport</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:8,marginBottom:0}}>
           {ACTIVE_SPORT_IDS.map(id=>{const sport=SPORT_TEMPLATES[id];return <button key={sport.id} onClick={()=>{setSelectedSportId(sport.id);setSection("game");}} style={{display:"flex",alignItems:"center",gap:12,padding:14,borderRadius:20,border:`1px solid ${selectedSportId===sport.id?sport.accent:C.border}`,background:selectedSportId===sport.id?`${sport.accent}20`:"rgba(255,255,255,.04)",color:C.cream,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
@@ -2209,7 +2242,7 @@ export default function ScarlettTracker(){
       <TabHero
         eyebrow="Rewards & Progress"
         title="Celebrate what was earned."
-        sub="Approved goals unlock reward tokens. Progress, badges, grades, and growth stay visible for parents and Scarlett."
+        sub="Approved goals unlock reward tokens. Progress, badges, grades, and growth stay visible for parents and the athlete."
         icon="🎁"
         stats={[
           {value:approvedGoalCount,label:"approved",color:C.green},
@@ -2248,7 +2281,7 @@ export default function ScarlettTracker(){
 
       <div style={{...cs,background:"radial-gradient(ellipse at 80% 10%,rgba(255,140,198,.12),transparent 50%),linear-gradient(145deg,rgba(34,32,35,.96),rgba(12,12,14,.99))",textAlign:"center",padding:20}}>
         <div style={{fontSize:44,marginBottom:6}}>⭐</div>
-        <div style={{fontSize:28,fontWeight:950,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{profile.name}</div>
+        <div style={{fontSize:28,fontWeight:950,background:glamGrad,WebkitBackgroundClip:"text",color:"transparent"}}>{displayName(profile)}</div>
         <div style={{display:"inline-block",marginTop:8,padding:"6px 16px",borderRadius:999,background:`${C.purple}25`,border:`1px solid ${C.purple}55`,fontSize:13,fontWeight:900,color:C.purple}}>Level {level} · {levelTitle}</div>
         <div style={{margin:"14px 0 4px"}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}><span style={{fontSize:10,color:C.muted}}>LV {level}</span><span style={{fontSize:10,color:C.purple,fontWeight:800}}>{xpInLevel}/{xpPerLevel} XP</span></div>
@@ -2313,10 +2346,10 @@ export default function ScarlettTracker(){
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
           <button onClick={()=>setTab("today")} style={{display:"flex",alignItems:"center",gap:10,minWidth:0,border:"none",background:"transparent",padding:0,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
             <div style={{width:42,height:42,borderRadius:"50%",padding:2,background:`linear-gradient(135deg,${C.pink},${C.teal},${C.gold})`,flexShrink:0}}>
-              <div style={{width:"100%",height:"100%",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:"#171618",color:C.cream,fontWeight:950,fontFamily:"Georgia,serif",fontSize:19}}>{(profile.name||"S").slice(0,1)}</div>
+              <div style={{width:"100%",height:"100%",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:"#171618",color:C.cream,fontWeight:950,fontFamily:"Georgia,serif",fontSize:19}}>{displayName(profile).slice(0,1)}</div>
             </div>
             <div style={{minWidth:0}}>
-              <div style={{fontWeight:850,fontSize:23,letterSpacing:"-.5px",lineHeight:1,color:C.cream,fontFamily:"Georgia,serif"}}>{profile.name}</div>
+              <div style={{fontWeight:850,fontSize:23,letterSpacing:"-.5px",lineHeight:1,color:C.cream,fontFamily:"Georgia,serif"}}>{displayName(profile)}</div>
               <div style={{display:"flex",alignItems:"center",gap:7,marginTop:5}}>
                 <div style={{width:76,height:6,background:"rgba(255,255,255,.10)",borderRadius:99,overflow:"hidden"}}><div style={{height:"100%",width:`${(xpInLevel/xpPerLevel)*100}%`,background:`linear-gradient(90deg,${C.pink},${C.teal},${C.gold})`,borderRadius:99,transition:"width .4s"}}/></div>
                 <span style={{fontSize:10,color:C.blush,fontWeight:850,whiteSpace:"nowrap"}}>LV {level} {levelTitle}</span>
@@ -2339,13 +2372,14 @@ export default function ScarlettTracker(){
             <div style={{fontSize:18,fontWeight:950}}>Setup ⚙️</div>
             <button onClick={()=>setShowSettings(false)} style={{background:"rgba(255,255,255,.1)",border:"none",borderRadius:10,width:36,height:36,color:C.white,fontSize:18,cursor:"pointer"}}>×</button>
           </div>
-          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>YOUR NAME</div>
-          <input value={profile.name} onChange={e=>setProfile(p=>({...p,name:e.target.value}))} style={{...INP,marginBottom:14}}/>
+          <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>CHILD'S NAME</div>
+          <input value={profile.name||""} onChange={e=>setProfile(p=>({...p,name:e.target.value}))} placeholder="e.g. Scarlett" style={{...INP,marginBottom:6}}/>
+          <div style={{fontSize:10,color:C.muted,marginBottom:14,lineHeight:1.45}}>This name updates the header and how the app talks to her.</div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>GRADE</div>
           <input value={profile.grade} onChange={e=>setProfile(p=>({...p,grade:e.target.value}))} placeholder="e.g. 5th" style={{...INP,marginBottom:14}}/>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>BIRTHDAY</div>
-          <input type="date" value={profile.birthDate||"2015-08-28"} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value,zodiac:"Virgo"}))} style={{...INP,marginBottom:6}}/>
-          <div style={{fontSize:10,color:C.gold,fontWeight:800,marginBottom:14}}>♍ Virgo daily vibe enabled</div>
+          <input value={birthMonthDay(profile.birthDate)} onChange={e=>setProfile(p=>({...p,birthDate:monthDayToBirthDate(e.target.value,p.birthDate),zodiac:"Virgo"}))} placeholder="Aug 28" style={{...INP,marginBottom:6,textAlign:"center"}}/>
+          <div style={{fontSize:10,color:C.gold,fontWeight:800,marginBottom:14}}>♍ Virgo daily vibe enabled · year hidden</div>
           <div style={{fontSize:11,color:C.muted,fontWeight:800,marginBottom:6}}>TEAM NAME (optional)</div>
           <input value={profile.teamName} onChange={e=>setProfile(p=>({...p,teamName:e.target.value}))} placeholder="e.g. Lady Eagles" style={{...INP,marginBottom:18}}/>
 
