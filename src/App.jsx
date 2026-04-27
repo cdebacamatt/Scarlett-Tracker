@@ -817,6 +817,26 @@ export default function ScarlettTracker(){
 
 
   useEffect(()=>{
+    const ensureMeta=(name,content,attr="name")=>{
+      let m=document.querySelector(`meta[${attr}="${name}"]`);
+      if(!m){m=document.createElement("meta");m.setAttribute(attr,name);document.head.appendChild(m);}
+      m.setAttribute("content",content);
+    };
+    ensureMeta("viewport","width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no");
+    ensureMeta("apple-mobile-web-app-capable","yes");
+    ensureMeta("mobile-web-app-capable","yes");
+    ensureMeta("apple-mobile-web-app-status-bar-style","black-translucent");
+    ensureMeta("theme-color","#080B0C");
+    document.documentElement.style.background="#080B0C";
+    document.documentElement.style.minHeight="100%";
+    document.body.style.background="#080B0C";
+    document.body.style.minHeight="100%";
+    document.body.style.margin="0";
+    document.body.style.overflowX="hidden";
+  },[]);
+
+
+  useEffect(()=>{
     if(!loaded)return;
     const flush=()=>{try{
       const payload=buildBackupPayload();
@@ -950,7 +970,7 @@ export default function ScarlettTracker(){
   const onEditFocus=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);setEditing(true);}};
   const onEditBlur=e=>{if(["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName)){clearTimeout(editBlurT.current);editBlurT.current=setTimeout(()=>setEditing(false),160);}};
 
-  if(!loaded)return<div style={{background:C.bg,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:14,fontFamily:"system-ui"}}><div style={{fontSize:52,filter:`drop-shadow(0 0 22px ${C.gold})`}}>⭐</div><div style={{fontWeight:900,fontSize:18,color:C.white}}>Loading {displayName(profile)}'s Glow Up...</div></div>;
+  if(!loaded)return<div style={{background:C.bg,minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:14,fontFamily:"system-ui"}}><div style={{fontSize:52,filter:`drop-shadow(0 0 22px ${C.gold})`}}>⭐</div><div style={{fontWeight:900,fontSize:18,color:C.white}}>Loading {displayName(profile)}'s Glow Up...</div></div>;
 
   const badgeData={games,practices,sleepEntries,subjects,goals,skills,dailyHist,shoeWish,styleLog,stars};
   const rewardCost=item=>{if(item?.cost)return item.cost;const p=String(item?.priority||"").toLowerCase();if(p.includes("dream"))return 3;if(p.includes("next"))return 2;return 1;};
@@ -2344,9 +2364,9 @@ export default function ScarlettTracker(){
 
   const CONTENT={today:Today,virgo:VirgoVibe,coach:Coach,hoops:Hoops,glow:MyGlow,wishlist:Wishlist,goals:Goals,progress:Progress};
 
-  return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(255,140,198,.12),transparent 30%),radial-gradient(circle at 92% 0%,rgba(216,168,94,.10),transparent 24%),linear-gradient(180deg,#080B0C,#101516 54%,#070909)",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
-    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} body{margin:0;overflow-x:hidden;background:#080B0C} input::placeholder,textarea::placeholder{color:rgba(247,244,236,.42)} .app-card-img{object-fit:contain!important;background:#F7F4EC}`}</style>
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",position:"relative",boxShadow:"0 0 100px rgba(255,140,198,.08)"}}>
+  return<div style={{background:"radial-gradient(circle at 12% -10%,rgba(255,140,198,.12),transparent 30%),radial-gradient(circle at 92% 0%,rgba(216,168,94,.10),transparent 24%),linear-gradient(180deg,#080B0C,#101516 54%,#070909)",minHeight:"100dvh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text}}>
+    <style>{`*{box-sizing:border-box} button,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;appearance:none} input,textarea,select{font-size:16px!important} ::-webkit-scrollbar{display:none} html,body,#root{margin:0;min-height:100%;width:100%;overflow-x:hidden;background:#080B0C} body{margin:0;overflow-x:hidden;background:#080B0C} input::placeholder,textarea::placeholder{color:rgba(247,244,236,.42)} .app-card-img{object-fit:contain!important;background:#F7F4EC}`}</style>
+    <div style={{width:"100%",maxWidth:430,margin:"0 auto",minHeight:"100dvh",position:"relative",boxShadow:"0 0 100px rgba(255,140,198,.08)"}}>
 
       <div style={{position:"sticky",top:0,zIndex:50,padding:"10px 14px 10px",background:"linear-gradient(180deg,rgba(8,11,12,.96),rgba(8,11,12,.86))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
@@ -2372,9 +2392,9 @@ export default function ScarlettTracker(){
         </div>
       </div>
 
-      {showSettings&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.88)",zIndex:100,display:"flex",alignItems:"flex-end"}} onClick={e=>{if(e.target===e.currentTarget)setShowSettings(false);}}>
-        <div style={{width:"100%",maxWidth:430,margin:"0 auto",background:C.card,borderRadius:"24px 24px 0 0",maxHeight:"92vh",overflowY:"auto",padding:24,paddingBottom:"calc(72px + env(safe-area-inset-bottom,0px))",boxShadow:"0 -24px 70px rgba(0,0,0,.65)"}}>
-          <div style={{position:"sticky",top:-24,zIndex:3,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,margin:"-24px -24px 20px",padding:"18px 24px 14px",background:"linear-gradient(180deg,rgba(20,24,25,.98),rgba(20,24,25,.92))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
+      {showSettings&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.82)",zIndex:100,display:"flex",alignItems:"stretch",justifyContent:"center"}} onClick={e=>{if(e.target===e.currentTarget)setShowSettings(false);}}>
+        <div style={{width:"100%",maxWidth:430,height:"100dvh",margin:"0 auto",background:C.card,borderRadius:0,overflowY:"auto",WebkitOverflowScrolling:"touch",padding:"0 24px calc(84px + env(safe-area-inset-bottom,0px))",boxShadow:"0 -24px 70px rgba(0,0,0,.65)"}}>
+          <div style={{position:"sticky",top:0,zIndex:3,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,margin:"0 -24px 20px",padding:"calc(14px + env(safe-area-inset-top,0px)) 24px 14px",background:"linear-gradient(180deg,rgba(20,24,25,.98),rgba(20,24,25,.92))",backdropFilter:"blur(18px)",borderBottom:"1px solid rgba(255,255,255,.08)"}}>
             <button onClick={()=>setShowSettings(false)} style={{display:"flex",alignItems:"center",gap:7,background:"rgba(255,255,255,.08)",border:`1px solid ${C.border}`,borderRadius:999,padding:"10px 13px",color:C.text,fontSize:13,fontWeight:900,cursor:"pointer",fontFamily:"system-ui"}}>← Back</button>
             <div style={{fontSize:18,fontWeight:950}}>Setup ⚙️</div>
             <button onClick={()=>setShowSettings(false)} style={{background:`linear-gradient(135deg,${C.pink},${C.teal})`,border:"none",borderRadius:999,padding:"10px 13px",minWidth:58,color:C.darkText,fontSize:13,fontWeight:950,cursor:"pointer",fontFamily:"system-ui"}}>Done</button>
