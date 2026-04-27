@@ -862,7 +862,7 @@ export default function ScarlettTracker(){
           </div>
           {showAffirm&&<div style={{marginTop:14,padding:12,borderRadius:16,background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.12)"}}>
             <div style={{fontSize:12,color:C.mauve,fontWeight:950,letterSpacing:"1px",marginBottom:6}}>MY AFFIRMATION</div>
-            <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="I am..." style={{...INP,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.13)",color:C.text,fontWeight:850}}/>
+            <input value={vitals.mantra||""} onChange={e=>setVitals(p=>({...p,mantra:e.target.value}))} placeholder="I am..." style={{...INP,background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.14)",color:C.text,fontWeight:850}}/>
           </div>}
         </div>
       </div>
@@ -1018,17 +1018,17 @@ export default function ScarlettTracker(){
       <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",border:"1px solid rgba(255,255,255,.12)"}}>
         <CH e="✨" title="Use the Virgo vibe" sub="Make the daily vibe useful, not just cute"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9,marginBottom:12}}>
-          <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.12)"}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.14)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.blush,marginBottom:5}}>LUCKY VIBE</div>
             <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.darkText}}>{horoscope.lucky}</div>
           </div>
-          <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.12)"}}>
+          <div style={{padding:13,borderRadius:18,background:"rgba(255,255,255,.055)",border:"1px solid rgba(255,255,255,.14)"}}>
             <div style={{fontSize:11,letterSpacing:"2px",fontWeight:950,color:C.gold,marginBottom:5}}>GLOW TIP</div>
             <div style={{fontSize:14,lineHeight:1.5,fontWeight:750,color:C.darkText}}>{horoscope.glowTip||"Keep it simple and finish one thing."}</div>
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9}}>
-          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.darkText,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.text,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
             <span style={{display:"flex",alignItems:"center",gap:10,fontWeight:900}}><span style={{fontSize:20}}>{a.icon}</span>{a.label}</span>
             <span style={{color:C.blush,fontWeight:950}}>→</span>
           </button>)}
@@ -1097,7 +1097,7 @@ export default function ScarlettTracker(){
       <div style={{...cs,background:"linear-gradient(145deg,rgba(34,32,35,.96),rgba(17,16,19,.99))",border:"1px solid rgba(255,255,255,.12)"}}>
         <CH e="✨" title="Use the tip" sub="Turn the coach message into action"/>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:9}}>
-          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.darkText,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
+          {quickActions.map(a=><button key={a.label} onClick={()=>setTab(a.go)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,padding:14,borderRadius:18,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.045)",color:C.text,cursor:"pointer",fontFamily:"system-ui",textAlign:"left"}}>
             <span style={{display:"flex",alignItems:"center",gap:10,fontWeight:900}}><span style={{fontSize:20}}>{a.icon}</span>{a.label}</span>
             <span style={{color:C.blush,fontWeight:950}}>→</span>
           </button>)}
